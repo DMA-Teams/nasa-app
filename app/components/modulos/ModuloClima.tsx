@@ -1,6 +1,7 @@
 // Módulo 1: cómo es el clima de la zona, con datos de NASA POWER.
 import { listaMeses, MESES_LARGOS } from "@/lib/motor";
 import type { ClimaZona } from "@/lib/tipos";
+import { Escena } from "../dibujos";
 import { GraficaMensual } from "../GraficaMensual";
 import { IconoAlerta } from "../ui";
 
@@ -24,23 +25,25 @@ export function ModuloClima({ clima }: { clima: ClimaZona }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <Escena tipo={clima.tipo} className="h-28" />
+
       <div className="flex flex-col gap-1.5">
-        <h2 className="font-display text-[26px] leading-tight font-bold text-balance">{titulo}</h2>
-        <p className="text-[15px] leading-relaxed text-muted-foreground">{explicacion}</p>
+        <h2 className="font-display text-[30px] leading-[1.05] font-extrabold text-balance">{titulo}</h2>
+        <p className="text-[17px] leading-relaxed">{explicacion}</p>
       </div>
 
       <GraficaMensual meses={m} resaltados={clima.mesesDificiles} />
 
       {clima.tipo !== "lluviosa" && (
-        <div className="flex items-center gap-2.5 rounded-xl border border-zona-seca px-3.5 py-2.5 text-sm">
-          <IconoAlerta className="size-5 shrink-0 text-highlight" />
+        <div className="flex items-center gap-3 rounded-2xl bg-zona-seca/35 px-4 py-3 text-base leading-snug">
+          <IconoAlerta className="size-6 shrink-0 text-highlight" />
           <span>
             <strong>{clima.peorAnio.anio} fue el peor año:</strong> solo {clima.peorAnio.lluvia} mm en julio y agosto.
           </span>
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-[13px] text-muted-foreground">
         Fuente: {clima.dataset} ({clima.variables.join(", ")}), {clima.periodo.inicio.slice(0, 4)}–{clima.periodo.fin.slice(0, 4)}.{" "}
         {clima.fuente === "en-vivo" ? "Consulta en vivo." : `Datos de respaldo guardados el ${clima.consultado}.`}
       </p>

@@ -1,6 +1,6 @@
 # Tokens de diseño
 
-Cuatro temas listos para que tu prototipo no se vea "de plantilla". Todos pasan contraste WCAG AA (texto principal AAA).
+Cinco temas listos para que tu prototipo no se vea "de plantilla". Todos pasan contraste WCAG AA (texto principal AAA).
 
 | Tema | Modo | Ambiente | Para |
 |---|---|---|---|
@@ -8,6 +8,7 @@ Cuatro temas listos para que tu prototipo no se vea "de plantilla". Todos pasan 
 | `tierra` | Claro | Herramienta de campo clara y confiable | Agricultura, incendios, comunidades. |
 | `marte` | Oscuro | Expedición planetaria, óxido y polvo | Luna, Marte, misiones. |
 | `cadete` | Claro | Juego alegre de botones grandes | Niños de 7 a 12 años. |
+| `milpa` | Claro | Cuaderno de campo cálido, con dibujos a color | Agricultores y comunidades rurales con poca lectura. |
 
 ## Cómo usarlos
 

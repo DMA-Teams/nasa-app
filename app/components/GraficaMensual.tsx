@@ -7,30 +7,30 @@ export function GraficaMensual({ meses, resaltados }: { meses: MesClima[]; resal
   const tope = Math.ceil(max / 100) * 100;
 
   return (
-    <figure className="flex flex-col gap-2.5 rounded-2xl bg-background p-4">
+    <figure className="flex flex-col gap-3 rounded-2xl bg-background p-4">
       <figcaption className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-sm font-semibold">Promedio por mes, en mm</span>
-        <span className="flex gap-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><i className="size-2.5 rounded-sm bg-chart-3" />Lluvia</span>
-          <span className="inline-flex items-center gap-1.5"><i className="size-2.5 rounded-sm bg-highlight" />Se evapora</span>
+        <span className="text-base font-bold">Agua de cada mes</span>
+        <span className="flex gap-3 text-sm">
+          <span className="inline-flex items-center gap-1.5"><i className="size-3 rounded-full bg-chart-3" />Llueve</span>
+          <span className="inline-flex items-center gap-1.5"><i className="size-3 rounded-full bg-decor-sol" />Se seca</span>
         </span>
       </figcaption>
       <div className="relative">
-        <span className="absolute -top-1 right-0 font-mono text-[10px] text-muted-foreground">{tope}</span>
-        <div className="grid h-32 grid-cols-12 items-end gap-1 border-b border-border">
+        <span className="absolute -top-1 right-0 font-mono text-[11px] text-muted-foreground">{tope} mm</span>
+        <div className="grid h-36 grid-cols-12 items-end gap-1 border-b-2 border-border">
           {meses.map((m) => (
             <div
               key={m.mes}
-              className={`flex h-full items-end justify-center gap-px rounded-t ${resaltados.includes(m.mes) ? "bg-zona-seca/35" : ""}`}
+              className={`flex h-full items-end justify-center gap-px rounded-t-lg ${resaltados.includes(m.mes) ? "bg-zona-seca/40" : ""}`}
               title={`${MESES[m.mes - 1]}: ${m.lluvia} mm de lluvia, ${m.evaporacion} mm se evaporan`}
             >
-              <span className="w-[38%] rounded-t-sm bg-chart-3" style={{ height: `${(m.lluvia / tope) * 100}%` }} />
-              <span className="w-[38%] rounded-t-sm bg-highlight" style={{ height: `${(m.evaporacion / tope) * 100}%` }} />
+              <span className="w-[42%] rounded-t-full bg-chart-3" style={{ height: `${(m.lluvia / tope) * 100}%` }} />
+              <span className="w-[42%] rounded-t-full bg-decor-sol" style={{ height: `${(m.evaporacion / tope) * 100}%` }} />
             </div>
           ))}
         </div>
       </div>
-      <div className="grid grid-cols-12 gap-1 text-center text-[11px] text-muted-foreground">
+      <div className="grid grid-cols-12 gap-1 text-center text-[13px] text-muted-foreground">
         {meses.map((m) => (
           <span key={m.mes} className={resaltados.includes(m.mes) ? "font-bold text-foreground" : ""}>
             {MESES[m.mes - 1].slice(0, 1)}

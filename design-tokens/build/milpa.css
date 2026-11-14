@@ -1,0 +1,104 @@
+/* Tema Milpa · generado por scripts/build-tokens.mjs desde design-tokens/tokens.json. No editar a mano. */
+/* Cuaderno de campo cálido para agricultores: fondo color tusa, verde milpa, rojo achiote para lo importante y dibujos a color. */
+/* Fuentes: agrega en <head> → <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap"> (o usa next/font con las mismas familias). */
+/* Uso: pega este archivo en app/globals.css debajo de @import "tailwindcss"; (Next.js + Tailwind v4 + shadcn/ui, igual en v0 y Lovable). */
+
+:root {
+  color-scheme: light;
+
+  /* Variables de shadcn/ui */
+  --background: #FBF3DC;
+  --foreground: #2B1D0E;
+  --card: #FFFDF6;
+  --card-foreground: #2B1D0E;
+  --popover: #FFFDF6;
+  --popover-foreground: #2B1D0E;
+  --primary: #1F7A3D;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F3E7C4;
+  --secondary-foreground: #2B1D0E;
+  --muted: #F3E7C4;
+  --muted-foreground: #65502F;
+  --accent: #F3E7C4;
+  --accent-foreground: #2B1D0E;
+  --destructive: #B3261E;
+  --border: #DCCB9C;
+  --input: #DCCB9C;
+  --ring: #1F7A3D;
+  --chart-1: #1F7A3D;
+  --chart-2: #C7381A;
+  --chart-3: #1D6FB8;
+  --chart-4: #7A4FB5;
+  --chart-5: #96600A;
+  --radius: 16px;
+
+  /* Extras de Space Apps Starter */
+  --highlight: #C7381A;
+  --highlight-foreground: #FFFFFF;
+  --success: #1F7A3D;
+  --warning: #96600A;
+  --risk-low: #1F7A3D;
+  --risk-medium: #96600A;
+  --risk-high: #B3261E;
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --touch-target: 44px;
+  --decor-sol: #F5B921;
+  --decor-cielo: #BFE3F2;
+  --decor-hoja: #58A84A;
+  --decor-suelo: #8A5A2B;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-risk-low: var(--risk-low);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-high: var(--risk-high);
+  --color-decor-sol: var(--decor-sol);
+  --color-decor-cielo: var(--decor-cielo);
+  --color-decor-hoja: var(--decor-hoja);
+  --color-decor-suelo: var(--decor-suelo);
+  --font-display: "Baloo 2", ui-rounded, system-ui, sans-serif;
+  --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 6px);
+  --ease-out-strong: var(--ease-out-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -17,7 +17,7 @@ import { ModuloPlan } from "./modulos/ModuloPlan";
 import { ModuloTierra } from "./modulos/ModuloTierra";
 import { PanelInicio, type Ejemplo } from "./PanelInicio";
 import { PanelUbicacion } from "./PanelUbicacion";
-import { BotonPrimario, BotonSecundario, ChipZona, IconoAtras, IconoBrote, IconoCubo } from "./ui";
+import { BotonPrimario, BotonSecundario, ChipZona, IconoAtras, IconoBrote, IconoCalendario, IconoCapas, IconoCheck, IconoCubo, IconoSol } from "./ui";
 
 // MapLibre necesita el navegador: no se renderiza en el servidor
 const MapaReal = dynamic(() => import("./MapaReal").then((m) => m.MapaReal), {
@@ -29,16 +29,16 @@ const departamentos = departamentosJson as DepartamentosGeoJSON;
 
 type Paso = "inicio" | "ubicacion" | "clima" | "cultivos" | "tierra" | "plan";
 const MODULOS = [
-  { paso: "clima", etiqueta: "Clima" },
-  { paso: "cultivos", etiqueta: "Cultivos" },
-  { paso: "tierra", etiqueta: "Tierra" },
-  { paso: "plan", etiqueta: "Plan" },
+  { paso: "clima", etiqueta: "Clima", Icono: IconoSol },
+  { paso: "cultivos", etiqueta: "Cultivos", Icono: IconoBrote },
+  { paso: "tierra", etiqueta: "Tierra", Icono: IconoCapas },
+  { paso: "plan", etiqueta: "Plan", Icono: IconoCalendario },
 ] as const;
 
 // Casos del pitch: Lempira (canícula fuerte) y Atlántida (exceso de lluvia)
 const EJEMPLOS: Ejemplo[] = [
-  { etiqueta: "Lempira", detalle: "Zona seca", lat: 14.3, lon: -88.6 },
-  { etiqueta: "Atlántida", detalle: "Zona lluviosa", lat: 15.7, lon: -86.9 },
+  { etiqueta: "Lempira", detalle: "Aquí falta agua", tipo: "seca", lat: 14.3, lon: -88.6 },
+  { etiqueta: "Atlántida", detalle: "Aquí sobra agua", tipo: "lluviosa", lat: 15.7, lon: -86.9 },
 ];
 
 export function Explorador({ celdas }: { celdas: Celda[] }) {
@@ -138,22 +138,22 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
 
         <header className="pointer-events-none absolute top-0 left-0 z-10 flex items-center gap-3 p-4">
           {paso === "inicio" ? (
-            <div className="pointer-events-auto flex items-center gap-3 rounded-2xl bg-card/90 py-2 pr-4 pl-2 shadow-sm backdrop-blur">
-              <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <div className="pointer-events-auto flex items-center gap-2.5 rounded-full bg-card py-1.5 pr-5 pl-1.5 shadow-[0_3px_0_rgb(43_29_14/0.25)]">
+              <span className="flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <IconoBrote className="size-6" />
               </span>
               <span className="flex flex-col">
-                <span className="font-display text-lg leading-tight font-bold">Mi Parcela</span>
-                <span className="text-xs text-muted-foreground">Honduras con datos de NASA</span>
+                <span className="font-display text-[22px] leading-none font-extrabold">Mi Parcela</span>
+                <span className="text-[13px] leading-tight text-muted-foreground">Honduras con datos de NASA</span>
               </span>
             </div>
           ) : (
             <button
               type="button"
               onClick={volverAlMapa}
-              className="pointer-events-auto flex h-11 items-center gap-1.5 rounded-full bg-card px-4 text-[15px] font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-ring"
+              className="pointer-events-auto flex h-12 items-center gap-1.5 rounded-full bg-card pr-5 pl-3.5 text-[17px] font-bold shadow-[0_3px_0_rgb(43_29_14/0.25)] transition-transform duration-150 ease-out-strong active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-ring"
             >
-              <IconoAtras className="size-4.5" />
+              <IconoAtras className="size-5" />
               Mapa
             </button>
           )}
@@ -164,7 +164,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
             {capa === "clima" ? (
               (Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />)
             ) : (
-              <span className="inline-flex items-center gap-2 rounded-full bg-card/90 px-3 py-1 text-xs font-medium shadow-sm">
+              <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] font-bold shadow-sm">
                 0 m
                 <i
                   className="h-2.5 w-24 rounded-full"
@@ -186,8 +186,8 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
                   type="button"
                   aria-pressed={capa === c}
                   onClick={() => setCapa(c)}
-                  className={`h-9 rounded-full px-3.5 text-sm font-semibold capitalize transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-ring ${
-                    capa === c ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  className={`h-10 rounded-full px-4 text-[15px] font-bold capitalize transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-ring ${
+                    capa === c ? "bg-primary text-primary-foreground" : "text-foreground"
                   }`}
                 >
                   {c}
@@ -198,7 +198,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
               type="button"
               aria-pressed={inclinado}
               onClick={() => setInclinado(!inclinado)}
-              className="flex h-11 items-center gap-1.5 rounded-full bg-card px-3.5 text-sm font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-ring"
+              className="flex h-12 items-center gap-1.5 rounded-full bg-card px-4 text-[15px] font-bold shadow-sm focus-visible:outline-2 focus-visible:outline-ring"
             >
               <IconoCubo className="size-4.5" />
               {inclinado ? "3D" : "Plano"}
@@ -208,9 +208,10 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
       </section>
 
       {/* Panel */}
-      <aside className="relative z-20 -mt-5 max-h-[58dvh] w-full overflow-y-auto rounded-t-3xl bg-card shadow-[0_-8px_24px_rgb(20_33_27/0.18)] md:mt-0 md:max-h-none md:w-[440px] md:rounded-none md:border-l md:border-border md:shadow-none">
-        <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-border md:hidden" aria-hidden="true" />
-        <div className="flex flex-col gap-5 p-5 pb-8">
+      <aside className="relative z-20 -mt-6 max-h-[60dvh] w-full overflow-y-auto rounded-t-[28px] bg-card shadow-[0_-8px_24px_rgb(43_29_14/0.22)] md:mt-0 md:max-h-none md:w-[460px] md:rounded-none md:shadow-[-8px_0_24px_rgb(43_29_14/0.18)]">
+        <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-border md:hidden" aria-hidden="true" />
+        {/* La key hace que el contenido entre suave cada vez que cambia el paso */}
+        <div key={paso} className="entrar-paso flex flex-col gap-5 p-5 pb-8 md:p-7">
           {paso === "inicio" && (
             <PanelInicio
               celdas={celdas}
@@ -228,23 +229,40 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
 
           {indiceModulo >= 0 && punto && (
             <>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-display text-xl font-bold">{punto.departamento}</span>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="font-display text-[22px] leading-none font-extrabold">{punto.departamento}</span>
                   {tipoZona && <ChipZona tipo={tipoZona} />}
                 </div>
-                <ol className="grid grid-cols-4 gap-1.5" aria-label={`Paso ${indiceModulo + 1} de 4`}>
-                  {MODULOS.map((m, i) => (
-                    <li key={m.paso} className="flex flex-col gap-1" aria-current={i === indiceModulo ? "step" : undefined}>
-                      <span className={`h-1 rounded-full ${i <= indiceModulo ? "bg-primary" : "bg-border"}`} />
-                      <span className={`text-xs ${i === indiceModulo ? "font-semibold" : "text-muted-foreground"}`}>{m.etiqueta}</span>
+                {/* Camino de 4 pasos: los hechos llevan palomita, el actual es el grande */}
+                <ol className="relative grid grid-cols-4" aria-label={`Paso ${indiceModulo + 1} de 4`}>
+                  <span className="absolute top-5 right-[12.5%] left-[12.5%] h-1 -translate-y-1/2 rounded-full bg-border" aria-hidden="true">
+                    <span
+                      className="block h-full origin-left rounded-full bg-primary transition-transform duration-300 ease-out-strong"
+                      style={{ transform: `scaleX(${indiceModulo / (MODULOS.length - 1)})` }}
+                    />
+                  </span>
+                  {MODULOS.map(({ paso: p, etiqueta, Icono }, i) => (
+                    <li key={p} className="relative flex flex-col items-center gap-1" aria-current={i === indiceModulo ? "step" : undefined}>
+                      <span
+                        className={`flex size-10 items-center justify-center rounded-full border-[3px] ${
+                          i < indiceModulo
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : i === indiceModulo
+                              ? "scale-110 border-primary bg-card text-primary"
+                              : "border-border bg-card text-muted-foreground"
+                        }`}
+                      >
+                        {i < indiceModulo ? <IconoCheck className="size-5" /> : <Icono className="size-5" />}
+                      </span>
+                      <span className={`text-sm ${i === indiceModulo ? "font-bold" : "text-muted-foreground"}`}>{etiqueta}</span>
                     </li>
                   ))}
                 </ol>
               </div>
 
               {!clima || !resultado || !rotacionElegida ? (
-                <p role="status" className="py-10 text-center text-muted-foreground">Consultando NASA POWER…</p>
+                <p role="status" className="animate-pulse py-10 text-center text-[17px] font-bold text-muted-foreground">Preguntando a NASA POWER cómo llueve aquí…</p>
               ) : (
                 <>
                   {paso === "clima" && <ModuloClima clima={clima} />}
@@ -258,14 +276,14 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
                 </>
               )}
 
-              <div className="grid grid-cols-[1fr_2fr] gap-2.5">
-                <BotonSecundario onClick={() => irModulo(indiceModulo - 1)}>Atrás</BotonSecundario>
+              <div className="grid grid-cols-[1fr_2fr] items-start gap-3">
+                <BotonSecundario className="min-h-15" onClick={() => irModulo(indiceModulo - 1)}>Atrás</BotonSecundario>
                 {indiceModulo < MODULOS.length - 1 ? (
                   <BotonPrimario onClick={() => irModulo(indiceModulo + 1)} disabled={!clima}>
                     {["Siguiente", "Ver mi tierra", "Ver mi plan"][indiceModulo]}
                   </BotonPrimario>
                 ) : (
-                  <BotonSecundario onClick={volverAlMapa}>Revisar otra zona</BotonSecundario>
+                  <BotonSecundario className="min-h-15" onClick={volverAlMapa}>Ver otro lugar</BotonSecundario>
                 )}
               </div>
             </>
@@ -278,8 +296,8 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
 
 function Leyenda({ color, texto }: { color: string; texto: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-card/90 px-2 py-0.5 text-[11px] font-medium shadow-sm md:px-2.5 md:py-1 md:text-xs">
-      <i className="size-3 rounded-[3px]" style={{ background: color }} />
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-[13px] font-bold shadow-sm">
+      <i className="size-3.5 rounded-full" style={{ background: color }} />
       {texto}
     </span>
   );

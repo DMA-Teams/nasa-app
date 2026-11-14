@@ -59,6 +59,8 @@ function css(name, t) {
   const f = fontsFor(t);
   const s = tokens.shared;
   const radius = s.radius[t.radius];
+  // Colores de ilustración (opcionales): solo para dibujos, nunca para texto, por eso no se valida su contraste
+  const decor = Object.entries(c.decor ?? {});
   return `/* Tema ${t.label} · generado por scripts/build-tokens.mjs desde design-tokens/tokens.json. No editar a mano. */
 /* ${t.mood} */
 /* Fuentes: agrega en <head> → <link rel="stylesheet" href="${googleHref(f)}"> (o usa next/font con las mismas familias). */
@@ -102,7 +104,8 @@ ${c.chart.map((v, i) => `  --chart-${i + 1}: ${v};`).join("\n")}
   --duration-fast: ${s.motion.fast};
   --duration-base: ${s.motion.base};
   --duration-slow: ${s.motion.slow};
-  --touch-target: ${s.touchTarget};
+  --touch-target: ${s.touchTarget};${decor.map(([k, v]) => `
+  --decor-${k}: ${v};`).join("")}
 }
 
 @theme inline {
@@ -131,7 +134,8 @@ ${c.chart.map((_, i) => `  --color-chart-${i + 1}: var(--chart-${i + 1});`).join
   --color-warning: var(--warning);
   --color-risk-low: var(--risk-low);
   --color-risk-medium: var(--risk-medium);
-  --color-risk-high: var(--risk-high);
+  --color-risk-high: var(--risk-high);${decor.map(([k]) => `
+  --color-decor-${k}: var(--decor-${k});`).join("")}
   --font-display: ${stack(f.display)};
   --font-sans: ${stack(f.body)};
   --font-mono: ${stack(f.mono)};

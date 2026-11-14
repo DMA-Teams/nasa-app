@@ -1,51 +1,54 @@
 @import "tailwindcss";
 
-/* Tema Tierra · copiado de design-tokens/build/tierra.css (generado por npm run tokens en la raíz).
+/* Tema Milpa · copiado de design-tokens/build/milpa.css (generado por npm run tokens en la raíz).
    Si cambian los tokens, vuelve a copiar este bloque. Las fuentes vienen de next/font (layout.tsx). */
 :root {
   color-scheme: light;
 
   /* Variables de shadcn/ui */
-  --background: #F7F8F4;
-  --foreground: #14211B;
-  --card: #FFFFFF;
-  --card-foreground: #14211B;
-  --popover: #FFFFFF;
-  --popover-foreground: #14211B;
-  --primary: #1F6F5C;
+  --background: #FBF3DC;
+  --foreground: #2B1D0E;
+  --card: #FFFDF6;
+  --card-foreground: #2B1D0E;
+  --popover: #FFFDF6;
+  --popover-foreground: #2B1D0E;
+  --primary: #1F7A3D;
   --primary-foreground: #FFFFFF;
-  --secondary: #EEF1EA;
-  --secondary-foreground: #14211B;
-  --muted: #EEF1EA;
-  --muted-foreground: #4E5D55;
-  --accent: #EEF1EA;
-  --accent-foreground: #14211B;
-  --destructive: #B91C1C;
-  --border: #D5DBD0;
-  --input: #D5DBD0;
-  --ring: #1F6F5C;
-  --chart-1: #1F6F5C;
-  --chart-2: #C2410C;
-  --chart-3: #2563EB;
-  --chart-4: #7C3AED;
-  --chart-5: #A16207;
-  --radius: 10px;
+  --secondary: #F3E7C4;
+  --secondary-foreground: #2B1D0E;
+  --muted: #F3E7C4;
+  --muted-foreground: #65502F;
+  --accent: #F3E7C4;
+  --accent-foreground: #2B1D0E;
+  --destructive: #B3261E;
+  --border: #DCCB9C;
+  --input: #DCCB9C;
+  --ring: #1F7A3D;
+  --chart-1: #1F7A3D;
+  --chart-2: #C7381A;
+  --chart-3: #1D6FB8;
+  --chart-4: #7A4FB5;
+  --chart-5: #96600A;
+  --radius: 16px;
 
   /* Extras de Space Apps Starter */
-  --highlight: #C2410C;
+  --highlight: #C7381A;
   --highlight-foreground: #FFFFFF;
-  --success: #15803D;
-  --warning: #A16207;
-  --risk-low: #15803D;
-  --risk-medium: #A16207;
-  --risk-high: #B91C1C;
+  --success: #1F7A3D;
+  --warning: #96600A;
+  --risk-low: #1F7A3D;
+  --risk-medium: #96600A;
+  --risk-high: #B3261E;
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
   --duration-fast: 150ms;
   --duration-base: 200ms;
   --duration-slow: 300ms;
   --touch-target: 44px;
-
+  --decor-sol: #F5B921;
+  --decor-cielo: #BFE3F2;
+  --decor-hoja: #58A84A;
+  --decor-suelo: #8A5A2B;
   /* Colores del mapa, derivados de los tokens (no son colores nuevos) */
   --zona-seca: color-mix(in oklab, var(--highlight) 42%, var(--card));
   --zona-equilibrada: color-mix(in oklab, var(--primary) 32%, var(--card));
@@ -55,6 +58,8 @@
   --relieve-montana: color-mix(in oklab, var(--warning) 70%, var(--foreground));
   --mapa-lado: color-mix(in oklab, var(--foreground) 60%, var(--primary));
   --mapa-fondo: color-mix(in oklab, var(--chart-3) 10%, var(--background));
+  /* Borde inferior "con peso" de los botones grandes */
+  --primary-sombra: color-mix(in oklab, var(--primary) 70%, var(--foreground));
 }
 
 @theme inline {
@@ -88,6 +93,10 @@
   --color-risk-low: var(--risk-low);
   --color-risk-medium: var(--risk-medium);
   --color-risk-high: var(--risk-high);
+  --color-decor-sol: var(--decor-sol);
+  --color-decor-cielo: var(--decor-cielo);
+  --color-decor-hoja: var(--decor-hoja);
+  --color-decor-suelo: var(--decor-suelo);
   --color-zona-seca: var(--zona-seca);
   --color-zona-equilibrada: var(--zona-equilibrada);
   --color-zona-lluviosa: var(--zona-lluviosa);
@@ -95,8 +104,9 @@
   --color-relieve-medio: var(--relieve-medio);
   --color-relieve-montana: var(--relieve-montana);
   --color-mapa-fondo: var(--mapa-fondo);
-  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-primary-sombra: var(--primary-sombra);
+  --font-display: var(--font-baloo), ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: var(--radius);
@@ -114,6 +124,37 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* El panel entra suave cada vez que cambia de paso (una sola animación, corta) */
+@keyframes entrar-paso {
+  from { opacity: 0; transform: translateY(8px); }
+}
+.entrar-paso {
+  animation: entrar-paso var(--duration-slow) var(--ease-out-strong);
+}
+
+/* La lluvia de los dibujos cae despacio; el sol gira apenas */
+@keyframes caer-gota {
+  from { transform: translateY(-3px); opacity: 0; }
+  30% { opacity: 1; }
+  to { transform: translateY(5px); opacity: 0; }
+}
+.gota {
+  animation: caer-gota 1.4s linear infinite;
+}
+@keyframes girar-sol {
+  to { transform: rotate(360deg); }
+}
+.rayos {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: girar-sol 40s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gota, .rayos {
+    animation: none;
+  }
 }
 
 /* En el celular el mapa se mueve con los dedos: sin botones de zoom */
