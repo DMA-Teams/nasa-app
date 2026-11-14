@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+/* Tema Tierra · copiado de design-tokens/build/tierra.css (generado por npm run tokens en la raíz).
+   Si cambian los tokens, vuelve a copiar este bloque. Las fuentes vienen de next/font (layout.tsx). */
+:root {
+  color-scheme: light;
+
+  /* Variables de shadcn/ui */
+  --background: #F7F8F4;
+  --foreground: #14211B;
+  --card: #FFFFFF;
+  --card-foreground: #14211B;
+  --popover: #FFFFFF;
+  --popover-foreground: #14211B;
+  --primary: #1F6F5C;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EEF1EA;
+  --secondary-foreground: #14211B;
+  --muted: #EEF1EA;
+  --muted-foreground: #4E5D55;
+  --accent: #EEF1EA;
+  --accent-foreground: #14211B;
+  --destructive: #B91C1C;
+  --border: #D5DBD0;
+  --input: #D5DBD0;
+  --ring: #1F6F5C;
+  --chart-1: #1F6F5C;
+  --chart-2: #C2410C;
+  --chart-3: #2563EB;
+  --chart-4: #7C3AED;
+  --chart-5: #A16207;
+  --radius: 10px;
+
+  /* Extras de Space Apps Starter */
+  --highlight: #C2410C;
+  --highlight-foreground: #FFFFFF;
+  --success: #15803D;
+  --warning: #A16207;
+  --risk-low: #15803D;
+  --risk-medium: #A16207;
+  --risk-high: #B91C1C;
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --touch-target: 44px;
+
+  /* Colores del mapa, derivados de los tokens (no son colores nuevos) */
+  --zona-seca: color-mix(in oklab, var(--highlight) 42%, var(--card));
+  --zona-equilibrada: color-mix(in oklab, var(--primary) 32%, var(--card));
+  --zona-lluviosa: color-mix(in oklab, var(--chart-3) 40%, var(--card));
+  --relieve-bajo: color-mix(in oklab, var(--success) 22%, var(--card));
+  --relieve-medio: color-mix(in oklab, var(--warning) 40%, var(--card));
+  --relieve-montana: color-mix(in oklab, var(--warning) 70%, var(--foreground));
+  --mapa-lado: color-mix(in oklab, var(--foreground) 60%, var(--primary));
+  --mapa-fondo: color-mix(in oklab, var(--chart-3) 10%, var(--background));
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-risk-low: var(--risk-low);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-high: var(--risk-high);
+  --color-zona-seca: var(--zona-seca);
+  --color-zona-equilibrada: var(--zona-equilibrada);
+  --color-zona-lluviosa: var(--zona-lluviosa);
+  --color-relieve-bajo: var(--relieve-bajo);
+  --color-relieve-medio: var(--relieve-medio);
+  --color-relieve-montana: var(--relieve-montana);
+  --color-mapa-fondo: var(--mapa-fondo);
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 6px);
+  --ease-out-strong: var(--ease-out-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* En el celular el mapa se mueve con los dedos: sin botones de zoom */
+@media (max-width: 767px) {
+  .maplibregl-ctrl-top-right .maplibregl-ctrl-group {
+    display: none;
+  }
+}

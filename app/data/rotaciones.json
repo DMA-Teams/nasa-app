@@ -1,0 +1,29 @@
+{
+  "nota": "Rotaciones que la app puede sugerir. 'zonas' dice en qué tipo de zona tiene sentido cada una.",
+  "rotaciones": [
+    {
+      "id": "maiz-abono",
+      "nombre": "Maíz con frijol abono",
+      "descripcion": "Cubre la tierra en la temporada difícil y la alimenta",
+      "zonas": ["seca", "equilibrada", "lluviosa"],
+      "anio1": { "primera": ["maiz", "frijolAbono"], "postrera": ["frijol"] },
+      "anio2": { "primera": ["maiz", "frijolAbono"], "postrera": ["frijolAbono"] }
+    },
+    {
+      "id": "maiz-sorgo",
+      "nombre": "Maíz con sorgo",
+      "descripcion": "El sorgo aguanta mejor la falta de agua",
+      "zonas": ["seca", "equilibrada"],
+      "anio1": { "primera": ["maiz", "sorgo"], "postrera": ["frijol"] },
+      "anio2": { "primera": ["sorgo", "frijolAbono"], "postrera": ["frijol"] }
+    },
+    {
+      "id": "frijol-primera",
+      "nombre": "Frijol en primera, maíz cubierto en postrera",
+      "descripcion": "Aleja el frijol de los aguaceros de fin de año",
+      "zonas": ["lluviosa"],
+      "anio1": { "primera": ["frijol"], "postrera": ["maiz", "frijolAbono"] },
+      "anio2": { "primera": ["frijol"], "postrera": ["maiz", "frijolAbono"] }
+    }
+  ]
+}

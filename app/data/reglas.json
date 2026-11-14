@@ -1,0 +1,41 @@
+{
+  "nota": "Valores iniciales para el prototipo (simulado). Revisar con FAO ECOCROP y un técnico agrícola antes del demo, y citar la fuente final en la app.",
+  "cultivos": [
+    {
+      "id": "maiz",
+      "nombre": "Maíz",
+      "toleraSequia": "poco",
+      "toleraEncharcamiento": "poco",
+      "mesesCubreSuelo": 4,
+      "aportaNitrogeno": false,
+      "ingreso": "medio"
+    },
+    {
+      "id": "frijol",
+      "nombre": "Frijol",
+      "toleraSequia": "poco",
+      "toleraEncharcamiento": "poco",
+      "mesesCubreSuelo": 3,
+      "aportaNitrogeno": true,
+      "ingreso": "alto"
+    },
+    {
+      "id": "sorgo",
+      "nombre": "Sorgo",
+      "toleraSequia": "bien",
+      "toleraEncharcamiento": "regular",
+      "mesesCubreSuelo": 4,
+      "aportaNitrogeno": false,
+      "ingreso": "bajo"
+    },
+    {
+      "id": "frijolAbono",
+      "nombre": "Frijol abono",
+      "toleraSequia": "regular",
+      "toleraEncharcamiento": "regular",
+      "mesesCubreSuelo": 6,
+      "aportaNitrogeno": true,
+      "ingreso": "bajo"
+    }
+  ]
+}
