@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.local
+.vercel/
+.next/
+.DS_Store
+__pycache__/
+.claude/settings.local.json

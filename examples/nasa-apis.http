@@ -1,0 +1,18 @@
+### Ejemplos de APIs NASA (funcionan con la extensión REST Client de VS Code o copiando la URL al navegador)
+### Coordenadas: San Pedro Sula, Honduras (lat 15.50, lon -88.03)
+
+### 1) NASA POWER: lluvia, temperatura y humedad diaria (sin clave)
+GET https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR,T2M,RH2M&community=AG&latitude=15.50&longitude=-88.03&start=20261001&end=20261031&format=JSON
+
+### 2) EONET: eventos naturales abiertos cerca de Honduras (sin clave)
+GET https://eonet.gsfc.nasa.gov/api/v3/events?status=open&bbox=-89.5,17.5,-83.0,12.9
+
+### 3) CMR: buscar colecciones de lluvia GPM IMERG (sin clave)
+GET https://cmr.earthdata.nasa.gov/search/collections.json?keyword=GPM%20IMERG&page_size=5
+
+### 4) FIRMS: incendios activos en Honduras, últimos 2 días (requiere MAP_KEY gratis)
+@firmsKey = TU_MAP_KEY
+GET https://firms.modaps.eosdis.nasa.gov/api/area/csv/{{firmsKey}}/VIIRS_SNPP_NRT/-89.4,12.9,-83.1,16.5/2
+
+### 5) APOD: foto astronómica del día (DEMO_KEY para pruebas)
+GET https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY

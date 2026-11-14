@@ -1,0 +1,96 @@
+/* Tema Órbita · generado por scripts/build-tokens.mjs desde design-tokens/tokens.json. No editar a mano. */
+/* Centro de control de misión de noche: azul profundo, datos en cian, acentos naranja de alerta. */
+/* Fuentes: agrega en <head> → <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap"> (o usa next/font con las mismas familias). */
+/* Uso: pega este archivo en app/globals.css debajo de @import "tailwindcss"; (Next.js + Tailwind v4 + shadcn/ui, igual en v0 y Lovable). */
+
+:root {
+  color-scheme: dark;
+
+  /* Variables de shadcn/ui */
+  --background: #0B1020;
+  --foreground: #E8ECF7;
+  --card: #131A2E;
+  --card-foreground: #E8ECF7;
+  --popover: #131A2E;
+  --popover-foreground: #E8ECF7;
+  --primary: #4CC3FF;
+  --primary-foreground: #06121F;
+  --secondary: #1C2540;
+  --secondary-foreground: #E8ECF7;
+  --muted: #1C2540;
+  --muted-foreground: #A3ADC8;
+  --accent: #1C2540;
+  --accent-foreground: #E8ECF7;
+  --destructive: #FF6B78;
+  --border: #2A3557;
+  --input: #2A3557;
+  --ring: #4CC3FF;
+  --chart-1: #4CC3FF;
+  --chart-2: #FF8A3D;
+  --chart-3: #3DDC97;
+  --chart-4: #C79BFF;
+  --chart-5: #FFC857;
+  --radius: 10px;
+
+  /* Extras de Space Apps Starter */
+  --highlight: #FF8A3D;
+  --highlight-foreground: #1A0B00;
+  --success: #3DDC97;
+  --warning: #FFC857;
+  --risk-low: #3DDC97;
+  --risk-medium: #FFC857;
+  --risk-high: #FF6B78;
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --touch-target: 44px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-risk-low: var(--risk-low);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-high: var(--risk-high);
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 6px);
+  --ease-out-strong: var(--ease-out-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "space-apps-starter",
+  "private": true,
+  "description": "Kit de skills, prompts y tokens de diseño para NASA Space Apps San Pedro Sula 2026",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "tokens": "node scripts/build-tokens.mjs",
+    "skills:sync": "node scripts/skills.mjs sync",
+    "skills:lock": "node scripts/skills.mjs lock",
+    "check": "node scripts/build-tokens.mjs --check && node scripts/skills.mjs check"
+  }
+}
