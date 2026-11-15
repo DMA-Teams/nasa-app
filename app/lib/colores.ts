@@ -1,15 +1,15 @@
 // Colores del mapa. MapLibre no entiende variables CSS, así que aquí van los valores
-// del tema Milpa (design-tokens/build/milpa.css). Si cambian los tokens, actualiza esto.
+// del tema Surco (design-tokens/build/surco.css). Si cambian los tokens, actualiza esto.
 import type { Relieve, TipoZona } from "./tipos";
 
 const TOKENS = {
-  primary: "#1F7A3D",
-  highlight: "#C7381A",
+  primary: "#155E4B",
+  highlight: "#9C5B0A",
   chart3: "#1D6FB8",
-  success: "#1F7A3D",
-  warning: "#96600A",
-  foreground: "#2B1D0E",
-  card: "#FFFDF6",
+  success: "#155E4B",
+  warning: "#8A5A00",
+  foreground: "#1C2420",
+  card: "#FFFFFF",
 };
 
 export const COLOR_ZONA: Record<TipoZona, string> = {

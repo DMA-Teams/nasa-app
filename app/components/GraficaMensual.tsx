@@ -9,7 +9,7 @@ export function GraficaMensual({ meses, resaltados }: { meses: MesClima[]; resal
   return (
     <figure className="flex flex-col gap-3 rounded-2xl bg-background p-4">
       <figcaption className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-base font-bold">Agua de cada mes</span>
+        <span className="text-base font-semibold">Agua de cada mes</span>
         <span className="flex gap-3 text-sm">
           <span className="inline-flex items-center gap-1.5"><i className="size-3 rounded-full bg-chart-3" />Llueve</span>
           <span className="inline-flex items-center gap-1.5"><i className="size-3 rounded-full bg-decor-sol" />Se seca</span>
@@ -32,7 +32,7 @@ export function GraficaMensual({ meses, resaltados }: { meses: MesClima[]; resal
       </div>
       <div className="grid grid-cols-12 gap-1 text-center text-[13px] text-muted-foreground">
         {meses.map((m) => (
-          <span key={m.mes} className={resaltados.includes(m.mes) ? "font-bold text-foreground" : ""}>
+          <span key={m.mes} className={resaltados.includes(m.mes) ? "font-semibold text-foreground" : ""}>
             {MESES[m.mes - 1].slice(0, 1)}
           </span>
         ))}

@@ -1,5 +1,5 @@
 // Dibujos a color (SVG, sin librerías): el clima, los cultivos y la carita de la tierra.
-// Los colores salen de los tokens del tema Milpa (--decor-* son solo para ilustración).
+// Los colores salen de los tokens del tema Surco (--decor-* son solo para ilustración).
 import type { CultivoId, Semaforo, TipoZona } from "@/lib/tipos";
 
 const SOL = "var(--decor-sol)";

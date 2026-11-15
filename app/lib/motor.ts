@@ -174,7 +174,7 @@ export function planDeSiembra(rot: Rotacion): FilaPlan[] {
 export function textoWhatsApp(lugar: string, rot: Rotacion, plan: FilaPlan[]): string {
   const filas = plan.map((f) => `• Año ${f.anio}, ${f.temporada}: ${nombresCultivos(f.cultivos)}`).join("\n");
   return (
-    `Mi plan de siembra para ${lugar} (Mi Parcela):\n${rot.nombre}\n${filas}\n\n` +
+    `Mi plan de siembra para ${lugar} (Surco):\n${rot.nombre}\n${filas}\n\n` +
     "Hecho con datos de NASA POWER. Es una guía: lo reviso con mi técnico agrícola antes de sembrar."
   );
 }

@@ -16,8 +16,8 @@ export function ModuloTierra({ resultado, elegidaId, onElegir }: Props) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-baseline gap-2">
-        <h2 className="font-display text-[30px] leading-[1.05] font-extrabold">Tu tierra en 3 años</h2>
-        <span className="text-sm font-bold text-muted-foreground">(simulado)</span>
+        <h2 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em]">Tu tierra en 3 años</h2>
+        <span className="text-sm font-semibold text-muted-foreground">(simulado)</span>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -31,7 +31,7 @@ export function ModuloTierra({ resultado, elegidaId, onElegir }: Props) {
       </div>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2.5 font-display text-[22px] leading-tight font-extrabold">Elige cómo sembrar</legend>
+        <legend className="mb-2.5 font-display text-[22px] leading-tight font-semibold tracking-[-0.015em]">Elige cómo sembrar</legend>
         {resultado.opciones.map((o) => {
           const activa = o.rotacion.id === elegida.rotacion.id;
           return (
@@ -44,10 +44,10 @@ export function ModuloTierra({ resultado, elegidaId, onElegir }: Props) {
               <input type="radio" name="rotacion" className="sr-only" checked={activa} onChange={() => onElegir(o.rotacion.id)} />
               <Carita semaforo={o.semaforo} className="size-9" />
               <span className="flex min-w-0 flex-1 flex-col">
-                <span className="text-[17px] leading-snug font-bold">{o.esActual ? `${o.rotacion.nombre} (lo de hoy)` : o.rotacion.nombre}</span>
+                <span className="text-[17px] leading-snug font-semibold">{o.esActual ? `${o.rotacion.nombre} (lo de hoy)` : o.rotacion.nombre}</span>
                 <span className="text-[15px] leading-snug text-muted-foreground">{o.rotacion.descripcion}</span>
                 {o.rotacion.id === resultado.sugeridaId && (
-                  <span className="mt-1 inline-flex items-center gap-1 self-start rounded-full bg-primary px-2.5 py-0.5 text-[13px] font-bold text-primary-foreground">
+                  <span className="mt-1 inline-flex items-center gap-1 self-start rounded-full bg-primary px-2.5 py-0.5 text-[13px] font-semibold text-primary-foreground">
                     <IconoCheck className="size-3.5" />
                     La mejor para ti
                   </span>
@@ -59,7 +59,7 @@ export function ModuloTierra({ resultado, elegidaId, onElegir }: Props) {
       </fieldset>
 
       <div className="flex flex-col gap-1.5 rounded-2xl bg-background px-4 py-3.5">
-        <span className="text-[17px] font-bold">¿Por qué?</span>
+        <span className="text-[17px] font-semibold">¿Por qué?</span>
         <p className="text-base leading-relaxed">{elegida.porque}</p>
         <p className="text-[13px] text-muted-foreground">Dato: {elegida.evidencia}</p>
       </div>
@@ -78,10 +78,10 @@ function Tarjeta({ titulo, semaforo, detalle, destacada = false }: { titulo: str
         destacada ? "border-primary bg-card" : "border-transparent bg-background"
       }`}
     >
-      <span className="text-[15px] font-bold text-muted-foreground">{titulo}</span>
+      <span className="text-[15px] font-semibold text-muted-foreground">{titulo}</span>
       {/* La key repite la entrada cuando cambia el color: se nota que la elección cambió el resultado */}
       <Carita key={semaforo} semaforo={semaforo} className="entrar-paso size-16" />
-      <span className="font-display text-2xl leading-none font-extrabold">{TEXTO_SEMAFORO[semaforo]}</span>
+      <span className="font-display text-2xl leading-none font-semibold tracking-[-0.015em]">{TEXTO_SEMAFORO[semaforo]}</span>
       <span className="text-[15px] leading-snug">{detalle}</span>
     </div>
   );

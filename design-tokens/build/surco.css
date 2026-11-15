@@ -1,0 +1,108 @@
+/* Tema Surco · generado por scripts/build-tokens.mjs desde design-tokens/tokens.json. No editar a mano. */
+/* Marca Surco: confiable y científica, pero esperanzadora. Arena y tierra de base, verde Surco para la acción, maíz solo como relleno. */
+/* Fuentes: agrega en <head> → <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap"> (o usa next/font con las mismas familias). */
+/* Uso: pega este archivo en app/globals.css debajo de @import "tailwindcss"; (Next.js + Tailwind v4 + shadcn/ui, igual en v0 y Lovable). */
+
+:root {
+  color-scheme: light;
+
+  /* Variables de shadcn/ui */
+  --background: #F5F1E6;
+  --foreground: #1C2420;
+  --card: #FFFFFF;
+  --card-foreground: #1C2420;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C2420;
+  --primary: #155E4B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EDE7D8;
+  --secondary-foreground: #1C2420;
+  --muted: #EDE7D8;
+  --muted-foreground: #56615B;
+  --accent: #EDE7D8;
+  --accent-foreground: #1C2420;
+  --destructive: #B3261E;
+  --border: #DDD6C6;
+  --input: #DDD6C6;
+  --ring: #155E4B;
+  --chart-1: #155E4B;
+  --chart-2: #9C5B0A;
+  --chart-3: #1D6FB8;
+  --chart-4: #7A4FB5;
+  --chart-5: #56615B;
+  --radius: 10px;
+
+  /* Extras de Space Apps Starter */
+  --highlight: #9C5B0A;
+  --highlight-foreground: #FFFFFF;
+  --success: #155E4B;
+  --warning: #8A5A00;
+  --risk-low: #155E4B;
+  --risk-medium: #8A5A00;
+  --risk-high: #B3261E;
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --touch-target: 44px;
+  --decor-sol: #F2B134;
+  --decor-cielo: #BFE3F2;
+  --decor-hoja: #4E9A6F;
+  --decor-suelo: #8A5A2B;
+  --decor-maiz-suave: #FBEBC6;
+  --decor-verde-suave: #DCEBE3;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-risk-low: var(--risk-low);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-high: var(--risk-high);
+  --color-decor-sol: var(--decor-sol);
+  --color-decor-cielo: var(--decor-cielo);
+  --color-decor-hoja: var(--decor-hoja);
+  --color-decor-suelo: var(--decor-suelo);
+  --color-decor-maiz-suave: var(--decor-maiz-suave);
+  --color-decor-verde-suave: var(--decor-verde-suave);
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 6px);
+  --ease-out-strong: var(--ease-out-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,4 +1,4 @@
-# Mi Parcela
+# Surco
 
 Rotación de cultivos para pequeños agricultores de Honduras, con datos de NASA POWER.
 NASA Space Apps Challenge 2026 · Reto 7: Field Shift.
@@ -35,7 +35,7 @@ Inicio (mapa 3D, capas clima/altura) → Estás aquí → 1 Clima → 2 Cultivos
 | `lib/tipos.ts` | **El contrato de datos.** Si lo cambias, avisa a todos. | Todos |
 | `components/Explorador.tsx` | Estado de la app y navegación entre pasos | A |
 | `components/MapaReal.tsx` | Mapa MapLibre: satélite NASA, relieve 3D, departamentos, capas | A |
-| `lib/colores.ts` | Colores del mapa (derivados de los tokens del tema Milpa) | A |
+| `lib/colores.ts` | Colores del mapa (derivados de los tokens del tema Surco) | A |
 | `lib/geo.ts` | Punto dentro de polígono (¿en qué departamento cayó el toque?) | B |
 | `scripts/generar-departamentos.ts` | Asigna a cada departamento el clima de los cuadros que caen dentro | B |
 | `components/Panel*.tsx`, `components/modulos/*` | Paneles de cada paso | A |

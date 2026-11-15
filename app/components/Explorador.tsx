@@ -3,6 +3,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
 import departamentosJson from "@/public/fallback/departamentos.json";
 import { construirClima } from "@/lib/clima";
@@ -138,20 +139,16 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
 
         <header className="pointer-events-none absolute top-0 left-0 z-10 flex items-center gap-3 p-4">
           {paso === "inicio" ? (
-            <div className="pointer-events-auto flex items-center gap-2.5 rounded-full bg-card py-1.5 pr-5 pl-1.5 shadow-[0_3px_0_rgb(43_29_14/0.25)]">
-              <span className="flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <IconoBrote className="size-6" />
-              </span>
-              <span className="flex flex-col">
-                <span className="font-display text-[22px] leading-none font-extrabold">Mi Parcela</span>
-                <span className="text-[13px] leading-tight text-muted-foreground">Honduras con datos de NASA</span>
-              </span>
+            // Espacio libre alrededor del logo: ¼ de la altura del símbolo (guía de marca)
+            <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl bg-card px-3 py-2.5 shadow-[0_3px_0_rgb(28_36_32/0.2)]">
+              <Image src="/marca/surco-horizontal-color.svg" alt="Surco" width={102} height={32} priority />
+              <span className="text-[13px] leading-tight text-muted-foreground">Qué sembrar, con datos de NASA</span>
             </div>
           ) : (
             <button
               type="button"
               onClick={volverAlMapa}
-              className="pointer-events-auto flex h-12 items-center gap-1.5 rounded-full bg-card pr-5 pl-3.5 text-[17px] font-bold shadow-[0_3px_0_rgb(43_29_14/0.25)] transition-transform duration-150 ease-out-strong active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-ring"
+              className="pointer-events-auto flex h-12 items-center gap-1.5 rounded-full bg-card pr-5 pl-3.5 text-[17px] font-semibold shadow-[0_3px_0_rgb(28_36_32/0.2)] transition-transform duration-150 ease-out-strong active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-ring"
             >
               <IconoAtras className="size-5" />
               Mapa
@@ -164,7 +161,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
             {capa === "clima" ? (
               (Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />)
             ) : (
-              <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] font-bold shadow-sm">
+              <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] font-semibold shadow-sm">
                 0 m
                 <i
                   className="h-2.5 w-24 rounded-full"
@@ -186,7 +183,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
                   type="button"
                   aria-pressed={capa === c}
                   onClick={() => setCapa(c)}
-                  className={`h-10 rounded-full px-4 text-[15px] font-bold capitalize transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-ring ${
+                  className={`h-10 rounded-full px-4 text-[15px] font-semibold capitalize transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-ring ${
                     capa === c ? "bg-primary text-primary-foreground" : "text-foreground"
                   }`}
                 >
@@ -198,7 +195,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
               type="button"
               aria-pressed={inclinado}
               onClick={() => setInclinado(!inclinado)}
-              className="flex h-12 items-center gap-1.5 rounded-full bg-card px-4 text-[15px] font-bold shadow-sm focus-visible:outline-2 focus-visible:outline-ring"
+              className="flex h-12 items-center gap-1.5 rounded-full bg-card px-4 text-[15px] font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-ring"
             >
               <IconoCubo className="size-4.5" />
               {inclinado ? "3D" : "Plano"}
@@ -208,7 +205,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
       </section>
 
       {/* Panel */}
-      <aside className="relative z-20 -mt-6 max-h-[60dvh] w-full overflow-y-auto rounded-t-[28px] bg-card shadow-[0_-8px_24px_rgb(43_29_14/0.22)] md:mt-0 md:max-h-none md:w-[460px] md:rounded-none md:shadow-[-8px_0_24px_rgb(43_29_14/0.18)]">
+      <aside className="relative z-20 -mt-6 max-h-[60dvh] w-full overflow-y-auto rounded-t-[28px] bg-card shadow-[0_-8px_24px_rgb(28_36_32/0.2)] md:mt-0 md:max-h-none md:w-[460px] md:rounded-none md:shadow-[-8px_0_24px_rgb(28_36_32/0.16)]">
         <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-border md:hidden" aria-hidden="true" />
         {/* La key hace que el contenido entre suave cada vez que cambia el paso */}
         <div key={paso} className="entrar-paso flex flex-col gap-5 p-5 pb-8 md:p-7">
@@ -231,7 +228,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
             <>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <span className="font-display text-[22px] leading-none font-extrabold">{punto.departamento}</span>
+                  <span className="font-display text-[22px] leading-none font-semibold tracking-[-0.015em]">{punto.departamento}</span>
                   {tipoZona && <ChipZona tipo={tipoZona} />}
                 </div>
                 {/* Camino de 4 pasos: los hechos llevan palomita, el actual es el grande */}
@@ -255,14 +252,14 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
                       >
                         {i < indiceModulo ? <IconoCheck className="size-5" /> : <Icono className="size-5" />}
                       </span>
-                      <span className={`text-sm ${i === indiceModulo ? "font-bold" : "text-muted-foreground"}`}>{etiqueta}</span>
+                      <span className={`text-sm ${i === indiceModulo ? "font-semibold" : "text-muted-foreground"}`}>{etiqueta}</span>
                     </li>
                   ))}
                 </ol>
               </div>
 
               {!clima || !resultado || !rotacionElegida ? (
-                <p role="status" className="animate-pulse py-10 text-center text-[17px] font-bold text-muted-foreground">Preguntando a NASA POWER cómo llueve aquí…</p>
+                <p role="status" className="animate-pulse py-10 text-center text-[17px] font-semibold text-muted-foreground">Preguntando a NASA POWER cómo llueve aquí…</p>
               ) : (
                 <>
                   {paso === "clima" && <ModuloClima clima={clima} />}
@@ -296,7 +293,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
 
 function Leyenda({ color, texto }: { color: string; texto: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-[13px] font-bold shadow-sm">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-[13px] font-semibold shadow-sm">
       <i className="size-3.5 rounded-full" style={{ background: color }} />
       {texto}
     </span>

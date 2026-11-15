@@ -30,8 +30,8 @@ export function PanelUbicacion({ punto, clima, altura, onEmpezar, onCambiar }: P
       <Escena tipo={tipo} className="h-24" />
 
       <div className="flex flex-col gap-1">
-        <span className="text-base font-bold text-highlight">Tu terreno está en</span>
-        <h1 className="font-display text-[30px] leading-[1.05] font-extrabold text-balance">
+        <span className="text-base font-semibold text-highlight">Tu terreno está en</span>
+        <h1 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em] text-balance">
           {punto.departamento}, cerca de {punto.pueblo}
         </h1>
       </div>
@@ -49,7 +49,7 @@ export function PanelUbicacion({ punto, clima, altura, onEmpezar, onCambiar }: P
       </div>
 
       <section className="flex flex-col gap-3 rounded-2xl bg-background p-4" aria-labelledby="titulo-pasos">
-        <h2 id="titulo-pasos" className="text-[17px] font-bold">Vamos a ver 4 cosas</h2>
+        <h2 id="titulo-pasos" className="text-[17px] font-semibold">Vamos a ver 4 cosas</h2>
         <ol className="flex flex-col gap-2.5">
           {PASOS.map(({ Icono, texto }, i) => (
             <li key={texto} className="flex items-center gap-3">

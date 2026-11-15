@@ -28,7 +28,7 @@ export function ModuloClima({ clima }: { clima: ClimaZona }) {
       <Escena tipo={clima.tipo} className="h-28" />
 
       <div className="flex flex-col gap-1.5">
-        <h2 className="font-display text-[30px] leading-[1.05] font-extrabold text-balance">{titulo}</h2>
+        <h2 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em] text-balance">{titulo}</h2>
         <p className="text-[17px] leading-relaxed">{explicacion}</p>
       </div>
 

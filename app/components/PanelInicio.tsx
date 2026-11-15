@@ -37,7 +37,7 @@ export function PanelInicio({ celdas, aviso, buscandoUbicacion, ejemplos, onEleg
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <h1 className="font-display text-[32px] leading-[1.05] font-extrabold text-balance">¿Dónde está tu terreno?</h1>
+        <h1 className="font-display text-[32px] leading-[1.05] font-semibold tracking-[-0.015em] text-balance">¿Dónde está tu terreno?</h1>
         <p className="text-[17px] leading-snug text-muted-foreground">Toca el mapa en ese lugar, o usa el botón verde.</p>
       </div>
 
@@ -47,14 +47,14 @@ export function PanelInicio({ celdas, aviso, buscandoUbicacion, ejemplos, onEleg
           {buscandoUbicacion ? "Buscando dónde estás…" : "Estoy en mi terreno"}
         </BotonPrimario>
         {aviso && (
-          <p role="status" className="rounded-2xl bg-zona-seca/35 px-4 py-3 text-base font-bold">
+          <p role="status" className="rounded-2xl bg-zona-seca/35 px-4 py-3 text-base font-semibold">
             {aviso}
           </p>
         )}
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="buscar" className="text-base font-bold">O escribe el nombre de tu pueblo</label>
+        <label htmlFor="buscar" className="text-base font-semibold">O escribe el nombre de tu pueblo</label>
         <div className="flex h-14 items-center gap-2.5 rounded-2xl border-2 border-border bg-card px-4 transition-colors duration-150 focus-within:border-primary">
           <IconoBuscar className="size-5.5 text-primary" />
           <input
@@ -88,7 +88,7 @@ export function PanelInicio({ celdas, aviso, buscandoUbicacion, ejemplos, onEleg
       </div>
 
       <section className="flex flex-col gap-2" aria-labelledby="titulo-ejemplos">
-        <h2 id="titulo-ejemplos" className="text-base font-bold">¿Solo quieres probar? Mira un ejemplo</h2>
+        <h2 id="titulo-ejemplos" className="text-base font-semibold">¿Solo quieres probar? Mira un ejemplo</h2>
         <div className="grid grid-cols-2 gap-2.5">
           {ejemplos.map((e) => (
             <button
@@ -101,7 +101,7 @@ export function PanelInicio({ celdas, aviso, buscandoUbicacion, ejemplos, onEleg
             >
               <DibujoClima tipo={e.tipo} className="size-11" />
               <span className="flex min-w-0 flex-col">
-                <span className="font-display text-xl leading-tight font-extrabold">{e.etiqueta}</span>
+                <span className="font-display text-xl leading-tight font-semibold tracking-[-0.015em]">{e.etiqueta}</span>
                 <span className="text-sm leading-tight">{e.detalle}</span>
               </span>
             </button>
@@ -110,7 +110,7 @@ export function PanelInicio({ celdas, aviso, buscandoUbicacion, ejemplos, onEleg
       </section>
 
       <section className="flex flex-col gap-2 border-t-2 border-dashed border-border pt-4" aria-labelledby="titulo-datos">
-        <h2 id="titulo-datos" className="text-base font-bold">Así llueve en Honduras</h2>
+        <h2 id="titulo-datos" className="text-base font-semibold">Así llueve en Honduras</h2>
         <ul className="flex flex-col gap-2">
           <Dato valor={`${Math.round((secas / celdas.length) * 100)} %`} texto="del país sufre canícula fuerte" />
           <Dato

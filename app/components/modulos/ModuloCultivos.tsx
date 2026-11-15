@@ -24,7 +24,7 @@ export function ModuloCultivos({ cultivos, prioridad, onCultivos, onPrioridad }:
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h2 className="font-display text-[30px] leading-[1.05] font-extrabold">¿Qué siembras hoy?</h2>
+        <h2 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em]">¿Qué siembras hoy?</h2>
         <p className="text-[17px] text-muted-foreground">Toca todos los que siembras.</p>
       </div>
 
@@ -37,7 +37,7 @@ export function ModuloCultivos({ cultivos, prioridad, onCultivos, onPrioridad }:
               type="button"
               aria-pressed={activo}
               onClick={() => alternar(r.id)}
-              className={`relative flex min-h-32 flex-col items-center justify-center gap-1 rounded-3xl border-[3px] px-2 py-3 text-[17px] leading-tight font-bold transition-[transform,background-color,border-color] duration-150 ease-out-strong active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
+              className={`relative flex min-h-32 flex-col items-center justify-center gap-1 rounded-3xl border-[3px] px-2 py-3 text-[17px] leading-tight font-semibold transition-[transform,background-color,border-color] duration-150 ease-out-strong active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
                 activo ? "border-primary bg-zona-equilibrada/45" : "border-transparent bg-background"
               }`}
             >
@@ -54,13 +54,13 @@ export function ModuloCultivos({ cultivos, prioridad, onCultivos, onPrioridad }:
       </div>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2.5 font-display text-[22px] leading-tight font-extrabold">¿Qué te importa más?</legend>
+        <legend className="mb-2.5 font-display text-[22px] leading-tight font-semibold tracking-[-0.015em]">¿Qué te importa más?</legend>
         {PRIORIDADES.map(({ id, texto, Icono }) => {
           const activa = prioridad === id;
           return (
             <label
               key={id}
-              className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl border-[3px] px-4 text-[17px] font-bold transition-[background-color,border-color] duration-150 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${
+              className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl border-[3px] px-4 text-[17px] font-semibold transition-[background-color,border-color] duration-150 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${
                 activa ? "border-primary bg-zona-equilibrada/45" : "border-transparent bg-background"
               }`}
             >

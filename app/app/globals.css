@@ -1,43 +1,43 @@
 @import "tailwindcss";
 
-/* Tema Milpa · copiado de design-tokens/build/milpa.css (generado por npm run tokens en la raíz).
+/* Tema Surco · copiado de design-tokens/build/surco.css (generado por npm run tokens en la raíz).
    Si cambian los tokens, vuelve a copiar este bloque. Las fuentes vienen de next/font (layout.tsx). */
 :root {
   color-scheme: light;
 
   /* Variables de shadcn/ui */
-  --background: #FBF3DC;
-  --foreground: #2B1D0E;
-  --card: #FFFDF6;
-  --card-foreground: #2B1D0E;
-  --popover: #FFFDF6;
-  --popover-foreground: #2B1D0E;
-  --primary: #1F7A3D;
+  --background: #F5F1E6;
+  --foreground: #1C2420;
+  --card: #FFFFFF;
+  --card-foreground: #1C2420;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C2420;
+  --primary: #155E4B;
   --primary-foreground: #FFFFFF;
-  --secondary: #F3E7C4;
-  --secondary-foreground: #2B1D0E;
-  --muted: #F3E7C4;
-  --muted-foreground: #65502F;
-  --accent: #F3E7C4;
-  --accent-foreground: #2B1D0E;
+  --secondary: #EDE7D8;
+  --secondary-foreground: #1C2420;
+  --muted: #EDE7D8;
+  --muted-foreground: #56615B;
+  --accent: #EDE7D8;
+  --accent-foreground: #1C2420;
   --destructive: #B3261E;
-  --border: #DCCB9C;
-  --input: #DCCB9C;
-  --ring: #1F7A3D;
-  --chart-1: #1F7A3D;
-  --chart-2: #C7381A;
+  --border: #DDD6C6;
+  --input: #DDD6C6;
+  --ring: #155E4B;
+  --chart-1: #155E4B;
+  --chart-2: #9C5B0A;
   --chart-3: #1D6FB8;
   --chart-4: #7A4FB5;
-  --chart-5: #96600A;
-  --radius: 16px;
+  --chart-5: #56615B;
+  --radius: 10px;
 
   /* Extras de Space Apps Starter */
-  --highlight: #C7381A;
+  --highlight: #9C5B0A;
   --highlight-foreground: #FFFFFF;
-  --success: #1F7A3D;
-  --warning: #96600A;
-  --risk-low: #1F7A3D;
-  --risk-medium: #96600A;
+  --success: #155E4B;
+  --warning: #8A5A00;
+  --risk-low: #155E4B;
+  --risk-medium: #8A5A00;
   --risk-high: #B3261E;
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
@@ -45,10 +45,12 @@
   --duration-base: 200ms;
   --duration-slow: 300ms;
   --touch-target: 44px;
-  --decor-sol: #F5B921;
+  --decor-sol: #F2B134;
   --decor-cielo: #BFE3F2;
-  --decor-hoja: #58A84A;
+  --decor-hoja: #4E9A6F;
   --decor-suelo: #8A5A2B;
+  --decor-maiz-suave: #FBEBC6;
+  --decor-verde-suave: #DCEBE3;
   /* Colores del mapa, derivados de los tokens (no son colores nuevos) */
   --zona-seca: color-mix(in oklab, var(--highlight) 42%, var(--card));
   --zona-equilibrada: color-mix(in oklab, var(--primary) 32%, var(--card));
@@ -97,6 +99,8 @@
   --color-decor-cielo: var(--decor-cielo);
   --color-decor-hoja: var(--decor-hoja);
   --color-decor-suelo: var(--decor-suelo);
+  --color-decor-maiz-suave: var(--decor-maiz-suave);
+  --color-decor-verde-suave: var(--decor-verde-suave);
   --color-zona-seca: var(--zona-seca);
   --color-zona-equilibrada: var(--zona-equilibrada);
   --color-zona-lluviosa: var(--zona-lluviosa);
@@ -105,8 +109,8 @@
   --color-relieve-montana: var(--relieve-montana);
   --color-mapa-fondo: var(--mapa-fondo);
   --color-primary-sombra: var(--primary-sombra);
-  --font-display: var(--font-baloo), ui-rounded, system-ui, sans-serif;
-  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: var(--radius);

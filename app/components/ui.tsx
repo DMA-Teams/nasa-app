@@ -7,7 +7,7 @@ export function BotonPrimario({ className = "", ...props }: ComponentProps<"butt
   return (
     <button
       type="button"
-      className={`flex min-h-15 w-full items-center justify-center gap-2.5 rounded-2xl bg-primary px-5 font-display text-xl font-extrabold text-primary-foreground shadow-[0_4px_0_var(--primary-sombra)] transition-[transform,box-shadow,opacity] duration-150 ease-out-strong active:translate-y-1 active:shadow-[0_0_0_var(--primary-sombra)] disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring ${className}`}
+      className={`flex min-h-15 w-full items-center justify-center gap-2.5 rounded-2xl bg-primary px-5 font-display text-xl font-semibold tracking-[-0.015em] text-primary-foreground shadow-[0_4px_0_var(--primary-sombra)] transition-[transform,box-shadow,opacity] duration-150 ease-out-strong active:translate-y-1 active:shadow-[0_0_0_var(--primary-sombra)] disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring ${className}`}
       {...props}
     />
   );
@@ -17,7 +17,7 @@ export function BotonSecundario({ className = "", ...props }: ComponentProps<"bu
   return (
     <button
       type="button"
-      className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card px-4 text-[17px] font-bold text-foreground transition-transform duration-150 ease-out-strong active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${className}`}
+      className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card px-4 text-[17px] font-semibold text-foreground transition-transform duration-150 ease-out-strong active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${className}`}
       {...props}
     />
   );
@@ -35,7 +35,7 @@ const TEXTO_ZONA: Record<TipoZona, string> = { seca: "Falta agua", equilibrada: 
 export function ChipZona({ tipo, grande = false }: { tipo: TipoZona; grande?: boolean }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full font-bold ${ESTILO_ZONA[tipo]} ${
+      className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${ESTILO_ZONA[tipo]} ${
         grande ? "py-1 pr-4 pl-1.5 text-base" : "py-0.5 pr-3 pl-1 text-sm"
       }`}
     >
@@ -46,7 +46,7 @@ export function ChipZona({ tipo, grande = false }: { tipo: TipoZona; grande?: bo
 }
 
 export function Chip({ children }: { children: ReactNode }) {
-  return <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3.5 py-1.5 text-[15px] font-bold text-foreground">{children}</span>;
+  return <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3.5 py-1.5 text-[15px] font-semibold text-foreground">{children}</span>;
 }
 
 export const TEXTO_SEMAFORO: Record<Semaforo, string> = { verde: "Sana", amarillo: "Regular", rojo: "En riesgo" };

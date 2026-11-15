@@ -1,6 +1,6 @@
 # Tokens de diseño
 
-Cinco temas listos para que tu prototipo no se vea "de plantilla". Todos pasan contraste WCAG AA (texto principal AAA).
+Seis temas listos para que tu prototipo no se vea "de plantilla". Todos pasan contraste WCAG AA (texto principal AAA).
 
 | Tema | Modo | Ambiente | Para |
 |---|---|---|---|
@@ -9,6 +9,7 @@ Cinco temas listos para que tu prototipo no se vea "de plantilla". Todos pasan c
 | `marte` | Oscuro | Expedición planetaria, óxido y polvo | Luna, Marte, misiones. |
 | `cadete` | Claro | Juego alegre de botones grandes | Niños de 7 a 12 años. |
 | `milpa` | Claro | Cuaderno de campo cálido, con dibujos a color | Agricultores y comunidades rurales con poca lectura. |
+| `surco` | Claro | Marca Surco: arena, tierra y verde Surco; maíz solo como relleno | La app Surco (Field Shift). |
 
 ## Cómo usarlos
 
