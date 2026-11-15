@@ -49,16 +49,14 @@
   --decor-cielo: #BFE3F2;
   --decor-hoja: #4E9A6F;
   --decor-suelo: #8A5A2B;
-  --decor-maiz-suave: #FBEBC6;
-  --decor-verde-suave: #DCEBE3;
-  /* Colores del mapa, derivados de los tokens (no son colores nuevos) */
-  --zona-seca: color-mix(in oklab, var(--highlight) 42%, var(--card));
-  --zona-equilibrada: color-mix(in oklab, var(--primary) 32%, var(--card));
-  --zona-lluviosa: color-mix(in oklab, var(--chart-3) 40%, var(--card));
+  /* Fondo del mapa mientras carga, derivado de los tokens (no es un color nuevo) */
   --mapa-lado: color-mix(in oklab, var(--foreground) 60%, var(--primary));
   --mapa-fondo: color-mix(in oklab, var(--chart-3) 10%, var(--background));
   /* Verde un poco más oscuro al pasar el mouse (solo en equipos con mouse: Tailwind pone hover: dentro de @media (hover: hover)) */
   --primary-hover: color-mix(in oklab, var(--primary) 88%, var(--foreground));
+  /* El amarillo queda solo para avisar: fondo de avisos y alertas, y los meses difíciles de las gráficas */
+  --aviso: #FBEBC6;
+  --dificil: color-mix(in oklab, var(--highlight) 30%, var(--card));
 }
 
 @theme inline {
@@ -96,13 +94,10 @@
   --color-decor-cielo: var(--decor-cielo);
   --color-decor-hoja: var(--decor-hoja);
   --color-decor-suelo: var(--decor-suelo);
-  --color-decor-maiz-suave: var(--decor-maiz-suave);
-  --color-decor-verde-suave: var(--decor-verde-suave);
-  --color-zona-seca: var(--zona-seca);
-  --color-zona-equilibrada: var(--zona-equilibrada);
-  --color-zona-lluviosa: var(--zona-lluviosa);
   --color-mapa-fondo: var(--mapa-fondo);
   --color-primary-hover: var(--primary-hover);
+  --color-aviso: var(--aviso);
+  --color-dificil: var(--dificil);
   --font-display: var(--font-inter), system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
   /* La marca usa Inter con números tabulares para los datos (tabular-nums), no una fuente mono */
@@ -260,10 +255,10 @@ h1[tabindex="-1"]:focus {
 /* Vidrio esmerilado: el mapa se adivina borroso detrás del panel y de los botones.
    El fondo queda casi opaco para que el texto se lea bien bajo el sol; sin backdrop-filter, es una tarjeta normal. */
 :root {
-  --vidrio-borde: color-mix(in oklab, var(--card) 60%, transparent);
-  --vidrio-brillo: inset 0 1px 0 color-mix(in oklab, var(--card) 80%, transparent);
-  --sombra-panel: 0 16px 48px color-mix(in oklab, var(--foreground) 32%, transparent);
-  --sombra-control: 0 4px 16px color-mix(in oklab, var(--foreground) 24%, transparent);
+  /* Borde fino y sombra suave: el panel se apoya sobre el mapa sin pesar */
+  --vidrio-borde: var(--border);
+  --sombra-panel: 0 8px 32px color-mix(in oklab, var(--foreground) 12%, transparent);
+  --sombra-control: 0 2px 8px color-mix(in oklab, var(--foreground) 12%, transparent);
   /* El desenfoque se recalcula en cada cuadro del mapa: menos radio en el panel, aún menos en el celular */
   --vidrio-filtro: blur(20px) saturate(1.6) brightness(1.2);
   --vidrio-filtro-control: blur(12px) saturate(1.6) brightness(1.2);
@@ -281,19 +276,20 @@ h1[tabindex="-1"]:focus {
   border: 1px solid var(--vidrio-borde);
 }
 .vidrio {
-  box-shadow: var(--sombra-panel), var(--vidrio-brillo);
+  box-shadow: var(--sombra-panel);
 }
 .vidrio-control {
-  box-shadow: var(--sombra-control), var(--vidrio-brillo);
+  box-shadow: var(--sombra-control);
 }
+/* Sin cajas de color dentro del panel, el fondo va casi opaco para que el texto se lea limpio */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .vidrio {
-    background: color-mix(in oklab, var(--card) 84%, transparent);
+    background: color-mix(in oklab, var(--card) 92%, transparent);
     -webkit-backdrop-filter: var(--vidrio-filtro);
     backdrop-filter: var(--vidrio-filtro);
   }
   .vidrio-control {
-    background: color-mix(in oklab, var(--card) 80%, transparent);
+    background: color-mix(in oklab, var(--card) 88%, transparent);
     -webkit-backdrop-filter: var(--vidrio-filtro-control);
     backdrop-filter: var(--vidrio-filtro-control);
   }
@@ -311,7 +307,7 @@ h1[tabindex="-1"]:focus {
 /* Computadora: los créditos del mapa no quedan tapados por el panel */
 @media (min-width: 768px) {
   .maplibregl-map .maplibregl-ctrl-top-right {
-    right: 464px;
+    right: 424px; /* panel de 400 px + 16 de separación + 8 */
   }
 }
 

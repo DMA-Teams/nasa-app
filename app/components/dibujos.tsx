@@ -82,9 +82,18 @@ const TEXTO_ESCENA: Record<TipoZona, string> = {
   lluviosa: "Dibujo: lluvia fuerte sobre el campo",
 };
 
-/** El clima de la zona contado con un dibujo: se entiende sin leer. */
-export function Escena({ tipo, className = "" }: { tipo: TipoZona; className?: string }) {
+/**
+ * El clima de la zona contado con un dibujo: se entiende sin leer.
+ * `sinFondo`: sin el cielo de color, para ir directo sobre el panel. Las nubes, que son blancas,
+ * pasan a celeste para que se vean sobre fondo claro (como en DibujoClima).
+ */
+export function Escena({ tipo, sinFondo = false, className = "" }: { tipo: TipoZona; sinFondo?: boolean; className?: string }) {
   const cielo = tipo === "seca" ? "color-mix(in oklab, var(--decor-sol) 38%, var(--card))" : tipo === "lluviosa" ? "color-mix(in oklab, var(--chart-3) 28%, var(--decor-cielo))" : CIELO;
+  const nube = !sinFondo
+    ? undefined
+    : tipo === "lluviosa"
+      ? "color-mix(in oklab, var(--chart-3) 45%, var(--card))"
+      : "color-mix(in oklab, var(--decor-cielo) 75%, var(--card))";
   const cerroLejos = tipo === "seca" ? "color-mix(in oklab, var(--decor-sol) 50%, var(--decor-suelo))" : HOJA;
   const cerroCerca = tipo === "seca" ? "color-mix(in oklab, var(--decor-sol) 22%, var(--decor-suelo))" : VERDE;
   const matas = [28, 62, 96, 130, 164, 198, 232, 266, 300];
@@ -95,22 +104,22 @@ export function Escena({ tipo, className = "" }: { tipo: TipoZona; className?: s
       preserveAspectRatio="xMidYMid slice"
       role="img"
       aria-label={TEXTO_ESCENA[tipo]}
-      className={`block w-full rounded-xl ${className}`}
+      className={`block w-full ${sinFondo ? "" : "rounded-xl"} ${className}`}
     >
-      <rect width="320" height="110" fill={cielo} />
+      {!sinFondo && <rect width="320" height="110" fill={cielo} />}
       {tipo === "seca" && <Sol cx={250} cy={36} r={20} />}
       {tipo === "equilibrada" && (
         <>
           <Sol cx={246} cy={32} r={15} />
-          <Nube x={44} y={10} />
-          <Nube x={196} y={30} escala={0.8} />
+          <Nube x={44} y={10} color={nube} />
+          <Nube x={196} y={30} escala={0.8} color={nube} />
         </>
       )}
       {tipo === "lluviosa" && (
         <>
-          <Nube x={30} y={4} escala={1.15} />
-          <Nube x={142} y={0} escala={1.3} />
-          <Nube x={232} y={8} escala={1.05} />
+          <Nube x={30} y={4} escala={1.15} color={nube} />
+          <Nube x={142} y={0} escala={1.3} color={nube} />
+          <Nube x={232} y={8} escala={1.05} color={nube} />
           <Gotas x={50} y={46} />
           <Gotas x={160} y={50} n={5} />
           <Gotas x={248} y={46} n={3} />

@@ -10,7 +10,7 @@ import { DibujoCultivo } from "./dibujos";
 /** Marca de cosecha: un triángulo con borde claro para que se distinga sobre la barra verde. */
 function Cosecha({ className = "size-3.5" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 14 14" className={`text-highlight ${className}`} aria-hidden="true">
+    <svg viewBox="0 0 14 14" className={`text-foreground ${className}`} aria-hidden="true">
       <path d="M7 1.5L12.5 11.5H1.5Z" fill="currentColor" stroke="var(--card)" strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
   );
@@ -46,10 +46,10 @@ export function CalendarioCultivos({ plan }: { plan: PlanAnual }) {
   if (filas.length === 0) return null;
 
   return (
-    <figure className="flex flex-col gap-3 rounded-xl bg-background p-4 print:gap-1.5 print:bg-transparent print:p-0">
+    <figure className="flex flex-col gap-3 border-t border-border pt-4 print:gap-1.5 print:border-0 print:pt-0">
       <figcaption className="flex flex-col gap-2 print:flex-row print:items-baseline print:justify-between">
         <span className="text-cuerpo font-semibold print:text-[10pt]">Calendario de siembra</span>
-        <span className="flex flex-wrap gap-x-3 gap-y-1 text-apoyo print:text-[8.5pt] print:text-muted-foreground">
+        <span className="flex flex-wrap gap-x-3 gap-y-1 text-nota text-muted-foreground print:text-[8.5pt]">
           <span className="inline-flex items-center gap-1.5">
             <Siembra className="size-3 print:size-2.5" />
             Siembra
@@ -64,7 +64,7 @@ export function CalendarioCultivos({ plan }: { plan: PlanAnual }) {
           </span>
           {dificiles.length > 0 && (
             <span className="inline-flex items-center gap-1.5">
-              <i className="h-3.5 w-3 rounded-t-sm bg-zona-seca/40" />
+              <i className="h-3.5 w-3 rounded-t-sm bg-dificil" />
               {nombreMesesDificiles(plan.tipoZona)}
             </span>
           )}
@@ -75,8 +75,8 @@ export function CalendarioCultivos({ plan }: { plan: PlanAnual }) {
         {/* Nombres de los cultivos */}
         <div className="flex flex-col">
           {filas.map((f) => (
-            <span key={f.id} className="flex h-9 items-center gap-1.5 text-apoyo leading-tight font-semibold print:h-6 print:text-[9pt]">
-              <DibujoCultivo id={f.id} className="size-6 shrink-0 print:size-4" />
+            <span key={f.id} className="flex h-9 items-center gap-1.5 text-apoyo leading-tight print:h-6 print:text-[9pt]">
+              <DibujoCultivo id={f.id} className="size-5 shrink-0 print:size-4" />
               {NOMBRE_CULTIVO[f.id]}
             </span>
           ))}
@@ -86,7 +86,7 @@ export function CalendarioCultivos({ plan }: { plan: PlanAnual }) {
         <div className="relative">
           <div className="absolute inset-0 grid grid-cols-12">
             {plan.meses.map((m) => (
-              <span key={m.mes} className={m.dificil ? "rounded-t-lg bg-zona-seca/40" : ""} />
+              <span key={m.mes} className={m.dificil ? "rounded-t-lg bg-dificil" : ""} />
             ))}
           </div>
           <div className="relative flex flex-col">

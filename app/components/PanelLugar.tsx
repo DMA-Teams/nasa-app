@@ -23,15 +23,15 @@ export function PanelLugar({ lugar, nombre, clima, falloClima, altura, aviso, on
   return (
     <div className="flex flex-col gap-5">
       {aviso && (
-        <p className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-cuerpo font-semibold transition-[translate,opacity] duration-200 ease-out-strong starting:-translate-y-1 starting:opacity-0">
+        <p className="rounded-xl bg-aviso px-4 py-3 text-apoyo transition-[translate,opacity] duration-200 ease-out-strong starting:-translate-y-1 starting:opacity-0">
           {aviso}
         </p>
       )}
 
-      <Escena tipo={tipo} className="h-24" />
+      <Escena tipo={tipo} sinFondo className="h-16" />
 
       <div className="flex flex-col gap-1">
-        <span className="text-cuerpo font-semibold text-primary">Tu terreno está en</span>
+        <span className="text-apoyo text-muted-foreground">Tu terreno está en</span>
         <h1 className="font-display text-titulo font-semibold text-balance">{nombre}</h1>
       </div>
 
@@ -42,14 +42,14 @@ export function PanelLugar({ lugar, nombre, clima, falloClima, altura, aviso, on
           <IconoCalendario className="size-6" />
           Armar mi plan
         </BotonPrimario>
-        <BotonSecundario className="min-h-15" onClick={onInfo}>
-          <IconoSol className="size-6 text-highlight" />
+        <BotonSecundario onClick={onInfo}>
+          <IconoSol className="size-6 text-muted-foreground" />
           Ver cómo es el clima aquí
         </BotonSecundario>
         <button
           type="button"
           onClick={onCambiar}
-          className="min-h-11 self-center px-3 text-cuerpo font-semibold text-primary underline-offset-4 hover:underline"
+          className="min-h-11 self-center px-3 text-apoyo text-primary underline-offset-4 hover:underline"
         >
           Elegir otro lugar
         </button>

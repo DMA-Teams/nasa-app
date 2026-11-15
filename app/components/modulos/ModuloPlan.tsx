@@ -32,19 +32,19 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-baseline gap-2">
           <h1 className="font-display text-titulo font-semibold">Tu plan del año</h1>
-          <span className="text-apoyo font-semibold text-muted-foreground">(simulado)</span>
+          <span className="text-apoyo text-muted-foreground">(simulado)</span>
         </div>
-        <p className="text-cuerpo">{plan.resumen}</p>
+        <p className="text-apoyo text-muted-foreground">{plan.resumen}</p>
       </div>
 
       {/* El año de un vistazo; los periodos de abajo dan el detalle */}
       <CalendarioCultivos plan={plan} />
 
-      <div className="relative grid grid-cols-2 gap-1 rounded-full bg-background p-1" role="group" aria-label="Ver el plan">
+      <div className="relative grid grid-cols-2 gap-1 rounded-full border border-border bg-card p-1" role="group" aria-label="Ver el plan">
         {/* La pastilla verde se desliza hacia la opción elegida */}
         <span
           aria-hidden="true"
@@ -58,8 +58,8 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
             type="button"
             aria-pressed={division === d.id}
             onClick={() => onDivision(d.id)}
-            className={`relative min-h-11 rounded-full text-cuerpo font-semibold transition-[color,background-color] duration-200 ${
-              division === d.id ? "text-primary-foreground" : "text-foreground hover:bg-card/70"
+            className={`relative min-h-11 rounded-full text-apoyo transition-[color,background-color] duration-200 ${
+              division === d.id ? "text-primary-foreground" : "text-foreground hover:bg-background"
             }`}
           >
             {d.texto}
@@ -67,23 +67,24 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
         ))}
       </div>
 
-      <ol className="flex flex-col gap-3">
+      {/* Lista con divisores: sin tarjetas, el aire y una línea de 1 px separan cada periodo */}
+      <ol className="flex flex-col divide-y divide-border border-y border-border">
         {periodos.map((p, i) => (
           <Periodo key={p.id} periodo={p} orden={i} />
         ))}
       </ol>
 
       <BotonPrimario onClick={guardarPdf}>
-        <IconoDescargar className="size-6" />
+        <IconoDescargar className="size-5" />
         Guardar como PDF
       </BotonPrimario>
 
-      <div className="flex items-start gap-3 rounded-xl bg-background px-4 py-3.5">
-        <IconoInfo className="mt-0.5 size-6 shrink-0 text-primary" />
-        <p className="text-cuerpo">
-          Esto es una guía. <strong className="font-semibold">Revísala con tu técnico agrícola</strong> antes de sembrar, porque conoce tu suelo y tu terreno.
-        </p>
-      </div>
+      <p className="flex items-start gap-2.5 text-apoyo text-muted-foreground">
+        <IconoInfo className="mt-0.5 size-5 shrink-0" />
+        <span>
+          Esto es una guía. <strong className="font-normal text-foreground">Revísala con tu técnico agrícola</strong> antes de sembrar, porque conoce tu suelo y tu terreno.
+        </span>
+      </p>
 
       <p className="text-nota text-muted-foreground">
         Lluvia: {plan.fuente.dataset}, promedio {plan.fuente.periodo}, consultado el {plan.fuente.consultado.slice(0, 10)}. Meses de siembra:
@@ -94,46 +95,37 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
 }
 
 function Periodo({ periodo: p, orden }: { periodo: PeriodoPlan; orden: number }) {
-  const vacio = p.cultivos.length === 0;
   return (
-    <li
-      className={`entrar-lista flex flex-col gap-2.5 rounded-3xl p-4 ${vacio ? "bg-background" : "border-2 border-decor-verde-suave bg-card"}`}
-      style={{ "--i": orden } as CSSProperties}
-    >
-      <div className="flex items-center justify-between gap-3">
+    <li className="entrar-lista flex flex-col gap-2 py-4" style={{ "--i": orden } as CSSProperties}>
+      <div className="flex items-baseline justify-between gap-3">
         <span className="font-display text-subtitulo font-semibold">{p.nombre}</span>
         <span className="inline-flex shrink-0 items-center gap-1 text-apoyo font-semibold tabular-nums">
-          <IconoGota className="size-4 text-chart-3" />
+          <IconoGota className="size-4 text-muted-foreground" />
           {p.lluviaEsperada.toLocaleString("es-HN")} mm
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
-        {!vacio && (
-          <span className="flex shrink-0 -space-x-2" aria-hidden="true">
+      <div className="flex items-center gap-2">
+        {p.cultivos.length > 0 && (
+          <span className="flex shrink-0 gap-0.5" aria-hidden="true">
             {p.cultivos.map((c) => (
-              <span key={c} className="flex size-12 items-center justify-center rounded-full bg-background ring-2 ring-card">
-                <DibujoCultivo id={c} className="size-9" />
-              </span>
+              <DibujoCultivo key={c} id={c} className="size-6" />
             ))}
           </span>
         )}
-        <span className="text-cuerpo leading-snug font-semibold">{p.consejo}</span>
+        <span className="text-cuerpo leading-snug">{p.consejo}</span>
       </div>
 
-      <p className="text-apoyo leading-snug text-muted-foreground">
-        <span className="font-semibold text-foreground">¿Por qué? </span>
-        {p.porque}
-      </p>
+      <p className="text-apoyo leading-snug text-muted-foreground">¿Por qué? {p.porque}</p>
 
       {p.alerta && (
-        <span className="flex items-center gap-2 self-start rounded-full bg-decor-maiz-suave px-3 py-1 text-apoyo font-semibold">
-          <IconoAlerta className="size-4.5 text-highlight" />
+        <span className="flex items-center gap-2 self-start rounded-full bg-aviso px-3 py-1 text-apoyo">
+          <IconoAlerta className="size-4 text-highlight" />
           {p.alerta}
         </span>
       )}
 
-      <span className="text-apoyo text-muted-foreground">
+      <span className="text-nota text-muted-foreground">
         Tierra cubierta {p.mesesCubierta} de {p.meses.length} meses
       </span>
     </li>

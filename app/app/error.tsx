@@ -25,7 +25,7 @@ export default function ErrorApp({ error, reset }: { error: Error & { digest?: s
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="min-h-11 self-center px-3 text-cuerpo font-semibold text-primary underline-offset-4 hover:underline"
+          className="min-h-11 self-center px-3 text-apoyo text-primary underline-offset-4 hover:underline"
         >
           Recargar la página
         </button>

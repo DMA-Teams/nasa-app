@@ -35,10 +35,10 @@ export function PlanImprimible({ plan, division, lugar }: Props) {
 
       <section className="mt-4 grid grid-cols-[1fr_auto] items-start gap-5">
         <div className="flex flex-col gap-2">
-          <p className="text-[8.5pt] font-semibold tracking-wide text-primary">
+          <p className="text-[8.5pt] font-semibold tracking-wide text-muted-foreground">
             {plan.modo === "recomendado" ? "Recomendado por Surco" : "Con tus cultivos"} · {plan.cultivosElegidos.map((c) => NOMBRE_CULTIVO[c]).join(", ")}
           </p>
-          <p className="rounded-xl bg-decor-verde-suave px-3.5 py-2.5">{plan.resumen}</p>
+          <p className="rounded-xl bg-background px-3.5 py-2.5">{plan.resumen}</p>
         </div>
         <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 text-[10pt]">
           <dt className="text-muted-foreground">Clima</dt>
@@ -104,7 +104,7 @@ export function PlanImprimible({ plan, division, lugar }: Props) {
 function Periodo({ periodo: p }: { periodo: PeriodoPlan }) {
   const vacio = p.cultivos.length === 0;
   return (
-    <div className={`flex break-inside-avoid flex-col gap-1.5 rounded-xl border-2 p-3 ${vacio ? "border-border bg-background" : "border-decor-verde-suave"}`}>
+    <div className={`flex break-inside-avoid flex-col gap-1.5 rounded-xl border-2 p-3 ${vacio ? "border-border bg-background" : "border-border"}`}>
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-[12pt] font-semibold tracking-[-0.015em]">{p.nombre}</span>
         <span className="text-[8.5pt] text-muted-foreground tabular-nums">{p.lluviaEsperada.toLocaleString("es-HN")} mm de lluvia</span>
@@ -117,7 +117,7 @@ function Periodo({ periodo: p }: { periodo: PeriodoPlan }) {
       </div>
       <p className="text-[10pt]">{p.porque}</p>
       {p.alerta && (
-        <p className="flex items-center gap-1 self-start rounded-full bg-decor-maiz-suave px-2.5 py-0.5 text-[8.5pt] font-semibold">
+        <p className="flex items-center gap-1 self-start rounded-full bg-aviso px-2.5 py-0.5 text-[8.5pt]">
           <IconoAlerta className="size-3 text-highlight" />
           {p.alerta}
         </p>

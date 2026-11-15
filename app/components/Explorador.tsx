@@ -270,7 +270,7 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
               <button
                 type="button"
                 onClick={volverAlMapa}
-                className="vidrio-control pointer-events-auto flex min-h-12 items-center gap-1.5 rounded-full pr-5 pl-3.5 text-cuerpo font-semibold transition-[transform,background-color] duration-150 ease-out-strong hover:bg-card active:scale-[0.96]"
+                className="vidrio-control pointer-events-auto flex min-h-11 items-center gap-1.5 rounded-full pr-4 pl-3 text-apoyo transition-[transform,background-color] duration-150 ease-out-strong hover:bg-card active:scale-[0.96]"
               >
                 <IconoAtras className="size-5" />
                 Mapa
@@ -284,7 +284,7 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
               role="group"
               aria-label="Leyenda: clima de cada departamento"
               // En la computadora la leyenda se envuelve antes de llegar al panel (472 px a la derecha)
-              className="vidrio-control pointer-events-auto flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl px-3 py-1.5 text-nota font-semibold md:max-w-[calc(100vw-472px-2rem)]"
+              className="vidrio-control pointer-events-auto flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-2.5 py-1 text-nota md:max-w-[calc(100vw-432px-2rem)]"
             >
               {(Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => (
                 <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />
@@ -300,7 +300,7 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
                 type="button"
                 aria-pressed={inclinado}
                 onClick={() => setInclinado(!inclinado)}
-                className="vidrio-control flex min-h-12 items-center gap-1.5 rounded-full px-4 text-apoyo font-semibold transition-[transform,background-color] duration-150 ease-out-strong hover:bg-card active:scale-[0.96]"
+                className="vidrio-control flex min-h-10 items-center gap-1.5 rounded-full px-3.5 text-apoyo transition-[transform,background-color] duration-150 ease-out-strong hover:bg-card active:scale-[0.96]"
               >
                 <IconoCubo className="size-4.5" />
                 {inclinado ? "3D" : "Plano"}
@@ -312,7 +312,7 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
 
         {/* Panel de vidrio: hoja abajo en el celular; tarjeta flotante a la derecha en la computadora, tan alta como su contenido.
             El contenido se desplaza por dentro, así la barra de desplazamiento no se sale de las esquinas redondeadas. */}
-        <aside className="vidrio pointer-events-auto relative z-20 flex max-h-[60dvh] w-full flex-col overflow-hidden rounded-t-3xl md:absolute md:top-4 md:right-4 md:max-h-[calc(100dvh-2rem)] md:w-[440px] md:rounded-3xl">
+        <aside className="vidrio pointer-events-auto relative z-20 flex max-h-[60dvh] w-full flex-col overflow-hidden rounded-t-3xl md:absolute md:top-4 md:right-4 md:max-h-[calc(100dvh-2rem)] md:w-[400px] md:rounded-3xl">
           <p role="status" className="sr-only">
             {anuncio}
           </p>
@@ -353,12 +353,12 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
                   <button
                     type="button"
                     onClick={atras}
-                    className="flex min-h-11 items-center gap-1 rounded-full bg-background pr-4 pl-2.5 text-cuerpo font-semibold transition-[transform,background-color] duration-150 ease-out-strong hover:bg-secondary active:scale-[0.96]"
+                    className="flex min-h-11 items-center gap-1 rounded-full border border-border pr-4 pl-2.5 text-apoyo transition-[transform,background-color] duration-150 ease-out-strong hover:bg-secondary active:scale-[0.96]"
                   >
                     <IconoAtras className="size-5" />
                     Atrás
                   </button>
-                  <span className="min-w-0 truncate text-apoyo font-semibold">{nombreLugar}</span>
+                  <span className="min-w-0 truncate text-apoyo text-muted-foreground">{nombreLugar}</span>
                   {tipoZona && <ChipZona tipo={tipoZona} />}
                 </div>
 
@@ -413,7 +413,7 @@ function Cargando({ texto }: { texto: string }) {
   return (
     <div className="flex flex-col items-center gap-4 py-10 text-center">
       <CargaSurco className="size-16" />
-      <p className="text-cuerpo font-semibold text-muted-foreground">{texto}</p>
+      <p className="text-apoyo text-muted-foreground">{texto}</p>
       {lento && (
         <p className="max-w-[32ch] text-apoyo text-muted-foreground transition-opacity duration-300 starting:opacity-0">
           La señal está lenta. Si tarda un poco más, usamos los datos de NASA POWER guardados en la app.
@@ -427,10 +427,10 @@ function Cargando({ texto }: { texto: string }) {
 function Fallo({ titulo, onReintentar, onOtroLugar }: { titulo: string; onReintentar: () => void; onOtroLugar: () => void }) {
   return (
     <div className="flex flex-col gap-4 py-4">
-      <IconoAlerta className="size-10 text-highlight" />
+      <IconoAlerta className="size-8 text-highlight" />
       <div className="flex flex-col gap-1.5">
         <h1 className="font-display text-titulo font-semibold text-balance">{titulo}</h1>
-        <p className="text-cuerpo text-muted-foreground">
+        <p className="text-apoyo text-muted-foreground">
           Algo falló al preparar los datos de este lugar. Vuelve a intentar; si sigue igual, prueba con otro lugar.
         </p>
       </div>

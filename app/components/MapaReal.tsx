@@ -26,8 +26,8 @@ const MARGEN = { top: 70, bottom: 60, left: 8, right: 8 };
 const MARGEN_MOVIL = { top: 64, bottom: 56, left: 0, right: 0 };
 const margen = (m: MapaLibre) => (m.getContainer().clientWidth < 600 ? MARGEN_MOVIL : MARGEN);
 // El mapa pasa por detrás del panel de vidrio: la cámara centra en la parte libre.
-// Computadora: panel flotante a la derecha (440 px + 16 de separación a cada lado). Celular: hoja de hasta 60 % del alto.
-const ANCHO_PANEL = 472;
+// Computadora: panel flotante a la derecha (400 px + 16 de separación a cada lado). Celular: hoja de hasta 60 % del alto.
+const ANCHO_PANEL = 432;
 function margenPanel(m: MapaLibre) {
   const { clientWidth, clientHeight } = m.getContainer();
   return clientWidth >= 768

@@ -19,15 +19,15 @@ export function GraficaMensual({ meses, resaltados, tipo }: Props) {
   const [ref, visto] = useEnVista<HTMLElement>();
 
   return (
-    <figure ref={ref} data-visto={visto} className="flex flex-col gap-3 rounded-xl bg-background p-4">
+    <figure ref={ref} data-visto={visto} className="flex flex-col gap-3 border-t border-border pt-4">
       <figcaption className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-cuerpo font-semibold">Agua de cada mes</span>
-        <span className="flex flex-wrap gap-x-3 gap-y-1 text-apoyo">
+        <span className="flex flex-wrap gap-x-3 gap-y-1 text-nota text-muted-foreground">
           <span className="inline-flex items-center gap-1.5"><i className="size-3 rounded-full bg-chart-3" />Llueve</span>
-          <span className="inline-flex items-center gap-1.5"><i className="size-3 rounded-full bg-decor-sol" />Se seca</span>
+          <span className="inline-flex items-center gap-1.5"><i className="size-3 rounded-full bg-foreground/25" />Se seca</span>
           {resaltados.length > 0 && (
             <span className="inline-flex items-center gap-1.5">
-              <i className="h-3.5 w-3 rounded-t-sm bg-zona-seca/40" />
+              <i className="h-3.5 w-3 rounded-t-sm bg-dificil" />
               {nombreMesesDificiles(tipo)}
             </span>
           )}
@@ -40,11 +40,11 @@ export function GraficaMensual({ meses, resaltados, tipo }: Props) {
             <div
               key={m.mes}
               style={{ "--i": i } as CSSProperties}
-              className={`flex h-full items-end justify-center gap-px rounded-t-lg ${resaltados.includes(m.mes) ? "bg-zona-seca/40" : ""}`}
+              className={`flex h-full items-end justify-center gap-px rounded-t-lg ${resaltados.includes(m.mes) ? "bg-dificil" : ""}`}
               title={`${MESES[m.mes - 1]}: ${m.lluvia} mm de lluvia, ${m.evaporacion} mm se evaporan`}
             >
               <span className="llenar-y w-[42%] rounded-t-full bg-chart-3" style={{ height: `${(m.lluvia / tope) * 100}%` }} />
-              <span className="llenar-y w-[42%] rounded-t-full bg-decor-sol" style={{ height: `${(m.evaporacion / tope) * 100}%` }} />
+              <span className="llenar-y w-[42%] rounded-t-full bg-foreground/25" style={{ height: `${(m.evaporacion / tope) * 100}%` }} />
             </div>
           ))}
         </div>

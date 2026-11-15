@@ -30,18 +30,18 @@ export function ModuloClima({ clima }: { clima: ClimaZona }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Escena tipo={clima.tipo} className="h-28" />
+      <Escena tipo={clima.tipo} sinFondo className="h-16" />
 
       <div className="flex flex-col gap-1.5">
         <h1 className="font-display text-titulo font-semibold text-balance">{titulo}</h1>
-        <p className="text-cuerpo">{explicacion}</p>
+        <p className="text-apoyo text-muted-foreground">{explicacion}</p>
       </div>
 
       <GraficaMensual meses={m} resaltados={clima.mesesDificiles} tipo={clima.tipo} />
 
       {clima.tipo !== "lluviosa" && (
-        <div className="flex items-center gap-3 rounded-xl bg-zona-seca/35 px-4 py-3 text-cuerpo leading-snug">
-          <IconoAlerta className="size-6 shrink-0 text-highlight" />
+        <div className="flex items-center gap-3 border-t border-border pt-4 text-apoyo leading-snug">
+          <IconoAlerta className="size-5 shrink-0 text-highlight" />
           <span>
             <strong>{clima.peorAnio.anio} fue el peor año:</strong> solo {clima.peorAnio.lluvia} mm en julio y agosto.
           </span>

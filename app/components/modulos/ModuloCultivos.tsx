@@ -19,7 +19,7 @@ export function ModuloCultivos({ cultivos, onCultivos, onVerPlan }: Props) {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-titulo font-semibold">¿Qué siembras?</h1>
-        <p className="text-cuerpo text-muted-foreground">Toca todos los que siembras.</p>
+        <p className="text-apoyo text-muted-foreground">Toca todos los que siembras.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -31,14 +31,14 @@ export function ModuloCultivos({ cultivos, onCultivos, onVerPlan }: Props) {
               type="button"
               aria-pressed={activo}
               onClick={() => alternar(r.id)}
-              className={`relative flex min-h-32 flex-col items-center justify-center gap-1 rounded-3xl border-[3px] px-2 py-3 text-cuerpo leading-tight font-semibold transition-[transform,background-color,border-color] duration-150 ease-out-strong active:scale-[0.96] ${
-                activo ? "border-primary bg-decor-verde-suave" : "border-transparent bg-background hover:border-primary/40"
+              className={`relative flex min-h-28 flex-col items-center justify-center gap-1.5 rounded-2xl border bg-card px-2 py-3 text-cuerpo leading-tight transition-[transform,border-color] duration-150 ease-out-strong active:scale-[0.98] ${
+                activo ? "border-primary" : "border-border hover:border-primary/40"
               }`}
             >
-              <DibujoCultivo id={r.id} className={`size-16 transition-transform duration-200 ease-out-strong ${activo ? "scale-110" : ""}`} />
+              <DibujoCultivo id={r.id} className={`size-12 transition-transform duration-200 ease-out-strong ${activo ? "scale-110" : ""}`} />
               {NOMBRE_CULTIVO[r.id]}
               {activo && (
-                <span className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground transition-[scale,opacity] duration-200 ease-out-strong starting:scale-50 starting:opacity-0">
+                <span className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground transition-[scale,opacity] duration-200 ease-out-strong starting:scale-50 starting:opacity-0">
                   <IconoCheck className="size-4" />
                 </span>
               )}
