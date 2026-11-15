@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ciclosDelPlan, numCarriles, surcosPara } from "../lib/simulacion.ts";
+import { ciclosDelPlan, estadoCarril, estadoEn, nivelLluvia, numCarriles, rangoPasos, surcosPara, tamanoPlanta } from "../lib/simulacion.ts";
+import type { Ciclo } from "../lib/simulacion.ts";
 import type { CultivoId, PlanAnual } from "../lib/tipos.ts";
 
 interface MesPrueba {
@@ -96,4 +97,72 @@ test("surcosPara nunca deja un carril sin surco", () => {
   assert.equal(surcosPara(0), 8);
   assert.equal(surcosPara(3), 8);
   assert.equal(surcosPara(11), 11);
+});
+
+// ---------- Etapas ----------
+const maiz: Ciclo = { cultivo: "maiz", meses: [5, 6, 7, 8], tieneCosecha: true, carril: 0 };
+const paso = (mes: number, semana = 0) => (mes - 1) * 4 + semana;
+
+test("el mes de siembra da preparación y luego siembra", () => {
+  assert.equal(estadoEn(maiz, paso(5, 0))!.etapa, "preparacion");
+  assert.deepEqual([1, 2, 3].map((s) => estadoEn(maiz, paso(5, s))!.etapa), ["siembra", "siembra", "siembra"]);
+});
+
+test("los meses intermedios pasan por germinación, crecimiento y maduración", () => {
+  const etapas = Array.from({ length: 8 }, (_, i) => estadoEn(maiz, paso(6) + i)!.etapa);
+  assert.deepEqual(etapas, ["germinacion", "germinacion", "crecimiento", "crecimiento", "crecimiento", "crecimiento", "maduracion", "maduracion"]);
+});
+
+test("el mes de cosecha da cosecha y avanza hasta 1", () => {
+  assert.deepEqual(estadoEn(maiz, paso(8, 0)), { etapa: "cosecha", avanceEtapa: 0.25 });
+  assert.deepEqual(estadoEn(maiz, paso(8, 3)), { etapa: "cosecha", avanceEtapa: 1 });
+});
+
+test("fuera del ciclo no hay planta", () => {
+  assert.equal(estadoEn(maiz, paso(4, 3)), null);
+  assert.equal(estadoEn(maiz, paso(9, 0)), null);
+});
+
+test("un ciclo que cruza el año se ve en enero", () => {
+  const apante: Ciclo = { cultivo: "maiz", meses: [12, 1, 2, 3], tieneCosecha: true, carril: 0 };
+  assert.equal(estadoEn(apante, paso(1, 0))!.etapa, "germinacion");
+  assert.equal(estadoEn(apante, paso(3, 0))!.etapa, "cosecha");
+});
+
+test("ciclo sin cosecha: termina en maduración y no deja rastrojo", () => {
+  const sin: Ciclo = { cultivo: "sorgo", meses: [3, 4, 5], tieneCosecha: false, carril: 0 };
+  assert.equal(estadoEn(sin, paso(5, 3))!.etapa, "maduracion");
+  assert.equal(estadoCarril([sin], 0, paso(6, 0)), null);
+});
+
+test("ciclo de un solo mes no falla", () => {
+  const uno: Ciclo = { cultivo: "frijol", meses: [9], tieneCosecha: false, carril: 0 };
+  assert.equal(estadoEn(uno, paso(9, 0))!.etapa, "preparacion");
+  assert.equal(estadoEn(uno, paso(9, 3))!.etapa, "siembra");
+});
+
+test("después de la cosecha queda rastrojo dos pasos y luego descanso", () => {
+  assert.equal(estadoCarril([maiz], 0, paso(9, 0))!.estado.etapa, "rastrojo");
+  assert.equal(estadoCarril([maiz], 0, paso(9, 1))!.estado.etapa, "rastrojo");
+  assert.equal(estadoCarril([maiz], 0, paso(9, 2)), null);
+});
+
+test("el cultivo siguiente tapa el rastrojo del anterior", () => {
+  const frijol: Ciclo = { cultivo: "frijol", meses: [9, 10, 11], tieneCosecha: true, carril: 0 };
+  assert.equal(estadoCarril([maiz, frijol], 0, paso(9, 0))!.ciclo.cultivo, "frijol");
+});
+
+test("la planta nunca se achica antes de la cosecha", () => {
+  const t = Array.from({ length: 12 }, (_, i) => tamanoPlanta(estadoEn(maiz, paso(5) + i)!));
+  assert.deepEqual(t, [...t].sort((a, b) => a - b));
+});
+
+test("rangos de pasos por vista", () => {
+  assert.deepEqual(rangoPasos("anual", 0), [0, 47]);
+  assert.deepEqual(rangoPasos("semestral", 1), [24, 47]);
+  assert.deepEqual(rangoPasos("trimestral", 2), [24, 35]);
+});
+
+test("niveles de lluvia", () => {
+  assert.deepEqual([0, 59, 60, 199, 200].map(nivelLluvia), ["poca", "poca", "regular", "regular", "mucha"]);
 });
