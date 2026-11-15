@@ -316,3 +316,15 @@ h1[tabindex="-1"]:focus {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--foreground) 28%, transparent) transparent;
 }
+
+/* Simulación de la parcela: las plantas crecen desde la base entre un paso y otro */
+.planta-sim {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 380ms var(--ease-out-strong), opacity 380ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .planta-sim {
+    transition: none;
+  }
+}

@@ -40,7 +40,8 @@ function describir(fila: FilaCalendario): { siembra: string; cosecha: string } {
   return { siembra: listaMeses(meses("siembra")) || "—", cosecha: listaMeses(meses("cosecha")) || "—" };
 }
 
-export function CalendarioCultivos({ plan }: { plan: PlanAnual }) {
+/** `mesActual` (1–12) marca una columna: lo usa la simulación de la parcela para mostrar por dónde va. */
+export function CalendarioCultivos({ plan, mesActual }: { plan: PlanAnual; mesActual?: number }) {
   const filas = filasCalendario(plan);
   const dificiles = plan.meses.filter((m) => m.dificil).map((m) => m.mes);
   if (filas.length === 0) return null;
@@ -86,7 +87,10 @@ export function CalendarioCultivos({ plan }: { plan: PlanAnual }) {
         <div className="relative">
           <div className="absolute inset-0 grid grid-cols-12">
             {plan.meses.map((m) => (
-              <span key={m.mes} className={m.dificil ? "rounded-t-lg bg-dificil" : ""} />
+              <span
+                key={m.mes}
+                className={`${m.dificil ? "rounded-t-lg bg-dificil" : ""} ${m.mes === mesActual ? "rounded-lg outline-2 -outline-offset-1 outline-primary" : ""}`}
+              />
             ))}
           </div>
           <div className="relative flex flex-col">
@@ -103,7 +107,7 @@ export function CalendarioCultivos({ plan }: { plan: PlanAnual }) {
         <span />
         <div className="grid grid-cols-12 pt-1 text-center text-nota text-muted-foreground print:text-[8pt]">
           {MESES.map((nombre, i) => (
-            <span key={nombre} className={dificiles.includes(i + 1) ? "font-semibold text-foreground" : ""}>
+            <span key={nombre} className={i + 1 === mesActual ? "font-semibold text-primary" : dificiles.includes(i + 1) ? "font-semibold text-foreground" : ""}>
               {nombre.slice(0, 1)}
             </span>
           ))}
