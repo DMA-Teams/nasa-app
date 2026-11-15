@@ -18,19 +18,19 @@ Opciones locales para comparar: maíz-frijol tradicional, maíz con sorgo (toler
 
 ## Datos NASA (motor)
 
-| Fuente | Para qué | Acceso |
-|---|---|---|
+| Fuente                    | Para qué                                                             | Acceso                                                                                                                                                                             |
+| ------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | NASA POWER (comunidad AG) | Lluvia, temperatura, evapotranspiración y radiación diaria por finca | `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR,T2M_MAX,EVPTRNS&community=AG&latitude=14.30&longitude=-88.60&start=20150101&end=20251231&format=JSON` |
-| SMAP | Humedad del suelo | Vía AppEEARS: https://appeears.earthdatacloud.nasa.gov/ |
-| MODIS / Landsat (NDVI) | Estrés de la vegetación por temporada | AppEEARS o https://earthexplorer.usgs.gov/ |
-| GPM IMERG | Lluvia satelital de alta resolución | https://gpm.nasa.gov/data |
-| ECOSTRESS | Estrés térmico y evapotranspiración | https://ecostress.jpl.nasa.gov/data |
-| SRTM | Pendiente (riesgo de erosión) | https://www.earthdata.nasa.gov/data/instruments/srtm |
-| FAO GAEZ | Aptitud de cultivos (fuera de EE. UU.) | https://gaez.fao.org |
+| SMAP                      | Humedad del suelo                                                    | Vía AppEEARS: https://appeears.earthdatacloud.nasa.gov/                                                                                                                            |
+| MODIS / Landsat (NDVI)    | Estrés de la vegetación por temporada                                | AppEEARS o https://earthexplorer.usgs.gov/                                                                                                                                         |
+| GPM IMERG                 | Lluvia satelital de alta resolución                                  | https://gpm.nasa.gov/data                                                                                                                                                          |
+| ECOSTRESS                 | Estrés térmico y evapotranspiración                                  | https://ecostress.jpl.nasa.gov/data                                                                                                                                                |
+| SRTM                      | Pendiente (riesgo de erosión)                                        | https://www.earthdata.nasa.gov/data/instruments/srtm                                                                                                                               |
+| FAO GAEZ                  | Aptitud de cultivos (fuera de EE. UU.)                               | https://gaez.fao.org                                                                                                                                                               |
 
 Los recursos de suelo del brief (SSURGO, Web Soil Survey) son de EE. UU.; para Honduras usa FAO GAEZ o SoilGrids y dilo.
 
-## Las 4 pantallas
+## Las 4 pantalla
 
 1. **Entrada:** el productor marca su parcela y elige su rotación actual y su prioridad (agua, ingreso, suelo).
 2. **Procesamiento:** calendario de lluvia y canícula de los últimos 10 años en su punto (NASA POWER), meses con suelo desnudo y estrés.
