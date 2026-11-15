@@ -25,7 +25,12 @@ No hace falta ninguna API key: NASA POWER es abierta.
 Una sola pantalla: el mapa siempre visible y un panel que avanza por pasos.
 
 ```
-Inicio (mapa 3D, capas clima/altura) → Estás aquí → 1 Clima → 2 Cultivos → 3 Tierra → 4 Plan
+Inicio (mapa + departamento → municipio, "Usar mi ubicación" o tocar el mapa)
+  └─ Lugar elegido
+       ├─ Ver cómo es el clima aquí ─┐
+       │                              ▼
+       └─ Armar mi plan ─► ¿Cómo? ─► Recomiéndame ─────────────► Plan del año
+                                  └► Yo elijo mis cultivos ─────► (trimestres | semestres)
 ```
 
 ## Mapa del código
@@ -44,8 +49,28 @@ Inicio (mapa 3D, capas clima/altura) → Estás aquí → 1 Clima → 2 Cultivos
 | `lib/clima.ts` | Convierte NASA POWER en el clima de una zona (pura, la usan la API y el script) | B |
 | `lib/mapa.ts` | Cuadrícula, contorno de Honduras y lugares de referencia | B |
 | `scripts/generar-celdas.ts` | Genera `public/fallback/celdas.json` | B |
-| `lib/motor.ts` | Puntaje de rotaciones, semáforo, "por qué" y plan | C |
-| `data/reglas.json`, `data/rotaciones.json` | Reglas por cultivo y rotaciones posibles | C |
+| `lib/api.ts` | **Única puerta a los datos**: municipios, clima y plan, con respaldo local | B |
+| `lib/calendario.ts` | Motor del plan: pone cada cultivo en sus meses según la zona (puro) | C |
+| `lib/plan.ts` | Agrupa el plan en trimestres o semestres; texto para WhatsApp (puro) | C |
+| `lib/municipios.ts` | Municipios de un departamento y el más cercano a un punto (puro) | B |
+| `lib/textos.ts` | Meses y nombres de cultivos | Todos |
+| `lib/motor.ts` | Reglas cargadas del JSON y el plan con el motor local | C |
+| `data/reglas.json` | Calendario de siembra por cultivo y zona, y cultivos recomendados por zona | C |
+| `tests/` | Pruebas de las funciones puras: `npm test` | Todos |
+
+## Contrato con el backend
+
+Los tipos están en `lib/tipos.ts` y son el contrato: la API devuelve esos objetos tal cual. Las pantallas solo usan `lib/api.ts`; para conectar un endpoint, pon su bandera en `USAR_API` en `true`. Si la API falla, la app usa el respaldo local.
+
+| Endpoint | Pide | Devuelve | Bandera | Respaldo |
+|---|---|---|---|---|
+| `GET /api/municipios?departamento=<nombre>` | nombre igual al de `departamentos.json` | `Municipio[]` | `USAR_API.municipios` | `public/fallback/municipios.json` |
+| `GET /api/clima?lat=&lon=` | punto en Honduras | `ClimaZona` | siempre activa (ya existe) | `public/fallback/celdas.json` |
+| `POST /api/plan` | JSON `PedidoPlan` | `PlanAnual` | `USAR_API.plan` | `lib/calendario.ts` con el clima del punto |
+
+- `PlanAnual.meses` trae siempre **12 `MesPlan`**, de enero a diciembre. La API **no** agrupa: la app arma los trimestres o semestres con `agruparPlan` (`lib/plan.ts`), así que cambiar la vista no hace otra petición.
+- `PedidoPlan.modo`: `"recomendado"` (la API elige los cultivos, `cultivos` llega vacío) o `"mis-cultivos"` (al menos un cultivo).
+- `PlanAnual.simulado` es `true` mientras el calendario salga de reglas inventadas.
 
 ## Mapa
 
@@ -65,8 +90,8 @@ Inicio (mapa 3D, capas clima/altura) → Estás aquí → 1 Clima → 2 Cultivos
 
 ## Lo que es simulado
 
-- La proyección "Tu tierra en 3 años" es un índice de reglas, no una medición. La pantalla lo dice.
-- Los valores de `data/reglas.json` son iniciales: revisarlos con FAO ECOCROP o un técnico y citar la fuente.
+- El calendario de siembra de `data/reglas.json` (meses de siembra y duración por cultivo y zona) es inventado: revisarlo con FAO ECOCROP o un técnico y citar la fuente. El plan lo marca "(simulado)".
+- `public/fallback/municipios.json` es una lista inventada de 105 municipios (cabeceras reales, coordenadas aproximadas). Para la lista completa, usar geoBoundaries HND ADM2 y poner `MUNICIPIOS_SIMULADOS` en `false` (`lib/municipios.ts`).
 
 ## Pendientes sugeridos
 
