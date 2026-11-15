@@ -9,34 +9,39 @@ export function ModuloClima({ clima }: { clima: ClimaZona }) {
   const m = clima.meses;
   const max = m.reduce((a, b) => (b.lluvia > a.lluvia ? b : a));
 
+  const meses = listaMeses(clima.mesesDificiles);
   const titulo =
     clima.tipo === "seca"
-      ? `Aquí falta agua en ${listaMeses(clima.mesesDificiles) || "julio"}`
+      ? `Aquí falta agua en ${meses || "julio"}`
       : clima.tipo === "lluviosa"
-        ? `Aquí sobra agua en ${listaMeses(clima.mesesDificiles)}`
+        ? meses
+          ? `Aquí sobra agua en ${meses}`
+          : "Aquí sobra agua casi todo el año"
         : "Aquí la lluvia es bastante pareja";
 
+  // Junio sin lluvia (dato raro o faltante) haría dividir entre cero: entonces no se da el porcentaje
+  const menosQueJunio = m[5].lluvia > 0 ? Math.round((1 - m[6].lluvia / m[5].lluvia) * 100) : null;
   const explicacion =
     clima.tipo === "seca"
-      ? `En julio llueven ${m[6].lluvia} mm, un ${Math.round((1 - m[6].lluvia / m[5].lluvia) * 100)} % menos que en junio (${m[5].lluvia} mm). Es la canícula, y llega cuando el maíz más agua necesita.`
+      ? `En julio llueven ${m[6].lluvia} mm${menosQueJunio !== null && menosQueJunio > 0 ? `, un ${menosQueJunio} % menos que en junio (${m[5].lluvia} mm)` : ` y en junio ${m[5].lluvia} mm`}. Es la canícula, y llega cuando el maíz más agua necesita.`
       : clima.tipo === "lluviosa"
         ? `En ${MESES_LARGOS[max.mes - 1]} llueven ${max.lluvia} mm. Con tanta agua, la tierra desnuda se lava y el frijol se pudre.`
         : `En julio llueven ${m[6].lluvia} mm y en junio ${m[5].lluvia} mm. La canícula se siente poco aquí.`;
 
   return (
     <div className="flex flex-col gap-4">
-      <Escena tipo={clima.tipo} className="h-28" />
+      <Escena tipo={clima.tipo} sinFondo className="h-16" />
 
       <div className="flex flex-col gap-1.5">
-        <h2 className="font-display text-titulo font-semibold text-balance">{titulo}</h2>
-        <p className="text-cuerpo">{explicacion}</p>
+        <h1 className="font-display text-titulo font-semibold text-balance">{titulo}</h1>
+        <p className="text-apoyo text-muted-foreground">{explicacion}</p>
       </div>
 
-      <GraficaMensual meses={m} resaltados={clima.mesesDificiles} />
+      <GraficaMensual meses={m} resaltados={clima.mesesDificiles} tipo={clima.tipo} />
 
       {clima.tipo !== "lluviosa" && (
-        <div className="flex items-center gap-3 rounded-xl bg-zona-seca/35 px-4 py-3 text-cuerpo leading-snug">
-          <IconoAlerta className="size-6 shrink-0 text-highlight" />
+        <div className="flex items-center gap-3 border-t border-border pt-4 text-apoyo leading-snug">
+          <IconoAlerta className="size-5 shrink-0 text-highlight" />
           <span>
             <strong>{clima.peorAnio.anio} fue el peor año:</strong> solo {clima.peorAnio.lluvia} mm en julio y agosto.
           </span>

@@ -3,32 +3,33 @@
 "use client";
 
 import type { FeatureCollection } from "geojson";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AttributionControl,
   Map as MapaLibre,
   Marker,
-  NavigationControl,
   setWorkerUrl,
+  type DataDrivenPropertyValueSpecification,
+  type ExpressionSpecification,
   type LngLatBoundsLike,
   type StyleSpecification,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { COLOR_BORDE, COLOR_FONDO, COLOR_SELECCION, COLOR_ZONA, RAMPA_ALTURA } from "@/lib/colores";
+import { COLOR_BORDE, COLOR_FONDO, COLOR_SELECCION, COLOR_ZONA, RAMPA_LLUVIA } from "@/lib/colores";
 import { poligonosDe } from "@/lib/geo";
-import type { CapaMapa, DepartamentosGeoJSON, Lugar } from "@/lib/tipos";
+import type { DepartamentosGeoJSON, Lugar } from "@/lib/tipos";
 
 // El worker se copia a public/ en predev/prebuild (scripts/copiar-maplibre.mjs)
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 const HONDURAS: LngLatBoundsLike = [[-89.4, 12.95], [-83.1, 16.55]];
-// Arriba deja lugar al título; abajo, a la leyenda y los botones de capa
+// Arriba deja lugar al título; abajo, a la leyenda y al botón 3D
 const MARGEN = { top: 70, bottom: 60, left: 8, right: 8 };
 const MARGEN_MOVIL = { top: 64, bottom: 56, left: 0, right: 0 };
 const margen = (m: MapaLibre) => (m.getContainer().clientWidth < 600 ? MARGEN_MOVIL : MARGEN);
 // El mapa pasa por detrás del panel de vidrio: la cámara centra en la parte libre.
-// Computadora: panel flotante a la derecha (440 px + 16 de separación a cada lado). Celular: hoja de hasta 60 % del alto.
-const ANCHO_PANEL = 472;
+// Computadora: panel flotante a la derecha (400 px + 16 de separación a cada lado). Celular: hoja de hasta 60 % del alto.
+const ANCHO_PANEL = 432;
 function margenPanel(m: MapaLibre) {
   const { clientWidth, clientHeight } = m.getContainer();
   return clientWidth >= 768
@@ -38,6 +39,21 @@ function margenPanel(m: MapaLibre) {
 const LIMITE_PANEO: LngLatBoundsLike = [[-93, 10.5], [-79.5, 19]];
 const EXAGERACION = 1.5;
 const PITCH_3D = 40;
+
+// Relleno de los departamentos. Normal: color de la zona de clima. Con un periodo del plan elegido:
+// azul según la lluvia promedio por mes de esos meses (propiedad lluviaMensual, NASA POWER).
+const COLOR_POR_ZONA: ExpressionSpecification = [
+  "match", ["get", "tipo"], "seca", COLOR_ZONA.seca, "lluviosa", COLOR_ZONA.lluviosa, COLOR_ZONA.equilibrada,
+];
+// Más transparente al acercarse, para que se vea el relieve del terreno
+const OPACIDAD_ZONA: DataDrivenPropertyValueSpecification<number> = ["interpolate", ["linear"], ["zoom"], 6, 0.45, 9, 0.18];
+// La lluvia del periodo es el dato principal en el paso del plan: se queda visible aunque se acerque el mapa
+const OPACIDAD_LLUVIA: DataDrivenPropertyValueSpecification<number> = ["interpolate", ["linear"], ["zoom"], 6, 0.7, 9, 0.55];
+
+function colorPorLluvia(meses: number[]): ExpressionSpecification {
+  const suma: ExpressionSpecification = ["+", 0, ...meses.map((m): ExpressionSpecification => ["at", m - 1, ["get", "lluviaMensual"]])];
+  return ["interpolate", ["linear"], ["/", suma, meses.length], ...RAMPA_LLUVIA.flat()];
+}
 
 const SATELITE = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg";
 const ELEVACION = "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png";
@@ -74,23 +90,13 @@ function estilo(departamentos: DepartamentosGeoJSON): StyleSpecification {
       { id: "sombra", type: "hillshade", source: "relieveCapas", paint: { "hillshade-exaggeration": 0.35 } },
       { id: "mascara", type: "fill", source: "mascara", paint: { "fill-color": COLOR_FONDO, "fill-opacity": 0.55 } },
       {
-        id: "altura",
-        type: "color-relief",
-        source: "relieveCapas",
-        layout: { visibility: "none" },
-        paint: {
-          "color-relief-color": ["interpolate", ["linear"], ["elevation"], ...RAMPA_ALTURA.flat()],
-          "color-relief-opacity": 0.75,
-        },
-      },
-      {
         id: "dep-relleno",
         type: "fill",
         source: "departamentos",
         paint: {
-          "fill-color": ["match", ["get", "tipo"], "seca", COLOR_ZONA.seca, "lluviosa", COLOR_ZONA.lluviosa, COLOR_ZONA.equilibrada],
-          // Más transparente al acercarse, para que se vea el relieve del terreno
-          "fill-opacity": ["interpolate", ["linear"], ["zoom"], 6, 0.45, 9, 0.18],
+          "fill-color": COLOR_POR_ZONA,
+          "fill-opacity": OPACIDAD_ZONA,
+          "fill-color-transition": { duration: 300 },
         },
       },
       { id: "dep-borde", type: "line", source: "departamentos", paint: { "line-color": COLOR_BORDE, "line-width": 1.2, "line-opacity": 0.8 } },
@@ -107,62 +113,86 @@ function estilo(departamentos: DepartamentosGeoJSON): StyleSpecification {
 
 interface Props {
   departamentos: DepartamentosGeoJSON;
-  capa: CapaMapa;
   inclinado: boolean;
   lugar: Lugar | null;
+  /** Meses (1–12) del periodo del plan elegido: el mapa pinta su lluvia. null = zonas de clima. */
+  meses: number[] | null;
   /** Departamento elegido en la lista: el mapa se acerca a él y marca su borde. */
   departamentoEnfocado: string | null;
   onTocar: (lat: number, lon: number, departamento: string | null) => void;
   /** Altura real del punto (m) según el modelo de elevación, cuando el 3D está activo. */
   onAltura: (metros: number | null) => void;
+  /** El servidor de relieve no responde (p. ej. Wi-Fi del evento que lo bloquea): el mapa sigue plano. */
+  onSinRelieve: () => void;
 }
 
-export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEnfocado, onTocar, onAltura }: Props) {
+// Tras estos fallos de una misma fuente de mosaicos, se deja de usar (un mosaico suelto puede fallar sin más)
+const FALLOS_PARA_RENDIRSE = 3;
+
+export function MapaReal({ departamentos, inclinado, lugar, meses, departamentoEnfocado, onTocar, onAltura, onSinRelieve }: Props) {
   const contenedor = useRef<HTMLDivElement>(null);
   const mapa = useRef<MapaLibre | null>(null);
   const pin = useRef<Marker | null>(null);
   const listo = useRef(false);
+  const sinRelieve = useRef(false);
+  // Teléfonos viejos o navegadores sin WebGL no pueden dibujar el mapa: la app sigue con la lista de departamentos
+  const [sinMapa, setSinMapa] = useState(false);
+  // El 3D se pide al cargar solo si está activo (en el celular empieza plano)
+  const inclinadoInicial = useRef(inclinado);
   // Las funciones cambian en cada render; las guardamos en refs para no recrear el mapa
-  const callbacks = useRef({ onTocar, onAltura });
+  const callbacks = useRef({ onTocar, onAltura, onSinRelieve });
   useEffect(() => {
-    callbacks.current = { onTocar, onAltura };
+    callbacks.current = { onTocar, onAltura, onSinRelieve };
   });
 
   // Crear el mapa una sola vez
   useEffect(() => {
     if (!contenedor.current) return;
-    const m = new MapaLibre({
-      container: contenedor.current,
-      style: estilo(departamentos),
-      bounds: HONDURAS,
-      fitBoundsOptions: { padding: contenedor.current.clientWidth < 600 ? MARGEN_MOVIL : MARGEN },
-      maxBounds: LIMITE_PANEO,
-      pitch: PITCH_3D,
-      bearing: -6,
-      maxPitch: 75,
-      attributionControl: false,
-    });
+    let m: MapaLibre;
+    try {
+      m = new MapaLibre({
+        container: contenedor.current,
+        style: estilo(departamentos),
+        bounds: HONDURAS,
+        fitBoundsOptions: { padding: contenedor.current.clientWidth < 600 ? MARGEN_MOVIL : MARGEN },
+        maxBounds: LIMITE_PANEO,
+        pitch: PITCH_3D,
+        bearing: -6,
+        maxPitch: 75,
+        attributionControl: false,
+      });
+    } catch (err) {
+      console.error("[mapa] no se pudo crear (¿sin WebGL?):", err);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- solo se sabe al intentar crear el mapa en el navegador
+      setSinMapa(true);
+      callbacks.current.onSinRelieve(); // también esconde el botón 3D
+      return;
+    }
     m.setPadding(margenPanel(m));
     m.fitBounds(HONDURAS, { padding: margen(m), pitch: PITCH_3D, bearing: -6, duration: 0 });
     m.addControl(new AttributionControl({ compact: true }), "top-right");
-    m.addControl(new NavigationControl({ visualizePitch: true }), "top-left");
+    // Sin botones de zoom: se acerca con la rueda, pellizcando o con doble toque
 
     m.on("load", () => {
       listo.current = true;
       // Los créditos empiezan plegados (botón "i") para no tapar el título
       m.getContainer().querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
-      m.setTerrain({ source: "relieve", exaggeration: EXAGERACION });
+      if (inclinadoInicial.current && !sinRelieve.current) m.setTerrain({ source: "relieve", exaggeration: EXAGERACION });
       // Nombres de los departamentos como etiquetas HTML (no necesitan servidor de fuentes)
       const etiquetas = departamentos.features.map((d) => {
         const etiqueta = document.createElement("span");
         etiqueta.textContent = d.properties.nombre;
-        etiqueta.className = "pointer-events-none text-[11px] font-semibold text-white [text-shadow:0_1px_3px_rgb(0_0_0/0.85)] md:text-xs";
+        etiqueta.className =
+          "pointer-events-none text-nota font-semibold text-card [text-shadow:0_1px_3px_color-mix(in_oklab,var(--foreground)_90%,transparent)]";
         new Marker({ element: etiqueta }).setLngLat(d.properties.centro).addTo(m);
         return etiqueta;
       });
-      // En pantallas chicas, con todo el país a la vista, los nombres se amontonan: se ocultan
+      // Con poco mapa libre y todo el país a la vista, los nombres se amontonan: se ocultan.
+      // Desde 768 px el panel tapa 472 px a la derecha, así que cuenta solo la parte libre.
       const mostrarEtiquetas = () => {
-        const visibles = m.getContainer().clientWidth >= 600 || m.getZoom() >= 6.6;
+        const ancho = m.getContainer().clientWidth;
+        const libre = ancho - (ancho >= 768 ? ANCHO_PANEL : 0);
+        const visibles = libre >= 600 || m.getZoom() >= 6.6;
         for (const e of etiquetas) e.style.visibility = visibles ? "visible" : "hidden";
       };
       mostrarEtiquetas();
@@ -173,6 +203,22 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
     m.on("click", (e) => {
       const [dep] = m.queryRenderedFeatures(e.point, { layers: ["dep-relleno"] });
       callbacks.current.onTocar(e.lngLat.lat, e.lngLat.lng, dep ? String(dep.properties.nombre) : null);
+    });
+    // Sin internet hacia NASA GIBS o el relieve, el demo sigue: los departamentos pintados bastan para elegir
+    const fallos: Record<string, number> = {};
+    m.on("error", (e) => {
+      const fuente = (e as { sourceId?: string }).sourceId;
+      if (!fuente) return;
+      fallos[fuente] = (fallos[fuente] ?? 0) + 1;
+      if (fallos[fuente] !== FALLOS_PARA_RENDIRSE) return;
+      if (fuente === "satelite") m.setLayoutProperty("satelite", "visibility", "none");
+      if ((fuente === "relieve" || fuente === "relieveCapas") && !sinRelieve.current) {
+        sinRelieve.current = true;
+        m.setTerrain(null);
+        m.setLayoutProperty("sombra", "visibility", "none");
+        m.easeTo({ pitch: 0, bearing: 0, duration: 600 });
+        callbacks.current.onSinRelieve();
+      }
     });
     m.on("mouseenter", "dep-relleno", () => (m.getCanvas().style.cursor = "pointer"));
     m.on("mouseleave", "dep-relleno", () => (m.getCanvas().style.cursor = ""));
@@ -191,27 +237,29 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
     };
   }, [departamentos]);
 
-  // Capa: clima (departamentos pintados) o altura (relieve real)
+  // Periodo del plan elegido: lluvia de esos meses; sin periodo, las zonas de clima.
+  // La clave en texto evita repintar si llega el mismo periodo en un arreglo nuevo.
+  const clavesMeses = meses?.join(",") ?? "";
   useEffect(() => {
     const m = mapa.current;
     if (!m) return;
+    const lista = clavesMeses ? clavesMeses.split(",").map(Number) : null;
     const aplicar = () => {
-      m.setLayoutProperty("altura", "visibility", capa === "altura" ? "visible" : "none");
-      m.setPaintProperty(
-        "dep-relleno",
-        "fill-opacity",
-        capa === "clima" ? ["interpolate", ["linear"], ["zoom"], 6, 0.45, 9, 0.18] : 0,
-      );
+      const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      m.setPaintProperty("dep-relleno", "fill-color-transition", { duration: quieto ? 0 : 300 });
+      m.setPaintProperty("dep-relleno", "fill-color", lista ? colorPorLluvia(lista) : COLOR_POR_ZONA);
+      m.setPaintProperty("dep-relleno", "fill-opacity", lista ? OPACIDAD_LLUVIA : OPACIDAD_ZONA);
     };
     if (listo.current) aplicar();
     else m.once("load", aplicar);
-  }, [capa]);
+  }, [clavesMeses]);
 
   // 3D o plano
   useEffect(() => {
     const m = mapa.current;
     if (!m) return;
     const aplicar = () => {
+      if (sinRelieve.current) return;
       m.setTerrain(inclinado ? { source: "relieve", exaggeration: EXAGERACION } : null);
       m.easeTo({ pitch: inclinado ? PITCH_3D : 0, bearing: inclinado ? m.getBearing() : 0, duration: 800 });
     };
@@ -256,7 +304,8 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
         return;
       }
       pin.current = new Marker({ color: COLOR_SELECCION }).setLngLat([lugar.lon, lugar.lat]).addTo(m);
-      m.flyTo({ center: [lugar.lon, lugar.lat], zoom: 9, pitch: inclinado ? 60 : 0, speed: 0.9, essential: true });
+      // Sin `essential`: con "reducir movimiento" MapLibre salta directo al lugar en vez de volar
+      m.flyTo({ center: [lugar.lon, lugar.lat], zoom: 9, pitch: inclinado ? 60 : 0, speed: 0.9 });
       m.once("moveend", () => {
         const altura = m.getTerrain() ? m.queryTerrainElevation([lugar.lon, lugar.lat]) : null;
         callbacks.current.onAltura(altura === null ? null : Math.round(altura / EXAGERACION));
@@ -269,6 +318,16 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
   }, [lugar?.lat, lugar?.lon]);
 
   // El CSS de MapLibre pone `position: relative` al contenedor, así que el tamaño lo da el div de afuera
+  if (sinMapa) {
+    return (
+      <div className="absolute inset-0 flex items-start justify-center bg-mapa-fondo p-6 pt-28 md:items-center md:pt-6 md:pr-[472px]">
+        <p className="max-w-xs rounded-2xl bg-card px-4 py-3 text-center text-apoyo">
+          Este navegador no puede mostrar el mapa. Elige tu departamento y tu municipio en la lista: el plan sale igual.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="absolute inset-0">
       <div

@@ -16,7 +16,8 @@ const FECHA_RESPALDO = "2026-11-14"; // cuándo se generó celdas.json (npm run 
 async function resumenDePower(lat: number, lon: number): Promise<ResumenPower> {
   "use cache";
   cacheLife("days");
-  const res = await fetch(urlPower(lat, lon), { signal: AbortSignal.timeout(15000) });
+  // 10 s: el navegador espera 12 s antes de usar su propio respaldo (lib/api.ts)
+  const res = await fetch(urlPower(lat, lon), { signal: AbortSignal.timeout(10000) });
   if (!res.ok) throw new Error(`NASA POWER respondió ${res.status}`);
   return resumirPower(await res.json());
 }

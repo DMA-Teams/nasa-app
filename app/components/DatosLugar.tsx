@@ -14,6 +14,7 @@ import { IconoGota, IconoMontana, IconoSol } from "./ui";
 interface Props {
   lugar: Lugar;
   clima: ClimaZona | null;
+  falloClima: boolean;
   altura: number | null; // del modelo de elevación; si no hay, se usa el promedio de NASA POWER
 }
 
@@ -29,7 +30,7 @@ const EXPLICA_RELIEVE = {
   montana: "Tierra alta y fresca; la lluvia arrastra más el suelo en las laderas.",
 };
 
-export function DatosLugar({ lugar, clima, altura }: Props) {
+export function DatosLugar({ lugar, clima, falloClima, altura }: Props) {
   const [abierto, setAbierto] = useState(false);
   const idDetalle = useId();
   const metros = altura ?? clima?.elevacion ?? lugar.celda.elevacion;
@@ -42,18 +43,20 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
   const masCaliente = clima?.meses.reduce((a, b) => (b.tempMax > a.tempMax ? b : a));
 
   return (
-    <section className="overflow-hidden rounded-3xl bg-background">
+    // Sin caja: líneas de 1 px arriba y abajo
+    <section className="overflow-hidden border-y border-border">
       <button
         type="button"
         aria-expanded={abierto}
         aria-controls={idDetalle}
         onClick={() => setAbierto(!abierto)}
-        className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left focus-visible:-outline-offset-2"
+        className="flex min-h-16 w-full items-center gap-3 py-3 text-left focus-visible:-outline-offset-2"
       >
-        <DibujoClima tipo={tipo} className="size-10" />
+        <DibujoClima tipo={tipo} className="size-8" />
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="text-cuerpo leading-tight font-semibold">Datos de tu lugar</span>
-          <span className="truncate text-apoyo text-muted-foreground">
+          {/* Sin recortar: en el celular la lluvia (el dato que más importa) quedaba cortada */}
+          <span className="text-apoyo text-pretty text-muted-foreground">
             {NOMBRE_ZONA[tipo]} · {metros.toLocaleString("es-HN")} m · {lluvia.toLocaleString("es-HN")} mm al año
           </span>
         </span>
@@ -64,7 +67,7 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
           strokeWidth={2.5}
           strokeLinecap="round"
           aria-hidden="true"
-          className={`size-6 shrink-0 text-primary transition-transform duration-200 ease-out-strong ${abierto ? "rotate-180" : ""}`}
+          className={`size-5 shrink-0 text-muted-foreground transition-transform duration-200 ease-out-strong ${abierto ? "rotate-180" : ""}`}
         >
           <path d="M6 9l6 6 6-6" />
         </svg>
@@ -76,9 +79,9 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
         className={`grid transition-[grid-template-rows] duration-300 ease-out-strong ${abierto ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
         <div className="overflow-hidden" inert={!abierto}>
-          <dl className="flex flex-col gap-1 px-3 pb-4">
+          <dl className="flex flex-col divide-y divide-border border-t border-border">
             <Dato
-              icono={<DibujoClima tipo={tipo} className="size-7" />}
+              icono={<DibujoClima tipo={tipo} className="size-6" />}
               titulo="Clima"
               valor={NOMBRE_ZONA[tipo]}
               detalle={
@@ -94,7 +97,7 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
               detalle={`${EXPLICA_RELIEVE[relieve]} ${altura === null ? "Es el promedio de la zona." : "Medida en tu punto exacto."}`}
             />
             <Dato
-              icono={<IconoGota className="size-6 text-chart-3" />}
+              icono={<IconoGota className="size-6 text-muted-foreground" />}
               titulo="Lluvia esperada"
               valor={`${lluvia.toLocaleString("es-HN")} mm al año`}
               detalle={
@@ -105,17 +108,19 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
             />
             {masCaliente && (
               <Dato
-                icono={<IconoSol className="size-6 text-highlight" />}
+                icono={<IconoSol className="size-6 text-muted-foreground" />}
                 titulo="Calor"
                 valor={`Hasta ${Math.round(masCaliente.tempMax)} °C`}
                 detalle={`Es el promedio de las tardes más calientes, en ${MESES_LARGOS[masCaliente.mes - 1]}.`}
               />
             )}
           </dl>
-          <p className="px-4 pb-4 text-nota text-muted-foreground">
+          <p className="pb-3 text-nota text-muted-foreground">
             {clima
               ? `Fuente: ${clima.dataset}, promedio ${clima.periodo.inicio.slice(0, 4)}–${clima.periodo.fin.slice(0, 4)}.`
-              : "Consultando NASA POWER…"}
+              : falloClima
+                ? "Fuente: NASA POWER, promedio 2015–2025 guardado para esta zona."
+                : "Consultando NASA POWER…"}
           </p>
         </div>
       </div>
@@ -125,12 +130,13 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
 
 function Dato({ icono, titulo, valor, detalle }: { icono: ReactNode; titulo: string; valor: string; detalle: string }) {
   return (
-    <div className="flex gap-3 rounded-xl bg-card p-3">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-background">{icono}</span>
+    // Fila con aire y divisor: sin fondo ni círculo detrás del ícono
+    <div className="flex gap-3 py-3">
+      <span className="flex size-6 shrink-0 items-center justify-center pt-0.5">{icono}</span>
       <div className="flex min-w-0 flex-col gap-0.5">
-        <dt className="text-apoyo text-muted-foreground">{titulo}</dt>
-        <dd className="text-cuerpo leading-snug font-semibold">{valor}</dd>
-        <dd className="text-apoyo leading-snug">{detalle}</dd>
+        <dt className="text-nota text-muted-foreground">{titulo}</dt>
+        <dd className="text-cuerpo leading-snug font-semibold tabular-nums">{valor}</dd>
+        <dd className="text-apoyo leading-snug text-muted-foreground">{detalle}</dd>
       </div>
     </div>
   );

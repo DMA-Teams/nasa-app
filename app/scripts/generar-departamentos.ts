@@ -14,8 +14,19 @@ const fuente = JSON.parse(fs.readFileSync(path.join(raiz, "scripts", "fuentes", 
 const celdas: Celda[] = JSON.parse(fs.readFileSync(path.join(raiz, "public", "fallback", "celdas.json"), "utf8"));
 const NOMBRES: Record<string, string> = { "Bay Islands": "Islas de la Bahía" };
 
-// 4 decimales (~10 m) bastan para dibujar y reducen el archivo a la mitad
-const redondear = (v: unknown): unknown => (Array.isArray(v) ? v.map(redondear) : Math.round((v as number) * 1e4) / 1e4);
+// 3 decimales (~110 m): el mapa llega hasta el zoom 9, donde un píxel mide ~300 m, así que no se nota.
+// Al redondear, muchos puntos seguidos quedan iguales: se quitan. Un anillo conserva al menos 4 puntos (cerrado).
+type Punto = [number, number];
+const esPunto = (v: unknown): v is Punto => Array.isArray(v) && typeof v[0] === "number";
+const esAnillo = (v: unknown): v is Punto[] => Array.isArray(v) && esPunto(v[0]);
+function redondear(v: unknown): unknown {
+  if (esAnillo(v)) {
+    const puntos = v.map(([x, y]) => [Math.round(x * 1e3) / 1e3, Math.round(y * 1e3) / 1e3] as Punto);
+    const sinRepetir = puntos.filter((p, i) => i === 0 || p[0] !== puntos[i - 1][0] || p[1] !== puntos[i - 1][1]);
+    return sinRepetir.length >= 4 ? sinRepetir : puntos;
+  }
+  return (v as unknown[]).map(redondear);
+}
 
 const salida: DepartamentosGeoJSON = { type: "FeatureCollection", features: [] };
 
@@ -43,6 +54,7 @@ for (const f of fuente.features) {
       relieve: relieveDe(elevacion),
       elevacion,
       lluviaAnual: lluvias.reduce((a, b) => a + b, 0),
+      lluviaMensual: lluvias, // mm de enero a diciembre: el mapa los usa para pintar la lluvia de cada periodo del plan
       centro,
     },
     geometry: { type: f.geometry.type, coordinates: redondear(f.geometry.coordinates) as number[][][] },

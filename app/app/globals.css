@@ -49,19 +49,14 @@
   --decor-cielo: #BFE3F2;
   --decor-hoja: #4E9A6F;
   --decor-suelo: #8A5A2B;
-  --decor-maiz-suave: #FBEBC6;
-  --decor-verde-suave: #DCEBE3;
-  /* Colores del mapa, derivados de los tokens (no son colores nuevos) */
-  --zona-seca: color-mix(in oklab, var(--highlight) 42%, var(--card));
-  --zona-equilibrada: color-mix(in oklab, var(--primary) 32%, var(--card));
-  --zona-lluviosa: color-mix(in oklab, var(--chart-3) 40%, var(--card));
-  --relieve-bajo: color-mix(in oklab, var(--success) 22%, var(--card));
-  --relieve-medio: color-mix(in oklab, var(--warning) 40%, var(--card));
-  --relieve-montana: color-mix(in oklab, var(--warning) 70%, var(--foreground));
+  /* Fondo del mapa mientras carga, derivado de los tokens (no es un color nuevo) */
   --mapa-lado: color-mix(in oklab, var(--foreground) 60%, var(--primary));
   --mapa-fondo: color-mix(in oklab, var(--chart-3) 10%, var(--background));
-  /* Borde inferior "con peso" de los botones grandes */
-  --primary-sombra: color-mix(in oklab, var(--primary) 70%, var(--foreground));
+  /* Verde un poco más oscuro al pasar el mouse (solo en equipos con mouse: Tailwind pone hover: dentro de @media (hover: hover)) */
+  --primary-hover: color-mix(in oklab, var(--primary) 88%, var(--foreground));
+  /* El amarillo queda solo para avisar: fondo de avisos y alertas, y los meses difíciles de las gráficas */
+  --aviso: #FBEBC6;
+  --dificil: color-mix(in oklab, var(--highlight) 30%, var(--card));
 }
 
 @theme inline {
@@ -99,16 +94,10 @@
   --color-decor-cielo: var(--decor-cielo);
   --color-decor-hoja: var(--decor-hoja);
   --color-decor-suelo: var(--decor-suelo);
-  --color-decor-maiz-suave: var(--decor-maiz-suave);
-  --color-decor-verde-suave: var(--decor-verde-suave);
-  --color-zona-seca: var(--zona-seca);
-  --color-zona-equilibrada: var(--zona-equilibrada);
-  --color-zona-lluviosa: var(--zona-lluviosa);
-  --color-relieve-bajo: var(--relieve-bajo);
-  --color-relieve-medio: var(--relieve-medio);
-  --color-relieve-montana: var(--relieve-montana);
   --color-mapa-fondo: var(--mapa-fondo);
-  --color-primary-sombra: var(--primary-sombra);
+  --color-primary-hover: var(--primary-hover);
+  --color-aviso: var(--aviso);
+  --color-dificil: var(--dificil);
   --font-display: var(--font-inter), system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
   /* La marca usa Inter con números tabulares para los datos (tabular-nums), no una fuente mono */
@@ -136,13 +125,6 @@
   --ease-out-strong: var(--ease-out-strong);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -164,6 +146,10 @@ body {
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+/* Al cambiar de paso el foco va al título (para el lector de pantalla). El título no es un control: sin anillo. */
+h1[tabindex="-1"]:focus {
+  outline: none;
 }
 
 /* Carga de la marca: las cuatro parcelas giran sus surcos una tras otra, 45° cada vez.
@@ -222,6 +208,27 @@ body {
   animation-delay: calc(var(--i, 0) * 60ms);
 }
 
+/* Reducir movimiento: nada se desplaza ni se llena, pero el cambio de paso se sigue notando con un fundido corto.
+   Las transiciones pequeñas que cuentan un estado (pastilla del plan, acordeón, botón presionado) se quedan. */
+@keyframes aparecer {
+  from { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entrar-paso,
+  .entrar-lista {
+    animation: aparecer var(--duration-base) ease-out both;
+    animation-delay: 0ms;
+  }
+  .llenar-x,
+  .llenar-x[data-visto="true"] {
+    clip-path: none;
+    transition: none;
+  }
+  .llenar-y {
+    animation: none;
+  }
+}
+
 /* La lluvia de los dibujos cae despacio; el sol gira apenas */
 @keyframes caer-gota {
   from { transform: translateY(-3px); opacity: 0; }
@@ -247,65 +254,65 @@ body {
 
 /* Vidrio esmerilado: el mapa se adivina borroso detrás del panel y de los botones.
    El fondo queda casi opaco para que el texto se lea bien bajo el sol; sin backdrop-filter, es una tarjeta normal. */
+:root {
+  /* Borde fino y sombra suave: el panel se apoya sobre el mapa sin pesar */
+  --vidrio-borde: var(--border);
+  --sombra-panel: 0 8px 32px color-mix(in oklab, var(--foreground) 12%, transparent);
+  --sombra-control: 0 2px 8px color-mix(in oklab, var(--foreground) 12%, transparent);
+  /* El desenfoque se recalcula en cada cuadro del mapa: menos radio en el panel, aún menos en el celular */
+  --vidrio-filtro: blur(20px) saturate(1.6) brightness(1.2);
+  --vidrio-filtro-control: blur(12px) saturate(1.6) brightness(1.2);
+}
+@media (max-width: 767px) {
+  :root {
+    --vidrio-filtro: blur(10px) saturate(1.4);
+    --vidrio-filtro-control: blur(8px) saturate(1.4);
+  }
+}
+
 .vidrio,
 .vidrio-control {
   background: var(--card);
-  border: 1px solid rgb(255 255 255 / 0.6);
+  border: 1px solid var(--vidrio-borde);
 }
 .vidrio {
-  box-shadow: 0 16px 48px rgb(28 36 32 / 0.32), inset 0 1px 0 rgb(255 255 255 / 0.8);
+  box-shadow: var(--sombra-panel);
 }
 .vidrio-control {
-  box-shadow: 0 4px 16px rgb(28 36 32 / 0.24), inset 0 1px 0 rgb(255 255 255 / 0.8);
+  box-shadow: var(--sombra-control);
 }
+/* Sin cajas de color dentro del panel, el fondo va casi opaco para que el texto se lea limpio */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .vidrio {
-    background: color-mix(in oklab, var(--card) 84%, transparent);
-    -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.25);
-    backdrop-filter: blur(28px) saturate(1.8) brightness(1.25);
+    background: color-mix(in oklab, var(--card) 92%, transparent);
+    -webkit-backdrop-filter: var(--vidrio-filtro);
+    backdrop-filter: var(--vidrio-filtro);
   }
   .vidrio-control {
-    background: color-mix(in oklab, var(--card) 78%, transparent);
-    -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.25);
-    backdrop-filter: blur(16px) saturate(1.8) brightness(1.25);
+    background: color-mix(in oklab, var(--card) 88%, transparent);
+    -webkit-backdrop-filter: var(--vidrio-filtro-control);
+    backdrop-filter: var(--vidrio-filtro-control);
+  }
+}
+/* Quien pide menos transparencia recibe tarjetas sólidas */
+@media (prefers-reduced-transparency: reduce) {
+  .vidrio,
+  .vidrio-control {
+    background: var(--card);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 
-/* Controles de MapLibre con el mismo vidrio */
-.maplibregl-map .maplibregl-ctrl-group:not(:empty) {
-  overflow: hidden;
-  border: 1px solid rgb(255 255 255 / 0.6);
-  border-radius: 14px;
-  background: color-mix(in oklab, var(--card) 78%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.25);
-  backdrop-filter: blur(16px) saturate(1.8) brightness(1.25);
-  box-shadow: 0 4px 16px rgb(28 36 32 / 0.24);
-}
-.maplibregl-map .maplibregl-ctrl-group button {
-  width: 36px;
-  height: 36px;
-  background-color: transparent;
-}
-
-/* En el celular el mapa se mueve con los dedos: sin botones de zoom */
-@media (max-width: 767px) {
-  .maplibregl-map .maplibregl-ctrl-top-left .maplibregl-ctrl-group {
-    display: none;
-  }
-}
-/* Computadora: el zoom va a la izquierda bajo el logo, y los créditos del mapa no quedan tapados por el panel */
+/* Computadora: los créditos del mapa no quedan tapados por el panel */
 @media (min-width: 768px) {
-  .maplibregl-map .maplibregl-ctrl-top-left {
-    top: 96px;
-    left: 6px;
-  }
   .maplibregl-map .maplibregl-ctrl-top-right {
-    right: 464px;
+    right: 424px; /* panel de 400 px + 16 de separación + 8 */
   }
 }
 
 /* Barra de desplazamiento del panel: fina, sin carril, del color del texto */
 .desplazable {
   scrollbar-width: thin;
-  scrollbar-color: rgb(28 36 32 / 0.28) transparent;
+  scrollbar-color: color-mix(in oklab, var(--foreground) 28%, transparent) transparent;
 }

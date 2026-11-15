@@ -1,5 +1,5 @@
 // "Así llueve en Honduras": tres datos del país con NASA POWER (promedio 2015–2025),
-// con dibujos y barras en la misma escala para comparar de un vistazo.
+// con dibujos y barras en la misma escala para comparar de un vistazo. Sin cajas: aire y líneas de 1 px.
 "use client";
 
 import type { Celda } from "@/lib/tipos";
@@ -21,7 +21,7 @@ export function HondurasEnDatos({ celdas }: { celdas: Celda[] }) {
   const [refLluvia, vistaLluvia] = useEnVista<HTMLDivElement>();
 
   return (
-    <section className="flex flex-col gap-4 border-t-2 border-dashed border-border pt-6" aria-labelledby="titulo-datos">
+    <section className="flex flex-col gap-5 border-t border-border pt-6" aria-labelledby="titulo-datos">
       <div className="flex flex-col gap-1">
         <h2 id="titulo-datos" className="font-display text-subtitulo font-semibold">
           Así llueve en Honduras
@@ -29,21 +29,21 @@ export function HondurasEnDatos({ celdas }: { celdas: Celda[] }) {
         <p className="text-apoyo text-muted-foreground">Promedio de 2015 a 2025, con datos de NASA.</p>
       </div>
 
-      <div ref={refCanicula} className="flex items-center gap-4 rounded-3xl bg-decor-maiz-suave p-4">
-        <DibujoClima tipo="seca" className="size-14 shrink-0" />
+      <div ref={refCanicula} className="flex items-center gap-3">
+        <DibujoClima tipo="seca" className="size-9 shrink-0" />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <p className="flex flex-col gap-1">
+          <p className="flex flex-col gap-0.5">
             <span className="text-dato font-semibold tabular-nums">{porcentajeSeco} %</span>
-            <span className="text-cuerpo leading-snug">del país sufre canícula fuerte en julio</span>
+            <span className="text-apoyo leading-snug text-muted-foreground">del país sufre canícula fuerte en julio</span>
           </p>
-          <div className="h-2.5 overflow-hidden rounded-full bg-card" aria-hidden="true">
-            <div className="llenar-x h-full rounded-full bg-decor-sol" data-visto={vistaCanicula} style={{ width: `${porcentajeSeco}%` }} />
+          <div className="h-2 overflow-hidden rounded-full bg-foreground/8" aria-hidden="true">
+            <div className="llenar-x h-full rounded-full bg-foreground/70" data-visto={vistaCanicula} style={{ width: `${porcentajeSeco}%` }} />
           </div>
         </div>
       </div>
 
       {/* Los dos extremos, uno sobre otro: las barras comparten escala y se comparan de un vistazo */}
-      <div ref={refLluvia} className="flex flex-col gap-4 rounded-3xl bg-background p-4">
+      <div ref={refLluvia} className="flex flex-col gap-4 border-t border-border pt-5">
         <h3 className="text-cuerpo font-semibold">Lluvia en un año</h3>
         <Extremo
           tipo="lluviosa"
@@ -62,8 +62,8 @@ export function HondurasEnDatos({ celdas }: { celdas: Celda[] }) {
           visto={vistaLluvia}
           retraso={120}
         />
-        <p className="border-t border-border pt-3 text-apoyo">
-          En {departamento(masLluviosa)} llueve <strong className="font-semibold">{veces(masLluviosa.lluviaAnual / masSeca.lluviaAnual)} más</strong> que en{" "}
+        <p className="text-apoyo text-muted-foreground">
+          En {departamento(masLluviosa)} llueve <strong className="font-semibold text-foreground">{veces(masLluviosa.lluviaAnual / masSeca.lluviaAnual)} más</strong> que en{" "}
           {departamento(masSeca)}. Por eso cada lugar necesita su propio plan.
         </p>
       </div>
@@ -86,17 +86,17 @@ interface PropsExtremo {
 function Extremo({ tipo, mm, maximo, lugar, texto, visto, retraso = 0 }: PropsExtremo) {
   return (
     <div className="flex items-center gap-3">
-      <DibujoClima tipo={tipo} className="size-11 shrink-0" />
+      <DibujoClima tipo={tipo} className="size-9 shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <p className="flex items-end justify-between gap-3">
           <span className="flex min-w-0 flex-col">
-            <span className="text-apoyo text-muted-foreground">{texto}</span>
-            <span className="text-cuerpo leading-tight font-semibold">{lugar}</span>
+            <span className="text-nota text-muted-foreground">{texto}</span>
+            <span className="text-cuerpo leading-tight">{lugar}</span>
           </span>
           <span className="shrink-0 text-subtitulo font-semibold tabular-nums">{mm.toLocaleString("es-HN")} mm</span>
         </p>
         {/* Barra comparada con el lugar más lluvioso */}
-        <div className="h-2.5 overflow-hidden rounded-full bg-card" aria-hidden="true">
+        <div className="h-2 overflow-hidden rounded-full bg-foreground/8" aria-hidden="true">
           <div
             className="llenar-x h-full rounded-full bg-chart-3"
             data-visto={visto}

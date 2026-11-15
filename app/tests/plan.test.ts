@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { agruparPlan } from "../lib/plan.ts";
+import { agruparPlan, filasCalendario } from "../lib/plan.ts";
 import type { AccionPeriodo, CultivoId, PlanAnual } from "../lib/tipos.ts";
 
 // Maíz de mayo a agosto, frijol de septiembre a noviembre, julio difícil (canícula)
@@ -118,4 +118,31 @@ test("la explicación de cosecha nombra todos los cultivos y meses del periodo",
   };
   const t3 = agruparPlan(dos, "trimestral")[2];
   assert.equal(t3.porque, "Se cosecha en julio y agosto: el frijol y el maíz ya terminaron su ciclo.");
+});
+
+test("filasCalendario: una fila por cultivo, ordenadas por mes de siembra", () => {
+  const filas = filasCalendario(plan);
+  assert.deepEqual(filas.map((f) => f.id), ["maiz", "frijol"]);
+  const maiz = filas[0].meses;
+  assert.equal(maiz[4], "siembra"); // mayo
+  assert.equal(maiz[5], "terreno");
+  assert.equal(maiz[7], "cosecha"); // agosto
+  assert.equal(maiz[0], null); // enero: nada
+});
+
+test("filasCalendario: el maíz de apante cruza de diciembre a enero", () => {
+  // Maíz de primera (mayo–agosto) y de apante (diciembre–marzo)
+  const apante: Record<number, "s" | "t" | "c"> = { 5: "s", 6: "t", 7: "t", 8: "c", 12: "s", 1: "t", 2: "t", 3: "c" };
+  const conApante: PlanAnual = {
+    ...plan,
+    tipoZona: "lluviosa",
+    cultivosElegidos: ["maiz"],
+    meses: plan.meses.map((m) => {
+      const e = apante[m.mes];
+      const cultivos: CultivoId[] = e ? ["maiz"] : [];
+      return { ...m, cultivos, sembrados: e === "s" ? cultivos : [], cosechados: e === "c" ? cultivos : [] };
+    }),
+  };
+  const [maiz] = filasCalendario(conApante);
+  assert.deepEqual(maiz.meses, ["terreno", "terreno", "cosecha", null, "siembra", "terreno", "terreno", "cosecha", null, null, null, "siembra"]);
 });

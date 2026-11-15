@@ -1,8 +1,9 @@
 // Colores del mapa. MapLibre no entiende variables CSS, así que aquí van los valores
-// del tema Surco (design-tokens/build/surco.css). Si cambian los tokens, actualiza esto.
+// del tema Surco (design-tokens/build/surco.css). Si cambian los tokens, actualiza esto:
+// tests/tokens.test.ts falla si esta copia, globals.css o el themeColor de layout.tsx se desfasan.
 import type { Relieve, TipoZona } from "./tipos";
 
-const TOKENS = {
+export const TOKENS = {
   primary: "#155E4B",
   highlight: "#9C5B0A",
   chart3: "#1D6FB8",
@@ -28,14 +29,22 @@ function mezclar(a: string, b: string, p: number): string {
   return `#${rgb.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 
-// Rampa de altura (metros) para la capa "Altura"
-export const RAMPA_ALTURA: [number, string][] = [
-  [0, mezclar(TOKENS.success, TOKENS.card, 0.45)],
-  [300, mezclar(TOKENS.warning, TOKENS.card, 0.4)],
-  [800, TOKENS.warning],
-  [1500, mezclar(TOKENS.warning, TOKENS.foreground, 0.5)],
-  [2500, TOKENS.card],
+/**
+ * Rampa de lluvia para el mapa del plan: mm por mes (promedio del periodo elegido), de blanco azulado a azul.
+ * En mm por mes y no en total, para que trimestres y semestres compartan la misma escala.
+ */
+export const RAMPA_LLUVIA: [number, string][] = [
+  [0, mezclar(TOKENS.chart3, TOKENS.card, 0.08)],
+  [50, mezclar(TOKENS.chart3, TOKENS.card, 0.3)],
+  [150, mezclar(TOKENS.chart3, TOKENS.card, 0.6)],
+  [300, TOKENS.chart3],
 ];
+
+/** Lluvia promedio por mes en esos meses (1–12). [55, 42, 102, …], [1, 2, 3] → 66 */
+export function lluviaPromedio(lluviaMensual: number[], meses: number[]): number {
+  if (meses.length === 0) return 0;
+  return Math.round(meses.reduce((s, m) => s + (lluviaMensual[m - 1] ?? 0), 0) / meses.length);
+}
 
 export const COLOR_BORDE = TOKENS.card;
 export const COLOR_SELECCION = TOKENS.highlight;
