@@ -172,13 +172,13 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
               // Espacio libre alrededor del logo: ¼ de la altura del símbolo (guía de marca)
               <div className="pointer-events-auto flex flex-col gap-1 rounded-xl bg-card px-3 py-2.5 shadow-[0_3px_0_rgb(28_36_32/0.2)]">
                 <Image src="/marca/surco-horizontal-color.svg" alt="Surco" width={102} height={32} priority />
-                <span className="text-[13px] leading-tight text-muted-foreground">Qué sembrar, con datos de NASA</span>
+                <span className="text-nota leading-tight text-muted-foreground">Qué sembrar, con datos de NASA</span>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={volverAlMapa}
-                className="pointer-events-auto flex h-12 items-center gap-1.5 rounded-full bg-card pr-5 pl-3.5 text-[17px] font-semibold shadow-[0_3px_0_rgb(28_36_32/0.2)] transition-transform duration-150 ease-out-strong active:scale-[0.96]"
+                className="pointer-events-auto flex h-12 items-center gap-1.5 rounded-full bg-card pr-5 pl-3.5 text-cuerpo font-semibold shadow-[0_3px_0_rgb(28_36_32/0.2)] transition-transform duration-150 ease-out-strong active:scale-[0.96]"
               >
                 <IconoAtras className="size-5" />
                 Mapa
@@ -191,7 +191,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
               {capa === "clima" ? (
                 (Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />)
               ) : (
-                <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] font-semibold shadow-sm">
+                <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-nota font-semibold shadow-sm">
                   0 m
                   <i
                     className="h-2.5 w-24 rounded-full"
@@ -213,7 +213,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
                     type="button"
                     aria-pressed={capa === c}
                     onClick={() => setCapa(c)}
-                    className={`h-10 rounded-full px-4 text-[15px] font-semibold capitalize transition-colors duration-150 ${
+                    className={`h-10 rounded-full px-4 text-apoyo font-semibold capitalize transition-colors duration-150 ${
                       capa === c ? "bg-primary text-primary-foreground" : "text-foreground"
                     }`}
                   >
@@ -225,7 +225,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
                 type="button"
                 aria-pressed={inclinado}
                 onClick={() => setInclinado(!inclinado)}
-                className="flex h-12 items-center gap-1.5 rounded-full bg-card px-4 text-[15px] font-semibold shadow-sm"
+                className="flex h-12 items-center gap-1.5 rounded-full bg-card px-4 text-apoyo font-semibold shadow-sm"
               >
                 <IconoCubo className="size-4.5" />
                 {inclinado ? "3D" : "Plano"}
@@ -272,12 +272,12 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
                   <button
                     type="button"
                     onClick={atras}
-                    className="flex h-11 items-center gap-1 rounded-full bg-background pr-4 pl-2.5 text-base font-semibold transition-transform duration-150 ease-out-strong active:scale-[0.96]"
+                    className="flex h-11 items-center gap-1 rounded-full bg-background pr-4 pl-2.5 text-cuerpo font-semibold transition-transform duration-150 ease-out-strong active:scale-[0.96]"
                   >
                     <IconoAtras className="size-5" />
                     Atrás
                   </button>
-                  <span className="min-w-0 truncate text-[15px] font-semibold">{nombreLugar}</span>
+                  <span className="min-w-0 truncate text-apoyo font-semibold">{nombreLugar}</span>
                   {tipoZona && <ChipZona tipo={tipoZona} />}
                 </div>
 
@@ -315,14 +315,14 @@ function Cargando() {
   return (
     <div role="status" className="flex flex-col items-center gap-4 py-10 text-center">
       <CargaSurco className="size-16" />
-      <p className="text-[17px] font-semibold text-muted-foreground">Preguntando a NASA POWER cómo llueve aquí…</p>
+      <p className="text-cuerpo font-semibold text-muted-foreground">Preguntando a NASA POWER cómo llueve aquí…</p>
     </div>
   );
 }
 
 function Leyenda({ color, texto }: { color: string; texto: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-[13px] font-semibold shadow-sm">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-nota font-semibold shadow-sm">
       <i className="size-3.5 rounded-full" style={{ background: color }} />
       {texto}
     </span>

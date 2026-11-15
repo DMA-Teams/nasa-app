@@ -19,7 +19,7 @@ export function PlanImprimible({ plan, division, lugar }: Props) {
   const maxLluvia = Math.max(...plan.meses.map((m) => m.lluvia));
 
   return (
-    <article className="hidden text-[11pt] leading-snug text-foreground print:block">
+    <article className="hidden text-[10pt] leading-snug text-foreground print:block">
       <header className="flex items-end justify-between gap-6 border-b-2 border-primary pb-3">
         {/* eslint-disable-next-line @next/next/no-img-element -- para imprimir basta un <img> */}
         <img src="/marca/surco-horizontal-color.svg" alt="Surco" width={115} height={36} />
@@ -33,12 +33,12 @@ export function PlanImprimible({ plan, division, lugar }: Props) {
 
       <section className="mt-4 grid grid-cols-[1fr_auto] items-start gap-5">
         <div className="flex flex-col gap-2">
-          <p className="text-[9pt] font-semibold tracking-wide text-primary">
+          <p className="text-[8.5pt] font-semibold tracking-wide text-primary">
             {plan.modo === "recomendado" ? "Recomendado por Surco" : "Con tus cultivos"} · {plan.cultivosElegidos.map((c) => NOMBRE_CULTIVO[c]).join(", ")}
           </p>
           <p className="rounded-xl bg-decor-verde-suave px-3.5 py-2.5">{plan.resumen}</p>
         </div>
-        <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 text-[9.5pt]">
+        <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 text-[10pt]">
           <dt className="text-muted-foreground">Clima</dt>
           <dd className="font-semibold">{NOMBRE_ZONA[plan.tipoZona]}</dd>
           <dt className="text-muted-foreground">Lluvia al año</dt>
@@ -66,8 +66,8 @@ export function PlanImprimible({ plan, division, lugar }: Props) {
                   style={{ height: `${Math.max(4, (m.lluvia / maxLluvia) * 100)}%` }}
                 />
               </div>
-              <span className={`text-[8pt] ${m.dificil ? "font-semibold" : "text-muted-foreground"}`}>{MESES[m.mes - 1]}</span>
-              <span className="text-[8pt] tabular-nums">{m.lluvia}</span>
+              <span className={`text-[8.5pt] ${m.dificil ? "font-semibold" : "text-muted-foreground"}`}>{MESES[m.mes - 1]}</span>
+              <span className="text-[8.5pt] tabular-nums">{m.lluvia}</span>
             </div>
           ))}
         </div>
@@ -82,7 +82,7 @@ export function PlanImprimible({ plan, division, lugar }: Props) {
         </div>
       </section>
 
-      <footer className="mt-5 flex flex-col gap-1.5 border-t border-border pt-3 text-[9pt]">
+      <footer className="mt-5 flex flex-col gap-1.5 border-t border-border pt-3 text-[8.5pt]">
         <p>
           <strong className="font-semibold">Esto es una guía.</strong> Revísala con tu técnico agrícola antes de sembrar, porque conoce tu suelo y tu terreno.
         </p>
@@ -100,8 +100,8 @@ function Periodo({ periodo: p }: { periodo: PeriodoPlan }) {
   return (
     <div className={`flex break-inside-avoid flex-col gap-1.5 rounded-xl border-2 p-3 ${vacio ? "border-border bg-background" : "border-decor-verde-suave"}`}>
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[13pt] font-semibold tracking-[-0.015em]">{p.nombre}</span>
-        <span className="text-[9pt] text-muted-foreground tabular-nums">{p.lluviaEsperada.toLocaleString("es-HN")} mm de lluvia</span>
+        <span className="text-[12pt] font-semibold tracking-[-0.015em]">{p.nombre}</span>
+        <span className="text-[8.5pt] text-muted-foreground tabular-nums">{p.lluviaEsperada.toLocaleString("es-HN")} mm de lluvia</span>
       </div>
       <div className="flex items-center gap-2">
         {p.cultivos.map((c) => (
@@ -109,8 +109,8 @@ function Periodo({ periodo: p }: { periodo: PeriodoPlan }) {
         ))}
         <span className="font-semibold">{p.consejo}</span>
       </div>
-      <p className="text-[9.5pt]">{p.porque}</p>
-      {p.alerta && <p className="self-start rounded-full bg-decor-maiz-suave px-2.5 py-0.5 text-[9pt] font-semibold">⚠ {p.alerta}</p>}
+      <p className="text-[10pt]">{p.porque}</p>
+      {p.alerta && <p className="self-start rounded-full bg-decor-maiz-suave px-2.5 py-0.5 text-[8.5pt] font-semibold">⚠ {p.alerta}</p>}
       <p className="text-[8.5pt] text-muted-foreground">
         Tierra cubierta {p.mesesCubierta} de {p.meses.length} meses
       </p>

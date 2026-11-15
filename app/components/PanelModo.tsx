@@ -13,15 +13,15 @@ const ESTILO_TARJETA =
 export function PanelModo({ onRecomendado, onMisCultivos }: Props) {
   return (
     <div className="flex flex-col gap-5">
-      <h2 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em]">¿Cómo quieres tu plan?</h2>
+      <h2 className="font-display text-titulo font-semibold">¿Cómo quieres tu plan?</h2>
 
       <button type="button" onClick={onRecomendado} className={`${ESTILO_TARJETA} border-primary bg-decor-verde-suave`}>
         <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
           <IconoSol className="size-9" />
         </span>
         <span className="flex flex-col gap-0.5">
-          <span className="text-xl leading-tight font-semibold">Recomiéndame</span>
-          <span className="text-base leading-snug">La app elige qué sembrar con los datos de NASA de tu lugar.</span>
+          <span className="text-subtitulo leading-tight font-semibold">Recomiéndame</span>
+          <span className="text-cuerpo leading-snug">La app elige qué sembrar con los datos de NASA de tu lugar.</span>
         </span>
       </button>
 
@@ -30,8 +30,8 @@ export function PanelModo({ onRecomendado, onMisCultivos }: Props) {
           <DibujoCultivo id="maiz" className="size-12" />
         </span>
         <span className="flex flex-col gap-0.5">
-          <span className="text-xl leading-tight font-semibold">Yo elijo mis cultivos</span>
-          <span className="text-base leading-snug">Tú dices qué siembras y armamos el plan con eso.</span>
+          <span className="text-subtitulo leading-tight font-semibold">Yo elijo mis cultivos</span>
+          <span className="text-cuerpo leading-snug">Tú dices qué siembras y armamos el plan con eso.</span>
         </span>
       </button>
     </div>

@@ -31,7 +31,7 @@ interface Props {
 
 // <select> nativo: en el celular abre la lista del sistema, que el usuario ya conoce
 const ESTILO_SELECT =
-  "h-14 w-full appearance-none rounded-xl border-2 border-border bg-card px-4 pr-12 text-[17px] transition-colors duration-150 focus:border-primary disabled:opacity-50";
+  "h-14 w-full appearance-none rounded-xl border-2 border-border bg-card px-4 pr-12 text-cuerpo transition-colors duration-150 focus:border-primary disabled:opacity-50";
 
 function Flecha() {
   return (
@@ -65,13 +65,13 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <h1 className="font-display text-[32px] leading-[1.05] font-semibold tracking-[-0.015em] text-balance">¿Dónde está tu terreno?</h1>
-        <p className="text-[17px] leading-snug text-muted-foreground">Elige tu departamento y tu municipio, o toca tu terreno en el mapa.</p>
+        <h1 className="font-display text-titulo font-semibold text-balance">¿Dónde está tu terreno?</h1>
+        <p className="text-cuerpo leading-snug text-muted-foreground">Elige tu departamento y tu municipio, o toca tu terreno en el mapa.</p>
       </div>
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="departamento" className="text-base font-semibold">Departamento</label>
+          <label htmlFor="departamento" className="text-cuerpo font-semibold">Departamento</label>
           <div className="relative">
             <select id="departamento" value={departamento} onChange={(e) => elegirDepartamento(e.target.value)} className={ESTILO_SELECT}>
               <option value="">Elige tu departamento</option>
@@ -83,7 +83,7 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="municipio" className="text-base font-semibold">
+          <label htmlFor="municipio" className="text-cuerpo font-semibold">
             Municipio{MUNICIPIOS_SIMULADOS && <span className="font-normal text-muted-foreground"> (simulado)</span>}
           </label>
           <div className="relative">
@@ -112,14 +112,14 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
           {buscandoUbicacion ? "Buscando dónde estás…" : "Usar mi ubicación"}
         </BotonPrimario>
         {aviso && (
-          <p role="status" className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-base font-semibold">
+          <p role="status" className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-cuerpo font-semibold transition-[translate,opacity] duration-200 ease-out-strong starting:-translate-y-1 starting:opacity-0">
             {aviso}
           </p>
         )}
       </div>
 
       <section className="flex flex-col gap-2" aria-labelledby="titulo-ejemplos">
-        <h2 id="titulo-ejemplos" className="text-base font-semibold">¿Solo quieres probar? Mira un ejemplo</h2>
+        <h2 id="titulo-ejemplos" className="text-cuerpo font-semibold">¿Solo quieres probar? Mira un ejemplo</h2>
         <div className="grid grid-cols-2 gap-2.5">
           {ejemplos.map((e) => (
             <button
@@ -132,8 +132,8 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
             >
               <DibujoClima tipo={e.tipo} className="size-11" />
               <span className="flex min-w-0 flex-col">
-                <span className="font-display text-xl leading-tight font-semibold tracking-[-0.015em]">{e.etiqueta}</span>
-                <span className="text-sm leading-tight">{e.detalle}</span>
+                <span className="font-display text-subtitulo leading-tight font-semibold">{e.etiqueta}</span>
+                <span className="text-apoyo leading-tight">{e.detalle}</span>
               </span>
             </button>
           ))}

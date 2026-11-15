@@ -7,7 +7,7 @@ export function BotonPrimario({ className = "", ...props }: ComponentProps<"butt
   return (
     <button
       type="button"
-      className={`flex min-h-15 w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-5 font-display text-xl font-semibold tracking-[-0.015em] text-primary-foreground shadow-[0_4px_0_var(--primary-sombra)] transition-[transform,box-shadow,opacity] duration-150 ease-out-strong active:translate-y-1 active:shadow-[0_0_0_var(--primary-sombra)] disabled:opacity-50 ${className}`}
+      className={`flex min-h-15 w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-5 font-display text-subtitulo font-semibold text-primary-foreground shadow-[0_4px_0_var(--primary-sombra)] transition-[transform,box-shadow,opacity] duration-150 ease-out-strong active:translate-y-1 active:shadow-[0_0_0_var(--primary-sombra)] disabled:opacity-50 ${className}`}
       {...props}
     />
   );
@@ -17,7 +17,7 @@ export function BotonSecundario({ className = "", ...props }: ComponentProps<"bu
   return (
     <button
       type="button"
-      className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-xl border-2 border-border bg-card px-4 text-[17px] font-semibold text-foreground transition-transform duration-150 ease-out-strong active:scale-[0.97] ${className}`}
+      className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-xl border-2 border-border bg-card px-4 text-cuerpo font-semibold text-foreground transition-transform duration-150 ease-out-strong active:scale-[0.97] ${className}`}
       {...props}
     />
   );
@@ -36,7 +36,7 @@ export function ChipZona({ tipo, grande = false }: { tipo: TipoZona; grande?: bo
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${ESTILO_ZONA[tipo]} ${
-        grande ? "py-1 pr-4 pl-1.5 text-base" : "py-0.5 pr-3 pl-1 text-sm"
+        grande ? "py-1 pr-4 pl-1.5 text-cuerpo" : "py-0.5 pr-3 pl-1 text-apoyo"
       }`}
     >
       <DibujoClima tipo={tipo} className={grande ? "size-8" : "size-6"} />

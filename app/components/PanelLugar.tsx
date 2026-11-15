@@ -21,7 +21,7 @@ export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan
   return (
     <div className="flex flex-col gap-5">
       {aviso && (
-        <p role="status" className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-base font-semibold">
+        <p role="status" className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-cuerpo font-semibold transition-[translate,opacity] duration-200 ease-out-strong starting:-translate-y-1 starting:opacity-0">
           {aviso}
         </p>
       )}
@@ -29,8 +29,8 @@ export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan
       <Escena tipo={tipo} className="h-24" />
 
       <div className="flex flex-col gap-1">
-        <span className="text-base font-semibold text-primary">Tu terreno está en</span>
-        <h1 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em] text-balance">{nombre}</h1>
+        <span className="text-cuerpo font-semibold text-primary">Tu terreno está en</span>
+        <h1 className="font-display text-titulo font-semibold text-balance">{nombre}</h1>
       </div>
 
       <DatosLugar lugar={lugar} clima={clima} altura={altura} />
@@ -47,13 +47,13 @@ export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan
         <button
           type="button"
           onClick={onCambiar}
-          className="min-h-11 self-center px-3 text-base font-semibold text-primary underline-offset-4 hover:underline"
+          className="min-h-11 self-center px-3 text-cuerpo font-semibold text-primary underline-offset-4 hover:underline"
         >
           Elegir otro lugar
         </button>
       </div>
 
-      <p className="text-[13px] text-muted-foreground" role="status">
+      <p className="text-nota text-muted-foreground" role="status">
         {clima === null
           ? "Consultando NASA POWER…"
           : clima.fuente === "en-vivo"

@@ -113,6 +113,23 @@
   --font-sans: var(--font-inter), system-ui, sans-serif;
   /* La marca usa Inter con números tabulares para los datos (tabular-nums), no una fuente mono */
   --font-mono: var(--font-inter), system-ui, sans-serif;
+  /* Escala de letra por papel (tamaño, interlínea y espaciado van juntos). Usa solo estas seis:
+     text-titulo · text-subtitulo · text-cuerpo · text-apoyo · text-nota · text-dato (números grandes) */
+  --text-nota: 0.8125rem;
+  --text-nota--line-height: 1.4;
+  --text-apoyo: 0.9375rem;
+  --text-apoyo--line-height: 1.4;
+  --text-cuerpo: 1.0625rem;
+  --text-cuerpo--line-height: 1.45;
+  --text-subtitulo: 1.25rem;
+  --text-subtitulo--line-height: 1.2;
+  --text-subtitulo--letter-spacing: -0.015em;
+  --text-titulo: 1.75rem;
+  --text-titulo--line-height: 1.1;
+  --text-titulo--letter-spacing: -0.02em;
+  --text-dato: 2rem;
+  --text-dato--line-height: 1;
+  --text-dato--letter-spacing: -0.02em;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 6px);
@@ -174,6 +191,35 @@ body {
 }
 .entrar-paso {
   animation: entrar-paso var(--duration-slow) var(--ease-out-strong);
+}
+
+/* Las barras de datos se llenan como agua: de izquierda a derecha al entrar en pantalla (data-visto),
+   y de abajo hacia arriba en la gráfica de meses, un mes tras otro (también al entrar en pantalla). Con clip-path no se deforman las puntas. */
+.llenar-x {
+  clip-path: inset(0 100% 0 0 round 999px);
+  transition: clip-path 700ms var(--ease-out-strong);
+}
+.llenar-x[data-visto="true"] {
+  clip-path: inset(0 0 0 0 round 999px);
+}
+@keyframes llenar-y {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.llenar-y {
+  animation: llenar-y 500ms var(--ease-out-strong) both;
+  animation-delay: calc(var(--i, 0) * 25ms);
+  animation-play-state: paused;
+}
+
+[data-visto="true"] .llenar-y {
+  animation-play-state: running;
+}
+
+/* Los periodos del plan entran como lista, uno tras otro (60 ms entre cada uno) */
+.entrar-lista {
+  animation: entrar-paso var(--duration-slow) var(--ease-out-strong) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
 
 /* La lluvia de los dibujos cae despacio; el sol gira apenas */

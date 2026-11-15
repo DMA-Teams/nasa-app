@@ -1,6 +1,9 @@
 // "Así llueve en Honduras": tres datos del país con NASA POWER (promedio 2015–2025),
-// en tarjetas con dibujo y barras para comparar de un vistazo.
+// con dibujos y barras en la misma escala para comparar de un vistazo.
+"use client";
+
 import type { Celda } from "@/lib/tipos";
+import { useEnVista } from "@/lib/useEnVista";
 import { DibujoClima } from "./dibujos";
 
 /** 2.83 → "casi 3 veces"; 3.2 → "más de 3 veces" */
@@ -14,54 +17,58 @@ export function HondurasEnDatos({ celdas }: { celdas: Celda[] }) {
   const masLluviosa = celdas.reduce((a, c) => (c.lluviaAnual > a.lluviaAnual ? c : a));
   const masSeca = celdas.reduce((a, c) => (c.lluviaAnual < a.lluviaAnual ? c : a));
   const departamento = (c: Celda) => c.lugar.split(", ")[1];
+  const [refCanicula, vistaCanicula] = useEnVista<HTMLDivElement>();
+  const [refLluvia, vistaLluvia] = useEnVista<HTMLDivElement>();
 
   return (
-    <section className="flex flex-col gap-3 border-t-2 border-dashed border-border pt-5" aria-labelledby="titulo-datos">
-      <div className="flex flex-col gap-0.5">
-        <h2 id="titulo-datos" className="font-display text-[22px] leading-tight font-semibold tracking-[-0.015em]">
+    <section className="flex flex-col gap-4 border-t-2 border-dashed border-border pt-6" aria-labelledby="titulo-datos">
+      <div className="flex flex-col gap-1">
+        <h2 id="titulo-datos" className="font-display text-subtitulo font-semibold">
           Así llueve en Honduras
         </h2>
-        <p className="text-[15px] text-muted-foreground">Promedio de 2015 a 2025, con datos de NASA.</p>
+        <p className="text-apoyo text-muted-foreground">Promedio de 2015 a 2025, con datos de NASA.</p>
       </div>
 
-      <div className="flex items-center gap-4 rounded-3xl bg-decor-maiz-suave p-4">
-        <DibujoClima tipo="seca" className="size-14" />
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <p className="leading-tight">
-            <span className="block text-[34px] leading-none font-semibold tracking-[-0.02em] tabular-nums">{porcentajeSeco} %</span>
-            <span className="text-base">del país sufre canícula fuerte en julio</span>
+      <div ref={refCanicula} className="flex items-center gap-4 rounded-3xl bg-decor-maiz-suave p-4">
+        <DibujoClima tipo="seca" className="size-14 shrink-0" />
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <p className="flex flex-col gap-1">
+            <span className="text-dato font-semibold tabular-nums">{porcentajeSeco} %</span>
+            <span className="text-cuerpo leading-snug">del país sufre canícula fuerte en julio</span>
           </p>
           <div className="h-2.5 overflow-hidden rounded-full bg-card" aria-hidden="true">
-            <div className="h-full rounded-full bg-decor-sol" style={{ width: `${porcentajeSeco}%` }} />
+            <div className="llenar-x h-full rounded-full bg-decor-sol" data-visto={vistaCanicula} style={{ width: `${porcentajeSeco}%` }} />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      {/* Los dos extremos, uno sobre otro: las barras comparten escala y se comparan de un vistazo */}
+      <div ref={refLluvia} className="flex flex-col gap-4 rounded-3xl bg-background p-4">
+        <h3 className="text-cuerpo font-semibold">Lluvia en un año</h3>
         <Extremo
           tipo="lluviosa"
           mm={masLluviosa.lluviaAnual}
           maximo={masLluviosa.lluviaAnual}
           lugar={departamento(masLluviosa)}
-          texto="donde más llueve"
-          fondo="bg-zona-lluviosa/35"
+          texto="Donde más llueve"
+          visto={vistaLluvia}
         />
         <Extremo
           tipo="seca"
           mm={masSeca.lluviaAnual}
           maximo={masLluviosa.lluviaAnual}
           lugar={departamento(masSeca)}
-          texto="donde menos llueve"
-          fondo="bg-background"
+          texto="Donde menos llueve"
+          visto={vistaLluvia}
+          retraso={120}
         />
+        <p className="border-t border-border pt-3 text-apoyo">
+          En {departamento(masLluviosa)} llueve <strong className="font-semibold">{veces(masLluviosa.lluviaAnual / masSeca.lluviaAnual)} más</strong> que en{" "}
+          {departamento(masSeca)}. Por eso cada lugar necesita su propio plan.
+        </p>
       </div>
 
-      <p className="text-[15px] leading-snug">
-        En {departamento(masLluviosa)} llueve <strong className="font-semibold">{veces(masLluviosa.lluviaAnual / masSeca.lluviaAnual)} más</strong> que en{" "}
-        {departamento(masSeca)}. Por eso cada lugar necesita su propio plan.
-      </p>
-
-      <p className="text-[13px] text-muted-foreground">Clima: NASA POWER. Imagen: NASA Blue Marble. Relieve: SRTM de NASA.</p>
+      <p className="text-nota text-muted-foreground">Clima: NASA POWER. Imagen: NASA Blue Marble. Relieve: SRTM de NASA.</p>
     </section>
   );
 }
@@ -72,25 +79,31 @@ interface PropsExtremo {
   maximo: number;
   lugar: string;
   texto: string;
-  fondo: string;
+  visto: boolean;
+  retraso?: number;
 }
 
-function Extremo({ tipo, mm, maximo, lugar, texto, fondo }: PropsExtremo) {
+function Extremo({ tipo, mm, maximo, lugar, texto, visto, retraso = 0 }: PropsExtremo) {
   return (
-    <div className={`flex flex-col gap-2 rounded-3xl p-4 ${fondo}`}>
-      <DibujoClima tipo={tipo} className="size-10" />
-      <p className="flex flex-col">
-        <span className="text-2xl leading-none font-semibold tracking-[-0.015em] tabular-nums">{mm.toLocaleString("es-HN")} mm</span>
-        <span className="mt-1 text-[13px] text-muted-foreground">de lluvia al año</span>
-      </p>
-      {/* Barra comparada con el lugar más lluvioso */}
-      <div className="h-2 overflow-hidden rounded-full bg-card" aria-hidden="true">
-        <div className="h-full rounded-full bg-chart-3" style={{ width: `${(mm / maximo) * 100}%` }} />
+    <div className="flex items-center gap-3">
+      <DibujoClima tipo={tipo} className="size-11 shrink-0" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <p className="flex items-end justify-between gap-3">
+          <span className="flex min-w-0 flex-col">
+            <span className="text-apoyo text-muted-foreground">{texto}</span>
+            <span className="text-cuerpo leading-tight font-semibold">{lugar}</span>
+          </span>
+          <span className="shrink-0 text-subtitulo font-semibold tabular-nums">{mm.toLocaleString("es-HN")} mm</span>
+        </p>
+        {/* Barra comparada con el lugar más lluvioso */}
+        <div className="h-2.5 overflow-hidden rounded-full bg-card" aria-hidden="true">
+          <div
+            className="llenar-x h-full rounded-full bg-chart-3"
+            data-visto={visto}
+            style={{ width: `${(mm / maximo) * 100}%`, transitionDelay: `${retraso}ms` }}
+          />
+        </div>
       </div>
-      <p className="leading-tight">
-        <span className="block text-base font-semibold">{lugar}</span>
-        <span className="text-sm text-muted-foreground">{texto}</span>
-      </p>
     </div>
   );
 }

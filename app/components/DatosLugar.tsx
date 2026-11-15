@@ -52,8 +52,8 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
       >
         <DibujoClima tipo={tipo} className="size-10" />
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="text-[17px] leading-tight font-semibold">Datos de tu lugar</span>
-          <span className="truncate text-[15px] text-muted-foreground">
+          <span className="text-cuerpo leading-tight font-semibold">Datos de tu lugar</span>
+          <span className="truncate text-apoyo text-muted-foreground">
             {NOMBRE_ZONA[tipo]} · {metros.toLocaleString("es-HN")} m · {lluvia.toLocaleString("es-HN")} mm al año
           </span>
         </span>
@@ -112,7 +112,7 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
               />
             )}
           </dl>
-          <p className="px-4 pb-4 text-[13px] text-muted-foreground">
+          <p className="px-4 pb-4 text-nota text-muted-foreground">
             {clima
               ? `Fuente: ${clima.dataset}, promedio ${clima.periodo.inicio.slice(0, 4)}–${clima.periodo.fin.slice(0, 4)}.`
               : "Consultando NASA POWER…"}
@@ -128,9 +128,9 @@ function Dato({ icono, titulo, valor, detalle }: { icono: ReactNode; titulo: str
     <div className="flex gap-3 rounded-xl bg-card p-3">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-background">{icono}</span>
       <div className="flex min-w-0 flex-col gap-0.5">
-        <dt className="text-sm text-muted-foreground">{titulo}</dt>
-        <dd className="text-[17px] leading-snug font-semibold">{valor}</dd>
-        <dd className="text-[15px] leading-snug">{detalle}</dd>
+        <dt className="text-apoyo text-muted-foreground">{titulo}</dt>
+        <dd className="text-cuerpo leading-snug font-semibold">{valor}</dd>
+        <dd className="text-apoyo leading-snug">{detalle}</dd>
       </div>
     </div>
   );
