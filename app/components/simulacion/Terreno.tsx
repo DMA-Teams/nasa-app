@@ -21,6 +21,20 @@ function semilla(s: number, p: number): number {
   return ((s + 1) * 73856093) ^ ((p + 1) * 19349663);
 }
 
+function Sol({ cx, cy, r }: { cx: number; cy: number; r: number }) {
+  return (
+    <g>
+      <g stroke={SOL} strokeWidth={r * 0.2} strokeLinecap="round">
+        {Array.from({ length: 8 }, (_, i) => {
+          const a = (i * Math.PI) / 4;
+          return <line key={i} x1={cx + Math.cos(a) * r * 1.4} y1={cy + Math.sin(a) * r * 1.4} x2={cx + Math.cos(a) * r * 1.85} y2={cy + Math.sin(a) * r * 1.85} />;
+        })}
+      </g>
+      <circle cx={cx} cy={cy} r={r} fill={SOL} />
+    </g>
+  );
+}
+
 interface PropsTerreno {
   ciclos: Ciclo[];
   paso: number; // 0–47
@@ -62,14 +76,16 @@ export function Terreno({ ciclos, paso, lluvia, dificil, descripcion, className 
 
   return (
     <svg viewBox="0 0 400 280" role="img" aria-label={descripcion} className={className}>
-      {/* Cielo: la lluvia del mes según NASA POWER, en tres niveles */}
+      {/* Cielo: la lluvia del mes según NASA POWER. Poca: sol. Regular: sol con nube y unas gotas. Mucha: nube y lluvia. */}
       <g>
-        {dificil && lluvia === "poca" && <circle cx="300" cy="44" r="16" fill={SOL} />}
-        <g fill={cargada ? NUBE_CARGADA : CIELO}>
-          <ellipse cx="118" cy="48" rx="34" ry="13" />
-          <circle cx="104" cy="40" r="13" />
-          <circle cx="126" cy="35" r="16" />
-        </g>
+        {lluvia !== "mucha" && <Sol cx={lluvia === "poca" ? 118 : 146} cy={lluvia === "poca" ? 46 : 32} r={lluvia === "poca" ? 17 : 13} />}
+        {lluvia !== "poca" && (
+          <g fill={cargada ? NUBE_CARGADA : CIELO}>
+            <ellipse cx="118" cy="48" rx="34" ry="13" />
+            <circle cx="104" cy="40" r="13" />
+            <circle cx="126" cy="35" r="16" />
+          </g>
+        )}
         <g stroke={AGUA} strokeWidth="2.4" strokeLinecap="round">
           {Array.from({ length: gotas }, (_, i) => {
             const x = 92 + (i * 52) / Math.max(gotas - 1, 1);
