@@ -8,6 +8,8 @@ interface Props {
   lugar: Lugar;
   nombre: string; // "Gracias, Lempira" o solo el departamento si no hay municipio
   clima: ClimaZona | null;
+  /** No se pudo leer el clima: se muestran los promedios guardados de la zona. */
+  falloClima: boolean;
   altura: number | null; // del modelo de elevación; si no hay, se usa el promedio de NASA POWER
   aviso: string | null; // p. ej. "Estás fuera de Honduras, así que te mostramos el ejemplo…"
   onInfo: () => void;
@@ -15,13 +17,13 @@ interface Props {
   onCambiar: () => void;
 }
 
-export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan, onCambiar }: Props) {
+export function PanelLugar({ lugar, nombre, clima, falloClima, altura, aviso, onInfo, onPlan, onCambiar }: Props) {
   const tipo = clima?.tipo ?? lugar.celda.tipo;
 
   return (
     <div className="flex flex-col gap-5">
       {aviso && (
-        <p role="status" className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-cuerpo font-semibold transition-[translate,opacity] duration-200 ease-out-strong starting:-translate-y-1 starting:opacity-0">
+        <p className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-cuerpo font-semibold transition-[translate,opacity] duration-200 ease-out-strong starting:-translate-y-1 starting:opacity-0">
           {aviso}
         </p>
       )}
@@ -33,7 +35,7 @@ export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan
         <h1 className="font-display text-titulo font-semibold text-balance">{nombre}</h1>
       </div>
 
-      <DatosLugar lugar={lugar} clima={clima} altura={altura} />
+      <DatosLugar lugar={lugar} clima={clima} falloClima={falloClima} altura={altura} />
 
       <div className="flex flex-col gap-3">
         <BotonPrimario onClick={onPlan}>
@@ -55,7 +57,9 @@ export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan
 
       <p className="text-nota text-muted-foreground" role="status">
         {clima === null
-          ? "Consultando NASA POWER…"
+          ? falloClima
+            ? "No pudimos leer el detalle de NASA POWER; estos son los promedios guardados de la zona."
+            : "Consultando NASA POWER…"
           : clima.fuente === "en-vivo"
             ? "Datos en vivo de NASA POWER."
             : `Datos de respaldo de NASA POWER, guardados el ${clima.consultado}.`}{" "}

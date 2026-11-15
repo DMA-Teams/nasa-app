@@ -8,6 +8,12 @@ export function useEnVista<T extends Element>() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Navegador viejo sin IntersectionObserver: las barras se muestran llenas de una vez
+    if (typeof IntersectionObserver === "undefined") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- solo se sabe en el navegador
+      setVisto(true);
+      return;
+    }
     const observador = new IntersectionObserver(
       ([entrada]) => {
         if (entrada.isIntersecting) {

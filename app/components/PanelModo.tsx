@@ -8,14 +8,18 @@ interface Props {
 }
 
 const ESTILO_TARJETA =
-  "flex min-h-28 items-center gap-4 rounded-3xl border-[3px] px-4 py-4 text-left transition-[transform,border-color] duration-150 ease-out-strong active:scale-[0.97]";
+  "flex min-h-28 items-center gap-4 rounded-3xl border-[3px] px-4 py-4 text-left transition-[transform,border-color,background-color] duration-150 ease-out-strong active:scale-[0.97]";
 
 export function PanelModo({ onRecomendado, onMisCultivos }: Props) {
   return (
     <div className="flex flex-col gap-5">
-      <h2 className="font-display text-titulo font-semibold">¿Cómo quieres tu plan?</h2>
+      <h1 className="font-display text-titulo font-semibold">¿Cómo quieres tu plan?</h1>
 
-      <button type="button" onClick={onRecomendado} className={`${ESTILO_TARJETA} border-primary bg-decor-verde-suave`}>
+      <button
+        type="button"
+        onClick={onRecomendado}
+        className={`${ESTILO_TARJETA} border-primary bg-decor-verde-suave hover:bg-[color-mix(in_oklab,var(--decor-verde-suave)_80%,var(--primary))]`}
+      >
         <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
           <IconoSol className="size-9" />
         </span>
@@ -25,7 +29,7 @@ export function PanelModo({ onRecomendado, onMisCultivos }: Props) {
         </span>
       </button>
 
-      <button type="button" onClick={onMisCultivos} className={`${ESTILO_TARJETA} border-border bg-card`}>
+      <button type="button" onClick={onMisCultivos} className={`${ESTILO_TARJETA} border-border bg-card hover:border-primary/40`}>
         <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-background">
           <DibujoCultivo id="maiz" className="size-12" />
         </span>

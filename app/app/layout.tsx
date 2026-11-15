@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // = --primary (tests/tokens.test.ts lo comprueba)
   themeColor: "#155E4B",
 };
 

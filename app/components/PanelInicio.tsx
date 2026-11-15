@@ -112,7 +112,7 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
           {buscandoUbicacion ? "Buscando dónde estás…" : "Usar mi ubicación"}
         </BotonPrimario>
         {aviso && (
-          <p role="status" className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-cuerpo font-semibold transition-[translate,opacity] duration-200 ease-out-strong starting:-translate-y-1 starting:opacity-0">
+          <p className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-cuerpo font-semibold transition-[translate,opacity] duration-200 ease-out-strong starting:-translate-y-1 starting:opacity-0">
             {aviso}
           </p>
         )}
@@ -126,8 +126,10 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
               key={e.etiqueta}
               type="button"
               onClick={() => onElegir(e.lat, e.lon, "lista")}
-              className={`flex min-h-20 items-center gap-2 rounded-xl px-3 py-2.5 text-left transition-transform duration-150 ease-out-strong active:scale-[0.97] ${
-                e.tipo === "seca" ? "bg-decor-maiz-suave" : "bg-zona-lluviosa/45"
+              className={`flex min-h-20 items-center gap-2 rounded-xl border-2 px-3 py-2.5 text-left transition-[transform,border-color] duration-150 ease-out-strong active:scale-[0.97] ${
+                e.tipo === "seca"
+                  ? "border-decor-maiz-suave bg-decor-maiz-suave hover:border-zona-seca"
+                  : "border-transparent bg-zona-lluviosa/45 hover:border-zona-lluviosa"
               }`}
             >
               <DibujoClima tipo={e.tipo} className="size-11" />

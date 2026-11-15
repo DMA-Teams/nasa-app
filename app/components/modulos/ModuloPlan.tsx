@@ -34,7 +34,7 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-baseline gap-2">
-          <h2 className="font-display text-titulo font-semibold">Tu plan del año</h2>
+          <h1 className="font-display text-titulo font-semibold">Tu plan del año</h1>
           <span className="text-apoyo font-semibold text-muted-foreground">(simulado)</span>
         </div>
         <p className="text-cuerpo">{plan.resumen}</p>
@@ -54,8 +54,8 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
             type="button"
             aria-pressed={division === d.id}
             onClick={() => onDivision(d.id)}
-            className={`relative h-11 rounded-full text-cuerpo font-semibold transition-colors duration-200 ${
-              division === d.id ? "text-primary-foreground" : "text-foreground"
+            className={`relative min-h-11 rounded-full text-cuerpo font-semibold transition-[color,background-color] duration-200 ${
+              division === d.id ? "text-primary-foreground" : "text-foreground hover:bg-card/70"
             }`}
           >
             {d.texto}

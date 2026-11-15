@@ -8,7 +8,7 @@ export function BotonPrimario({ className = "", ...props }: ComponentProps<"butt
   return (
     <button
       type="button"
-      className={`flex min-h-15 w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-5 font-display text-subtitulo font-semibold text-primary-foreground shadow-[0_4px_0_var(--primary-sombra)] transition-[transform,box-shadow,opacity] duration-150 ease-out-strong active:translate-y-1 active:shadow-[0_0_0_var(--primary-sombra)] disabled:opacity-50 ${className}`}
+      className={`flex min-h-15 w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-5 font-display text-subtitulo font-semibold text-primary-foreground shadow-[0_4px_0_var(--primary-sombra)] transition-[transform,box-shadow,opacity,background-color] duration-150 ease-out-strong hover:bg-primary-hover disabled:hover:bg-primary active:translate-y-1 active:shadow-[0_0_0_var(--primary-sombra)] disabled:opacity-50 ${className}`}
       {...props}
     />
   );
@@ -18,7 +18,7 @@ export function BotonSecundario({ className = "", ...props }: ComponentProps<"bu
   return (
     <button
       type="button"
-      className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-xl border-2 border-border bg-card px-4 text-cuerpo font-semibold text-foreground transition-transform duration-150 ease-out-strong active:scale-[0.97] ${className}`}
+      className={`flex min-h-13 w-full items-center justify-center gap-2 rounded-xl border-2 border-border bg-card px-4 text-cuerpo font-semibold text-foreground transition-[transform,border-color] duration-150 ease-out-strong hover:border-primary/40 active:scale-[0.97] ${className}`}
       {...props}
     />
   );

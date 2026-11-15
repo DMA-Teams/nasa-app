@@ -3,7 +3,7 @@
 "use client";
 
 import type { FeatureCollection } from "geojson";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AttributionControl,
   Map as MapaLibre,
@@ -115,33 +115,52 @@ interface Props {
   onTocar: (lat: number, lon: number, departamento: string | null) => void;
   /** Altura real del punto (m) según el modelo de elevación, cuando el 3D está activo. */
   onAltura: (metros: number | null) => void;
+  /** El servidor de relieve no responde (p. ej. Wi-Fi del evento que lo bloquea): el mapa sigue plano. */
+  onSinRelieve: () => void;
 }
 
-export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEnfocado, onTocar, onAltura }: Props) {
+// Tras estos fallos de una misma fuente de mosaicos, se deja de usar (un mosaico suelto puede fallar sin más)
+const FALLOS_PARA_RENDIRSE = 3;
+
+export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEnfocado, onTocar, onAltura, onSinRelieve }: Props) {
   const contenedor = useRef<HTMLDivElement>(null);
   const mapa = useRef<MapaLibre | null>(null);
   const pin = useRef<Marker | null>(null);
   const listo = useRef(false);
+  const sinRelieve = useRef(false);
+  // Teléfonos viejos o navegadores sin WebGL no pueden dibujar el mapa: la app sigue con la lista de departamentos
+  const [sinMapa, setSinMapa] = useState(false);
+  // El 3D se pide al cargar solo si está activo (en el celular empieza plano)
+  const inclinadoInicial = useRef(inclinado);
   // Las funciones cambian en cada render; las guardamos en refs para no recrear el mapa
-  const callbacks = useRef({ onTocar, onAltura });
+  const callbacks = useRef({ onTocar, onAltura, onSinRelieve });
   useEffect(() => {
-    callbacks.current = { onTocar, onAltura };
+    callbacks.current = { onTocar, onAltura, onSinRelieve };
   });
 
   // Crear el mapa una sola vez
   useEffect(() => {
     if (!contenedor.current) return;
-    const m = new MapaLibre({
-      container: contenedor.current,
-      style: estilo(departamentos),
-      bounds: HONDURAS,
-      fitBoundsOptions: { padding: contenedor.current.clientWidth < 600 ? MARGEN_MOVIL : MARGEN },
-      maxBounds: LIMITE_PANEO,
-      pitch: PITCH_3D,
-      bearing: -6,
-      maxPitch: 75,
-      attributionControl: false,
-    });
+    let m: MapaLibre;
+    try {
+      m = new MapaLibre({
+        container: contenedor.current,
+        style: estilo(departamentos),
+        bounds: HONDURAS,
+        fitBoundsOptions: { padding: contenedor.current.clientWidth < 600 ? MARGEN_MOVIL : MARGEN },
+        maxBounds: LIMITE_PANEO,
+        pitch: PITCH_3D,
+        bearing: -6,
+        maxPitch: 75,
+        attributionControl: false,
+      });
+    } catch (err) {
+      console.error("[mapa] no se pudo crear (¿sin WebGL?):", err);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- solo se sabe al intentar crear el mapa en el navegador
+      setSinMapa(true);
+      callbacks.current.onSinRelieve(); // también esconde los botones de capa y 3D
+      return;
+    }
     m.setPadding(margenPanel(m));
     m.fitBounds(HONDURAS, { padding: margen(m), pitch: PITCH_3D, bearing: -6, duration: 0 });
     m.addControl(new AttributionControl({ compact: true }), "top-right");
@@ -151,18 +170,22 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
       listo.current = true;
       // Los créditos empiezan plegados (botón "i") para no tapar el título
       m.getContainer().querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
-      m.setTerrain({ source: "relieve", exaggeration: EXAGERACION });
+      if (inclinadoInicial.current && !sinRelieve.current) m.setTerrain({ source: "relieve", exaggeration: EXAGERACION });
       // Nombres de los departamentos como etiquetas HTML (no necesitan servidor de fuentes)
       const etiquetas = departamentos.features.map((d) => {
         const etiqueta = document.createElement("span");
         etiqueta.textContent = d.properties.nombre;
-        etiqueta.className = "pointer-events-none text-[11px] font-semibold text-white [text-shadow:0_1px_3px_rgb(0_0_0/0.85)] md:text-xs";
+        etiqueta.className =
+          "pointer-events-none text-nota font-semibold text-card [text-shadow:0_1px_3px_color-mix(in_oklab,var(--foreground)_90%,transparent)]";
         new Marker({ element: etiqueta }).setLngLat(d.properties.centro).addTo(m);
         return etiqueta;
       });
-      // En pantallas chicas, con todo el país a la vista, los nombres se amontonan: se ocultan
+      // Con poco mapa libre y todo el país a la vista, los nombres se amontonan: se ocultan.
+      // Desde 768 px el panel tapa 472 px a la derecha, así que cuenta solo la parte libre.
       const mostrarEtiquetas = () => {
-        const visibles = m.getContainer().clientWidth >= 600 || m.getZoom() >= 6.6;
+        const ancho = m.getContainer().clientWidth;
+        const libre = ancho - (ancho >= 768 ? ANCHO_PANEL : 0);
+        const visibles = libre >= 600 || m.getZoom() >= 6.6;
         for (const e of etiquetas) e.style.visibility = visibles ? "visible" : "hidden";
       };
       mostrarEtiquetas();
@@ -173,6 +196,23 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
     m.on("click", (e) => {
       const [dep] = m.queryRenderedFeatures(e.point, { layers: ["dep-relleno"] });
       callbacks.current.onTocar(e.lngLat.lat, e.lngLat.lng, dep ? String(dep.properties.nombre) : null);
+    });
+    // Sin internet hacia NASA GIBS o el relieve, el demo sigue: los departamentos pintados bastan para elegir
+    const fallos: Record<string, number> = {};
+    m.on("error", (e) => {
+      const fuente = (e as { sourceId?: string }).sourceId;
+      if (!fuente) return;
+      fallos[fuente] = (fallos[fuente] ?? 0) + 1;
+      if (fallos[fuente] !== FALLOS_PARA_RENDIRSE) return;
+      if (fuente === "satelite") m.setLayoutProperty("satelite", "visibility", "none");
+      if ((fuente === "relieve" || fuente === "relieveCapas") && !sinRelieve.current) {
+        sinRelieve.current = true;
+        m.setTerrain(null);
+        m.setLayoutProperty("sombra", "visibility", "none");
+        m.setLayoutProperty("altura", "visibility", "none");
+        m.easeTo({ pitch: 0, bearing: 0, duration: 600 });
+        callbacks.current.onSinRelieve();
+      }
     });
     m.on("mouseenter", "dep-relleno", () => (m.getCanvas().style.cursor = "pointer"));
     m.on("mouseleave", "dep-relleno", () => (m.getCanvas().style.cursor = ""));
@@ -212,6 +252,7 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
     const m = mapa.current;
     if (!m) return;
     const aplicar = () => {
+      if (sinRelieve.current) return;
       m.setTerrain(inclinado ? { source: "relieve", exaggeration: EXAGERACION } : null);
       m.easeTo({ pitch: inclinado ? PITCH_3D : 0, bearing: inclinado ? m.getBearing() : 0, duration: 800 });
     };
@@ -256,7 +297,8 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
         return;
       }
       pin.current = new Marker({ color: COLOR_SELECCION }).setLngLat([lugar.lon, lugar.lat]).addTo(m);
-      m.flyTo({ center: [lugar.lon, lugar.lat], zoom: 9, pitch: inclinado ? 60 : 0, speed: 0.9, essential: true });
+      // Sin `essential`: con "reducir movimiento" MapLibre salta directo al lugar en vez de volar
+      m.flyTo({ center: [lugar.lon, lugar.lat], zoom: 9, pitch: inclinado ? 60 : 0, speed: 0.9 });
       m.once("moveend", () => {
         const altura = m.getTerrain() ? m.queryTerrainElevation([lugar.lon, lugar.lat]) : null;
         callbacks.current.onAltura(altura === null ? null : Math.round(altura / EXAGERACION));
@@ -269,6 +311,16 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
   }, [lugar?.lat, lugar?.lon]);
 
   // El CSS de MapLibre pone `position: relative` al contenedor, así que el tamaño lo da el div de afuera
+  if (sinMapa) {
+    return (
+      <div className="absolute inset-0 flex items-start justify-center bg-mapa-fondo p-6 pt-28 md:items-center md:pt-6 md:pr-[472px]">
+        <p className="max-w-xs rounded-2xl bg-card px-4 py-3 text-center text-apoyo">
+          Este navegador no puede mostrar el mapa. Elige tu departamento y tu municipio en la lista: el plan sale igual.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="absolute inset-0">
       <div

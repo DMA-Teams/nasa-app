@@ -2,11 +2,18 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { MESES } from "@/lib/textos";
-import type { MesClima } from "@/lib/tipos";
+import { MESES, nombreMesesDificiles } from "@/lib/textos";
+import type { MesClima, TipoZona } from "@/lib/tipos";
 import { useEnVista } from "@/lib/useEnVista";
 
-export function GraficaMensual({ meses, resaltados }: { meses: MesClima[]; resaltados: number[] }) {
+interface Props {
+  meses: MesClima[];
+  /** Meses difíciles (1–12): su columna va sombreada y la leyenda dice por qué. */
+  resaltados: number[];
+  tipo: TipoZona;
+}
+
+export function GraficaMensual({ meses, resaltados, tipo }: Props) {
   const max = Math.max(...meses.map((m) => Math.max(m.lluvia, m.evaporacion)));
   const tope = Math.ceil(max / 100) * 100;
   const [ref, visto] = useEnVista<HTMLElement>();
@@ -15,9 +22,15 @@ export function GraficaMensual({ meses, resaltados }: { meses: MesClima[]; resal
     <figure ref={ref} data-visto={visto} className="flex flex-col gap-3 rounded-xl bg-background p-4">
       <figcaption className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-cuerpo font-semibold">Agua de cada mes</span>
-        <span className="flex gap-3 text-apoyo">
+        <span className="flex flex-wrap gap-x-3 gap-y-1 text-apoyo">
           <span className="inline-flex items-center gap-1.5"><i className="size-3 rounded-full bg-chart-3" />Llueve</span>
           <span className="inline-flex items-center gap-1.5"><i className="size-3 rounded-full bg-decor-sol" />Se seca</span>
+          {resaltados.length > 0 && (
+            <span className="inline-flex items-center gap-1.5">
+              <i className="h-3.5 w-3 rounded-t-sm bg-zona-seca/40" />
+              {nombreMesesDificiles(tipo)}
+            </span>
+          )}
         </span>
       </figcaption>
       <div className="relative">

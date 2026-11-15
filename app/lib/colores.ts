@@ -1,8 +1,9 @@
 // Colores del mapa. MapLibre no entiende variables CSS, así que aquí van los valores
-// del tema Surco (design-tokens/build/surco.css). Si cambian los tokens, actualiza esto.
+// del tema Surco (design-tokens/build/surco.css). Si cambian los tokens, actualiza esto:
+// tests/tokens.test.ts falla si esta copia, globals.css o el themeColor de layout.tsx se desfasan.
 import type { Relieve, TipoZona } from "./tipos";
 
-const TOKENS = {
+export const TOKENS = {
   primary: "#155E4B",
   highlight: "#9C5B0A",
   chart3: "#1D6FB8",

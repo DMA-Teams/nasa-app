@@ -18,7 +18,7 @@ export function ModuloCultivos({ cultivos, onCultivos, onVerPlan }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h2 className="font-display text-titulo font-semibold">¿Qué siembras?</h2>
+        <h1 className="font-display text-titulo font-semibold">¿Qué siembras?</h1>
         <p className="text-cuerpo text-muted-foreground">Toca todos los que siembras.</p>
       </div>
 
@@ -32,7 +32,7 @@ export function ModuloCultivos({ cultivos, onCultivos, onVerPlan }: Props) {
               aria-pressed={activo}
               onClick={() => alternar(r.id)}
               className={`relative flex min-h-32 flex-col items-center justify-center gap-1 rounded-3xl border-[3px] px-2 py-3 text-cuerpo leading-tight font-semibold transition-[transform,background-color,border-color] duration-150 ease-out-strong active:scale-[0.96] ${
-                activo ? "border-primary bg-decor-verde-suave" : "border-transparent bg-background"
+                activo ? "border-primary bg-decor-verde-suave" : "border-transparent bg-background hover:border-primary/40"
               }`}
             >
               <DibujoCultivo id={r.id} className={`size-16 transition-transform duration-200 ease-out-strong ${activo ? "scale-110" : ""}`} />

@@ -2,9 +2,10 @@
 // Diseñado para hoja carta o A4: encabezado de marca, resumen, un recuadro por periodo, aviso y fuente.
 import { NOMBRE_ZONA } from "@/lib/colores";
 import { agruparPlan } from "@/lib/plan";
-import { MESES, NOMBRE_CULTIVO } from "@/lib/textos";
+import { MESES, NOMBRE_CULTIVO, nombreMesesDificiles } from "@/lib/textos";
 import type { Division, PeriodoPlan, PlanAnual } from "@/lib/tipos";
 import { DibujoCultivo } from "./dibujos";
+import { IconoAlerta } from "./ui";
 
 interface Props {
   plan: PlanAnual;
@@ -53,7 +54,7 @@ export function PlanImprimible({ plan, division, lugar }: Props) {
           {plan.meses.some((m) => m.dificil) && (
             <span className="flex items-center gap-1.5 text-[8.5pt] text-muted-foreground">
               <i className="inline-block size-2.5 rounded-sm bg-highlight" />
-              {plan.tipoZona === "lluviosa" ? "Meses de aguaceros fuertes" : "Meses de canícula"}
+              {nombreMesesDificiles(plan.tipoZona)}
             </span>
           )}
         </div>
@@ -110,7 +111,12 @@ function Periodo({ periodo: p }: { periodo: PeriodoPlan }) {
         <span className="font-semibold">{p.consejo}</span>
       </div>
       <p className="text-[10pt]">{p.porque}</p>
-      {p.alerta && <p className="self-start rounded-full bg-decor-maiz-suave px-2.5 py-0.5 text-[8.5pt] font-semibold">⚠ {p.alerta}</p>}
+      {p.alerta && (
+        <p className="flex items-center gap-1 self-start rounded-full bg-decor-maiz-suave px-2.5 py-0.5 text-[8.5pt] font-semibold">
+          <IconoAlerta className="size-3 text-highlight" />
+          {p.alerta}
+        </p>
+      )}
       <p className="text-[8.5pt] text-muted-foreground">
         Tierra cubierta {p.mesesCubierta} de {p.meses.length} meses
       </p>

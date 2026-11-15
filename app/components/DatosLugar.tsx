@@ -14,6 +14,7 @@ import { IconoGota, IconoMontana, IconoSol } from "./ui";
 interface Props {
   lugar: Lugar;
   clima: ClimaZona | null;
+  falloClima: boolean;
   altura: number | null; // del modelo de elevación; si no hay, se usa el promedio de NASA POWER
 }
 
@@ -29,7 +30,7 @@ const EXPLICA_RELIEVE = {
   montana: "Tierra alta y fresca; la lluvia arrastra más el suelo en las laderas.",
 };
 
-export function DatosLugar({ lugar, clima, altura }: Props) {
+export function DatosLugar({ lugar, clima, falloClima, altura }: Props) {
   const [abierto, setAbierto] = useState(false);
   const idDetalle = useId();
   const metros = altura ?? clima?.elevacion ?? lugar.celda.elevacion;
@@ -53,7 +54,8 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
         <DibujoClima tipo={tipo} className="size-10" />
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="text-cuerpo leading-tight font-semibold">Datos de tu lugar</span>
-          <span className="truncate text-apoyo text-muted-foreground">
+          {/* Sin recortar: en el celular la lluvia (el dato que más importa) quedaba cortada */}
+          <span className="text-apoyo text-pretty text-muted-foreground">
             {NOMBRE_ZONA[tipo]} · {metros.toLocaleString("es-HN")} m · {lluvia.toLocaleString("es-HN")} mm al año
           </span>
         </span>
@@ -115,7 +117,9 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
           <p className="px-4 pb-4 text-nota text-muted-foreground">
             {clima
               ? `Fuente: ${clima.dataset}, promedio ${clima.periodo.inicio.slice(0, 4)}–${clima.periodo.fin.slice(0, 4)}.`
-              : "Consultando NASA POWER…"}
+              : falloClima
+                ? "Fuente: NASA POWER, promedio 2015–2025 guardado para esta zona."
+                : "Consultando NASA POWER…"}
           </p>
         </div>
       </div>
