@@ -1,6 +1,7 @@
 // Dibujos a color (SVG, sin librerías): el clima y los cultivos.
 // Los colores salen de los tokens del tema Surco (--decor-* son solo para ilustración).
 import type { CultivoId, TipoZona } from "@/lib/tipos";
+import { PlantaLeyenda } from "./simulacion/Planta";
 
 const SOL = "var(--decor-sol)";
 const CIELO = "var(--decor-cielo)";
@@ -159,7 +160,11 @@ export function DibujoClima({ tipo, className = "size-10" }: { tipo: TipoZona; c
 }
 
 /** Cultivos dibujados a color: se reconocen sin leer el nombre. */
-export function DibujoCultivo({ id, className = "size-14" }: { id: CultivoId; className?: string }) {
+const CON_DIBUJO_PROPIO = new Set<CultivoId>(["maiz", "frijol", "sorgo", "frijolAbono"]);
+
+export function DibujoCultivo({ id: cultivo, className = "size-14" }: { id: CultivoId; className?: string }) {
+  if (!CON_DIBUJO_PROPIO.has(cultivo)) return <PlantaLeyenda id={cultivo} className={className} centrada />;
+  const id = cultivo;
   return (
     <svg viewBox="0 0 48 48" className={`shrink-0 ${className}`} aria-hidden="true">
       {id === "maiz" && (

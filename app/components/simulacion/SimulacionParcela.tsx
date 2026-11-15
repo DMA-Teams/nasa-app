@@ -151,7 +151,7 @@ function Contenido({ plan, lugar, onCerrar }: Omit<PropsSimulacion, "abierta">) 
             <h2 id="titulo-simulacion" className="font-display text-subtitulo font-semibold">
               Tu parcela en el año
             </h2>
-            <span className="text-apoyo text-muted-foreground">(simulado) · {lugar}</span>
+            <span className="text-apoyo text-muted-foreground">{plan.simulado ? `(simulado) · ${lugar}` : lugar}</span>
           </div>
         </header>
 
@@ -232,8 +232,8 @@ function Contenido({ plan, lugar, onCerrar }: Omit<PropsSimulacion, "abierta">) 
 
         <p className="text-apoyo text-muted-foreground">Ilustración de tu plan. No es una predicción.</p>
         <p className="text-nota text-muted-foreground">
-          Lluvia: {plan.fuente.dataset}, promedio {plan.fuente.periodo}, consultado el {plan.fuente.consultado.slice(0, 10)}. Meses de siembra:
-          reglas de ejemplo (simulado).
+          Lluvia: {plan.fuente.dataset}, promedio {plan.fuente.periodo}, consultado el {plan.fuente.consultado.slice(0, 10)}. Meses de siembra:{" "}
+          {plan.simulado ? "reglas de ejemplo (simulado)." : "calculados con el balance de agua de cada cultivo (FAO-56 y FAO-33)."}
         </p>
       </div>
     </div>

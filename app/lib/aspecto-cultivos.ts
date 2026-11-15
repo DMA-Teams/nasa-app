@@ -1,5 +1,6 @@
 // Cómo se dibuja cada cultivo en la simulación de la parcela: 7 formas base y, por cultivo, su altura, color y detalle.
 // Agregar un cultivo es agregar una línea aquí: no hace falta un dibujo nuevo. Los colores salen de los tokens del tema.
+import { CULTIVOS } from "./cultivos.ts";
 import { NOMBRE_CULTIVO } from "./textos.ts";
 
 export type Forma = "cana" | "macolla" | "mataBaja" | "rastrera" | "tutor" | "roseta" | "arbusto";
@@ -65,8 +66,7 @@ const ASPECTOS: Record<string, AspectoCultivo> = {
 
 export const IDS_CULTIVOS = Object.keys(ASPECTOS);
 
-/** Los ids que el plan usa hoy (en español) apuntan a los del listado. */
-export const ALIAS: Record<string, string> = { maiz: "maize", frijol: "beans", sorgo: "sorghum", frijolAbono: "mucuna" };
+export const ALIAS: Record<string, string> = Object.fromEntries(CULTIVOS.map((c) => [c.id, c.api]));
 
 const conocido = (id: string): AspectoCultivo | undefined => ASPECTOS[ALIAS[id] ?? id];
 

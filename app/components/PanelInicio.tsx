@@ -4,7 +4,6 @@
 
 import { useRef, useState } from "react";
 import { obtenerMunicipios } from "@/lib/api";
-import { MUNICIPIOS_SIMULADOS } from "@/lib/municipios";
 import type { Celda, Lugar, Municipio, TipoZona } from "@/lib/tipos";
 import { DibujoClima } from "./dibujos";
 import { HondurasEnDatos } from "./HondurasEnDatos";
@@ -84,7 +83,7 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="municipio" className="text-apoyo text-muted-foreground">
-            Municipio{MUNICIPIOS_SIMULADOS && <span> (simulado)</span>}
+            Municipio{municipios.some((m) => m.simulado) && <span> (simulado)</span>}
           </label>
           <div className="relative">
             <select

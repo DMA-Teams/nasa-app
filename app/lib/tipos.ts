@@ -74,7 +74,9 @@ export interface ClimaZona {
   peorAnio: { anio: number; lluvia: number };
 }
 
-export type CultivoId = "maiz" | "frijol" | "sorgo" | "frijolAbono";
+import type { CultivoId } from "./cultivos.ts";
+import type { PronosticoMes, RazonPlan } from "./razones.ts";
+export type { CultivoId };
 export type Nivel = "poco" | "regular" | "bien";
 
 export interface ReglaCultivo {
@@ -100,6 +102,7 @@ export interface Municipio {
   departamento: string; // igual que PropiedadesDepartamento.nombre
   lat: number;
   lon: number;
+  simulado?: boolean;
 }
 
 /** El lugar elegido por cualquiera de los 3 caminos: lista, ubicación o mapa. */
@@ -167,5 +170,6 @@ export interface PlanAnual {
   meses: MesPlan[]; // 12, de enero a diciembre
   resumen: string;
   fuente: { dataset: string; periodo: string; consultado: string };
-  simulado: true; // el calendario de cultivos sale de reglas inventadas
+  simulado: boolean;
+  explicacion?: { razones: RazonPlan[]; pronostico: PronosticoMes[] };
 }

@@ -3,6 +3,7 @@
 // Solo reordena los meses del plan (lib/plan.ts → filasCalendario): no pide nada al servidor.
 import { NOMBRE_ZONA } from "@/lib/colores";
 import { filasCalendario } from "@/lib/plan";
+import { esCobertura } from "@/lib/cultivos";
 import { listaMeses, MESES, NOMBRE_CULTIVO, nombreMesesDificiles } from "@/lib/textos";
 import type { EstadoCalendario, FilaCalendario, PlanAnual } from "@/lib/tipos";
 import { DibujoCultivo } from "./dibujos";
@@ -61,7 +62,7 @@ export function CalendarioCultivos({ plan, mesActual }: { plan: PlanAnual; mesAc
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Cosecha className="size-4 print:size-3" />
-            {filas.some((f) => f.id === "frijolAbono") ? "Cosecha o corte" : "Cosecha"}
+            {filas.some((f) => esCobertura(f.id)) ? "Cosecha o corte" : "Cosecha"}
           </span>
           {dificiles.length > 0 && (
             <span className="inline-flex items-center gap-1.5">

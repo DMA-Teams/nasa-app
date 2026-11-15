@@ -1,6 +1,7 @@
 // Agrupa los 12 meses del plan en trimestres o semestres, con el consejo y el porqué de cada periodo.
 // Funciones puras: cambiar de trimestral a semestral no vuelve a pedir nada al servidor.
 import { PRIORIDAD_ACCION } from "./calendario.ts";
+import { esCobertura } from "./cultivos.ts";
 import { listaMeses, MESES, MESES_LARGOS, NOMBRE_CULTIVO } from "./textos.ts";
 import type { AccionPeriodo, CultivoId, Division, EstadoCalendario, FilaCalendario, MesPlan, PeriodoPlan, PlanAnual, TipoZona } from "./tipos";
 
@@ -15,18 +16,26 @@ function enFrase(ids: CultivoId[]): string {
   return nombres.length <= 1 ? (nombres[0] ?? "") : `${nombres.slice(0, -1).join(", ")} y ${nombres.at(-1)}`;
 }
 
+function abonoEnFrase(ids: CultivoId[]): string {
+  const abonos = ids.filter(esCobertura);
+  if (abonos.length === 1 && abonos[0] === "frijolAbono") return "el frijol abono";
+  return abonos.length ? `el abono verde (${enFrase(abonos)})` : "el abono verde";
+}
+
 function consejoDe(accion: AccionPeriodo, cultivos: CultivoId[]): string {
-  const sinAbono = cultivos.filter((c) => c !== "frijolAbono");
+  const sinAbono = cultivos.filter((c) => !esCobertura(c));
   switch (accion) {
     case "sembrar":
       return `Siembra ${enFrase(cultivos)}`;
     case "cosechar":
       // El frijol abono no se cosecha: se corta y se incorpora a la tierra
-      return sinAbono.length ? `Cosecha ${enFrase(sinAbono)}` : "Corta el frijol abono y déjalo en la tierra";
+      return sinAbono.length ? `Cosecha ${enFrase(sinAbono)}` : `Corta ${abonoEnFrase(cultivos)} y déjalo en la tierra`;
     case "cuidar":
       return `Cuida tu ${enFrase(sinAbono)}`;
-    case "cubrir":
-      return "El frijol abono cubre la tierra";
+    case "cubrir": {
+      const abono = abonoEnFrase(cultivos);
+      return `${abono[0].toUpperCase()}${abono.slice(1)} cubre la tierra`;
+    }
     case "descansar":
       return "La tierra descansa";
   }
@@ -39,6 +48,7 @@ function razonCultivo(id: CultivoId, mes: number, zona: TipoZona): string | null
   if (id === "frijol" && mes >= 8) return "El frijol va en postrera, después de la canícula.";
   if (id === "sorgo" && zona !== "lluviosa") return "El sorgo aguanta la canícula si el maíz sufre.";
   if (id === "frijolAbono") return "El frijol abono cubre la tierra y la alimenta.";
+  if (esCobertura(id)) return `El abono verde (${NOMBRE_CULTIVO[id].toLowerCase()}) cubre la tierra y la alimenta.`;
   return null;
 }
 
@@ -51,22 +61,24 @@ function porqueDe(accion: AccionPeriodo, meses: MesPlan[], cultivos: CultivoId[]
       return [`Se siembra en ${MESES_LARGOS[m.mes - 1]} porque ya llueve (${m.lluvia} mm ese mes).`, extra].filter(Boolean).join(" ");
     }
     case "cosechar": {
-      const conCosecha = meses.filter((x) => x.cosechados.some((c) => c !== "frijolAbono"));
+      const conCosecha = meses.filter((x) => x.cosechados.some((c) => !esCobertura(c)));
       if (!conCosecha.length) {
         const m = meses.find((x) => x.cosechados.length)!;
-        return `En ${MESES_LARGOS[m.mes - 1]} el frijol abono ya creció: cortado, sirve de abono para la tierra.`;
+        return `En ${MESES_LARGOS[m.mes - 1]} ${abonoEnFrase(m.cosechados)} ya creció: cortado, sirve de abono para la tierra.`;
       }
-      const listos = [...new Set(conCosecha.flatMap((x) => x.cosechados))].filter((c) => c !== "frijolAbono");
+      const listos = [...new Set(conCosecha.flatMap((x) => x.cosechados))].filter((c) => !esCobertura(c));
       const quienes = listos.map((c) => `el ${NOMBRE_CULTIVO[c].toLowerCase()}`);
       const sujeto = quienes.length > 1 ? `${quienes.slice(0, -1).join(", ")} y ${quienes.at(-1)}` : quienes[0];
       return `Se cosecha en ${listaMeses(conCosecha.map((x) => x.mes))}: ${sujeto} ya ${listos.length > 1 ? "terminaron" : "terminó"} su ciclo.`;
     }
     case "cuidar":
-      return cultivos.includes("frijolAbono")
-        ? "Las plantas están creciendo y el frijol abono protege la tierra: limpia la maleza."
+      return cultivos.some(esCobertura)
+        ? `Las plantas están creciendo y ${abonoEnFrase(cultivos)} protege la tierra: limpia la maleza.`
         : "Las plantas están creciendo: limpia la maleza y revisa que no haya plagas.";
-    case "cubrir":
-      return "El frijol abono protege la tierra del sol y de la lluvia fuerte.";
+    case "cubrir": {
+      const abono = abonoEnFrase(cultivos);
+      return `${abono[0].toUpperCase()}${abono.slice(1)} protege la tierra del sol y de la lluvia fuerte.`;
+    }
     case "descansar":
       return lluvia < 50 * meses.length
         ? `Llueve poco (${lluvia} mm en estos meses): no conviene sembrar.`

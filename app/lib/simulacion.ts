@@ -1,6 +1,7 @@
 // Lógica de la simulación visual de la parcela: qué cultivo ocupa cada surco y en qué etapa se ve en cada momento.
 // Funciones puras (las usan la pantalla y las pruebas). No inventa fechas: solo reordena los meses del plan.
 import { nombreCultivo } from "./aspecto-cultivos.ts";
+import { CULTIVOS } from "./cultivos.ts";
 import { MESES_LARGOS } from "./textos.ts";
 import type { Division, MesPlan, PlanAnual } from "./tipos";
 
@@ -151,8 +152,7 @@ export function nivelLluvia(mm: number): NivelLluvia {
 
 // ---------- Textos del mes y arranque ----------
 
-// El frijol abono no se cosecha: se corta y se incorpora a la tierra (igual que en lib/plan.ts)
-const SE_CORTA = ["frijolAbono", "mucuna"];
+const SE_CORTA = CULTIVOS.filter((c) => c.cobertura).flatMap((c) => [c.id, c.api]) as string[];
 const lista = (ids: string[]) => ids.map(nombreCultivo).join(", ");
 
 /** Lo que el plan dice de un mes, en frases cortas. Solo siembra, cosecha o corte, y lo que hay en el terreno. */

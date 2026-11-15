@@ -43,3 +43,8 @@ test("alturas dentro de rango y colores solo de tokens", () => {
     for (const c of [a.hoja, a.colorDetalle]) assert.ok(!c.includes("#") && c.includes("var(--"));
   }
 });
+
+test("los 22 cultivos de la app tienen su dibujo propio en la simulación", async () => {
+  const { CULTIVOS } = await import("../lib/cultivos.ts");
+  for (const c of CULTIVOS) assert.notEqual(aspectoDe(c.id).nombre, c.id, `${c.id} cae en el dibujo genérico`);
+});
