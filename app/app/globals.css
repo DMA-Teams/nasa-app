@@ -111,7 +111,8 @@
   --color-primary-sombra: var(--primary-sombra);
   --font-display: var(--font-inter), system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  /* La marca usa Inter con números tabulares para los datos (tabular-nums), no una fuente mono */
+  --font-mono: var(--font-inter), system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 6px);
@@ -128,6 +129,31 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Anillo de foco de la marca: 2 px en verde Surco, separado 2 px. Igual en toda la app. */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Carga de la marca: las cuatro parcelas giran sus surcos una tras otra, 45° cada vez.
+   Cada parcela da media vuelta (180°) por ciclo; como los surcos son simétricos, el ciclo empata sin salto. */
+@keyframes surcos {
+  0% { transform: rotate(var(--base)); }
+  6.25%, 25% { transform: rotate(calc(var(--base) + 45deg)); }
+  31.25%, 50% { transform: rotate(calc(var(--base) + 90deg)); }
+  56.25%, 75% { transform: rotate(calc(var(--base) + 135deg)); }
+  81.25%, 100% { transform: rotate(calc(var(--base) + 180deg)); }
+}
+.surcos {
+  transform: rotate(var(--base));
+  animation: surcos 6.4s var(--ease-in-out-strong) infinite both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .surcos {
+    animation: none;
+  }
 }
 
 /* El panel entra suave cada vez que cambia de paso (una sola animación, corta) */

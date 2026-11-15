@@ -21,7 +21,7 @@ export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan
   return (
     <div className="flex flex-col gap-5">
       {aviso && (
-        <p role="status" className="rounded-2xl bg-decor-maiz-suave px-4 py-3 text-base font-semibold">
+        <p role="status" className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-base font-semibold">
           {aviso}
         </p>
       )}
@@ -47,7 +47,7 @@ export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan
         <button
           type="button"
           onClick={onCambiar}
-          className="min-h-11 self-center px-3 text-base font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+          className="min-h-11 self-center px-3 text-base font-semibold text-primary underline-offset-4 hover:underline"
         >
           Elegir otro lugar
         </button>

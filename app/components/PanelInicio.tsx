@@ -30,7 +30,7 @@ interface Props {
 
 // <select> nativo: en el celular abre la lista del sistema, que el usuario ya conoce
 const ESTILO_SELECT =
-  "h-14 w-full appearance-none rounded-2xl border-2 border-border bg-card px-4 pr-12 text-[17px] transition-colors duration-150 focus:border-primary focus:outline-none disabled:opacity-50";
+  "h-14 w-full appearance-none rounded-xl border-2 border-border bg-card px-4 pr-12 text-[17px] transition-colors duration-150 focus:border-primary disabled:opacity-50";
 
 function Flecha() {
   return (
@@ -116,7 +116,7 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
           {buscandoUbicacion ? "Buscando dónde estás…" : "Usar mi ubicación"}
         </BotonPrimario>
         {aviso && (
-          <p role="status" className="rounded-2xl bg-decor-maiz-suave px-4 py-3 text-base font-semibold">
+          <p role="status" className="rounded-xl bg-decor-maiz-suave px-4 py-3 text-base font-semibold">
             {aviso}
           </p>
         )}
@@ -130,7 +130,7 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
               key={e.etiqueta}
               type="button"
               onClick={() => onElegir(e.lat, e.lon, "lista")}
-              className={`flex min-h-20 items-center gap-2 rounded-2xl px-3 py-2.5 text-left transition-transform duration-150 ease-out-strong active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
+              className={`flex min-h-20 items-center gap-2 rounded-xl px-3 py-2.5 text-left transition-transform duration-150 ease-out-strong active:scale-[0.97] ${
                 e.tipo === "seca" ? "bg-decor-maiz-suave" : "bg-zona-lluviosa/45"
               }`}
             >
@@ -165,7 +165,7 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
 function Dato({ valor, texto }: { valor: string; texto: string }) {
   return (
     <li className="flex items-baseline gap-2.5">
-      <span className="w-24 shrink-0 text-right font-mono text-[17px] font-semibold tabular-nums">{valor}</span>
+      <span className="w-24 shrink-0 text-right text-[17px] font-semibold tabular-nums">{valor}</span>
       <span className="text-[15px] leading-snug text-muted-foreground">{texto}</span>
     </li>
   );

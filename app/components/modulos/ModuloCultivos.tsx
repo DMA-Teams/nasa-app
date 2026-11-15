@@ -31,7 +31,7 @@ export function ModuloCultivos({ cultivos, onCultivos, onVerPlan }: Props) {
               type="button"
               aria-pressed={activo}
               onClick={() => alternar(r.id)}
-              className={`relative flex min-h-32 flex-col items-center justify-center gap-1 rounded-3xl border-[3px] px-2 py-3 text-[17px] leading-tight font-semibold transition-[transform,background-color,border-color] duration-150 ease-out-strong active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
+              className={`relative flex min-h-32 flex-col items-center justify-center gap-1 rounded-3xl border-[3px] px-2 py-3 text-[17px] leading-tight font-semibold transition-[transform,background-color,border-color] duration-150 ease-out-strong active:scale-[0.96] ${
                 activo ? "border-primary bg-decor-verde-suave" : "border-transparent bg-background"
               }`}
             >

@@ -35,7 +35,7 @@ export function ModuloClima({ clima }: { clima: ClimaZona }) {
       <GraficaMensual meses={m} resaltados={clima.mesesDificiles} />
 
       {clima.tipo !== "lluviosa" && (
-        <div className="flex items-center gap-3 rounded-2xl bg-zona-seca/35 px-4 py-3 text-base leading-snug">
+        <div className="flex items-center gap-3 rounded-xl bg-zona-seca/35 px-4 py-3 text-base leading-snug">
           <IconoAlerta className="size-6 shrink-0 text-highlight" />
           <span>
             <strong>{clima.peorAnio.anio} fue el peor año:</strong> solo {clima.peorAnio.lluvia} mm en julio y agosto.

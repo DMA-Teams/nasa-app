@@ -7,7 +7,7 @@ export function GraficaMensual({ meses, resaltados }: { meses: MesClima[]; resal
   const tope = Math.ceil(max / 100) * 100;
 
   return (
-    <figure className="flex flex-col gap-3 rounded-2xl bg-background p-4">
+    <figure className="flex flex-col gap-3 rounded-xl bg-background p-4">
       <figcaption className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-base font-semibold">Agua de cada mes</span>
         <span className="flex gap-3 text-sm">
@@ -16,7 +16,7 @@ export function GraficaMensual({ meses, resaltados }: { meses: MesClima[]; resal
         </span>
       </figcaption>
       <div className="relative">
-        <span className="absolute -top-1 right-0 font-mono text-[11px] text-muted-foreground">{tope} mm</span>
+        <span className="absolute -top-1 right-0 text-[11px] tabular-nums text-muted-foreground">{tope} mm</span>
         <div className="grid h-36 grid-cols-12 items-end gap-1 border-b-2 border-border">
           {meses.map((m) => (
             <div

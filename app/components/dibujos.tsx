@@ -95,7 +95,7 @@ export function Escena({ tipo, className = "" }: { tipo: TipoZona; className?: s
       preserveAspectRatio="xMidYMid slice"
       role="img"
       aria-label={TEXTO_ESCENA[tipo]}
-      className={`block w-full rounded-2xl ${className}`}
+      className={`block w-full rounded-xl ${className}`}
     >
       <rect width="320" height="110" fill={cielo} />
       {tipo === "seca" && <Sol cx={250} cy={36} r={20} />}

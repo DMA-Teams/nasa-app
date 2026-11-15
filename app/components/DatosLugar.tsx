@@ -48,7 +48,7 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
         aria-expanded={abierto}
         aria-controls={idDetalle}
         onClick={() => setAbierto(!abierto)}
-        className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+        className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left focus-visible:-outline-offset-2"
       >
         <DibujoClima tipo={tipo} className="size-10" />
         <span className="flex min-w-0 flex-1 flex-col">
@@ -125,7 +125,7 @@ export function DatosLugar({ lugar, clima, altura }: Props) {
 
 function Dato({ icono, titulo, valor, detalle }: { icono: ReactNode; titulo: string; valor: string; detalle: string }) {
   return (
-    <div className="flex gap-3 rounded-2xl bg-card p-3">
+    <div className="flex gap-3 rounded-xl bg-card p-3">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-background">{icono}</span>
       <div className="flex min-w-0 flex-col gap-0.5">
         <dt className="text-sm text-muted-foreground">{titulo}</dt>

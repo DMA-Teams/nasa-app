@@ -8,7 +8,7 @@ interface Props {
 }
 
 const ESTILO_TARJETA =
-  "flex min-h-28 items-center gap-4 rounded-3xl border-[3px] px-4 py-4 text-left transition-[transform,border-color] duration-150 ease-out-strong active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+  "flex min-h-28 items-center gap-4 rounded-3xl border-[3px] px-4 py-4 text-left transition-[transform,border-color] duration-150 ease-out-strong active:scale-[0.97]";
 
 export function PanelModo({ onRecomendado, onMisCultivos }: Props) {
   return (
@@ -16,7 +16,7 @@ export function PanelModo({ onRecomendado, onMisCultivos }: Props) {
       <h2 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em]">¿Cómo quieres tu plan?</h2>
 
       <button type="button" onClick={onRecomendado} className={`${ESTILO_TARJETA} border-primary bg-decor-verde-suave`}>
-        <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+        <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
           <IconoSol className="size-9" />
         </span>
         <span className="flex flex-col gap-0.5">
@@ -26,7 +26,7 @@ export function PanelModo({ onRecomendado, onMisCultivos }: Props) {
       </button>
 
       <button type="button" onClick={onMisCultivos} className={`${ESTILO_TARJETA} border-border bg-card`}>
-        <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-background">
+        <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-background">
           <DibujoCultivo id="maiz" className="size-12" />
         </span>
         <span className="flex flex-col gap-0.5">
