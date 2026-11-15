@@ -1,5 +1,5 @@
 // Lluvia contra evaporación por mes (promedio 2015–2025). Barras simples con CSS.
-import { MESES } from "@/lib/motor";
+import { MESES } from "@/lib/textos";
 import type { MesClima } from "@/lib/tipos";
 
 export function GraficaMensual({ meses, resaltados }: { meses: MesClima[]; resaltados: number[] }) {

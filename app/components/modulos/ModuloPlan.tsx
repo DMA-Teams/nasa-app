@@ -1,5 +1,6 @@
 // Módulo 4: plan de siembra de 2 años y compartir por WhatsApp.
-import { MESES, nombresCultivos, planDeSiembra, textoWhatsApp } from "@/lib/motor";
+import { nombresCultivos, planDeSiembra, textoWhatsApp } from "@/lib/motor";
+import { MESES } from "@/lib/textos";
 import type { ClimaZona, Rotacion } from "@/lib/tipos";
 import { IconoInfo, IconoMensaje } from "../ui";
 

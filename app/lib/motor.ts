@@ -3,6 +3,7 @@
 // nitrógeno e ingreso, con pesos según lo que el agricultor prioriza.
 import reglasJson from "@/data/reglas.json";
 import rotacionesJson from "@/data/rotaciones.json";
+import { listaMeses } from "./textos";
 import type {
   ClimaZona,
   CultivoId,
@@ -23,16 +24,6 @@ export const ROTACIONES = rotacionesJson.rotaciones as Rotacion[];
 const regla = (id: CultivoId) => REGLAS.find((r) => r.id === id)!;
 export const nombreCultivo = (id: CultivoId) => regla(id).nombre;
 export const nombresCultivos = (ids: CultivoId[]) => ids.map(nombreCultivo).join(" + ");
-
-export const MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-export const MESES_LARGOS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-
-/** [7, 8] → "julio y agosto" */
-export function listaMeses(meses: number[]): string {
-  const nombres = meses.map((m) => MESES_LARGOS[m - 1]);
-  if (nombres.length <= 1) return nombres[0] ?? "";
-  return `${nombres.slice(0, -1).join(", ")} y ${nombres.at(-1)}`;
-}
 
 const VALOR_NIVEL: Record<Nivel, number> = { poco: 0, regular: 0.5, bien: 1 };
 const VALOR_INGRESO = { bajo: 0.3, medio: 0.6, alto: 1 };

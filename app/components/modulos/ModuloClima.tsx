@@ -1,5 +1,5 @@
 // Módulo 1: cómo es el clima de la zona, con datos de NASA POWER.
-import { listaMeses, MESES_LARGOS } from "@/lib/motor";
+import { listaMeses, MESES_LARGOS } from "@/lib/textos";
 import type { ClimaZona } from "@/lib/tipos";
 import { Escena } from "../dibujos";
 import { GraficaMensual } from "../GraficaMensual";
