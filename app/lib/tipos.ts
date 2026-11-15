@@ -128,6 +128,8 @@ export interface PedidoPlan {
 export interface MesPlan {
   mes: number; // 1–12
   cultivos: CultivoId[]; // lo que está en el terreno ese mes ([] = nada)
+  sembrados: CultivoId[]; // lo que se siembra ese mes
+  cosechados: CultivoId[]; // lo que se cosecha (o se corta, si es frijol abono) ese mes
   accion: AccionPeriodo;
   lluvia: number; // mm, promedio NASA POWER 2015–2025 del lugar
   dificil: boolean; // canícula o aguacero (ClimaZona.mesesDificiles)

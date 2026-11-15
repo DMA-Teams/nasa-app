@@ -10,18 +10,25 @@ interface Props {
   nombre: string; // "Gracias, Lempira" o solo el departamento si no hay municipio
   clima: ClimaZona | null;
   altura: number | null; // del modelo de elevación; si no hay, se usa el promedio de NASA POWER
+  aviso: string | null; // p. ej. "Estás fuera de Honduras, así que te mostramos el ejemplo…"
   onInfo: () => void;
   onPlan: () => void;
   onCambiar: () => void;
 }
 
-export function PanelLugar({ lugar, nombre, clima, altura, onInfo, onPlan, onCambiar }: Props) {
+export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan, onCambiar }: Props) {
   const metros = altura ?? clima?.elevacion ?? lugar.celda.elevacion;
   const tipo = clima?.tipo ?? lugar.celda.tipo;
   const lluvia = clima?.lluviaAnual ?? lugar.celda.lluviaAnual;
 
   return (
     <div className="flex flex-col gap-5">
+      {aviso && (
+        <p role="status" className="rounded-2xl bg-decor-maiz-suave px-4 py-3 text-base font-semibold">
+          {aviso}
+        </p>
+      )}
+
       <Escena tipo={tipo} className="h-24" />
 
       <div className="flex flex-col gap-1">

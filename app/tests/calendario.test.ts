@@ -72,3 +72,11 @@ test("lluvia y meses difíciles vienen del clima NASA", () => {
 test("mis-cultivos vacío lanza RangeError", () => {
   assert.throws(() => plan(lempira, "mis-cultivos", []), RangeError);
 });
+
+test("cada mes dice qué se siembra y qué se cosecha", () => {
+  const p = plan(lempira, "recomendado");
+  assert.deepEqual(p.meses[4].sembrados, ["maiz", "sorgo"]);
+  assert.deepEqual(p.meses[8].sembrados, ["frijol"]);
+  assert.deepEqual(p.meses[7].cosechados, ["maiz", "sorgo"]);
+  assert.deepEqual(p.meses[0].sembrados, []);
+});

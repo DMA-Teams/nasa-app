@@ -14,7 +14,9 @@ const plan: PlanAnual = {
   tipoZona: "seca",
   meses: Array.from({ length: 12 }, (_, i) => {
     const [cultivos, accion] = enTerreno[i + 1] ?? [[], "descansar"];
-    return { mes: i + 1, cultivos, accion, lluvia: (i + 1) * 10, dificil: i + 1 === 7, cubierta: cultivos.length > 0 };
+    const sembrados = accion === "sembrar" ? cultivos : [];
+    const cosechados = accion === "cosechar" ? cultivos : [];
+    return { mes: i + 1, cultivos, sembrados, cosechados, accion, lluvia: (i + 1) * 10, dificil: i + 1 === 7, cubierta: cultivos.length > 0 };
   }),
   resumen: "Prueba",
   fuente: { dataset: "NASA POWER", periodo: "2015–2025", consultado: "2026-11-14" },
@@ -71,4 +73,19 @@ test("texto de WhatsApp lleva periodos y aviso", () => {
   assert.match(texto, /Ene – Mar/);
   assert.match(texto, /\(simulado\)/);
   assert.match(texto, /técnico agrícola/);
+});
+
+test("el consejo de siembra solo nombra lo que se siembra ese periodo", () => {
+  // Frijol abono sembrado en mayo sigue en el terreno en septiembre, cuando se siembra el frijol
+  const conAbono: PlanAnual = {
+    ...plan,
+    meses: plan.meses.map((m) => {
+      if (m.mes === 5) return { ...m, cultivos: ["frijolAbono"], accion: "sembrar", sembrados: ["frijolAbono"], cosechados: [] };
+      if (m.mes >= 6 && m.mes <= 8) return { ...m, cultivos: ["frijolAbono"], accion: "cubrir", sembrados: [], cosechados: [] };
+      if (m.mes === 9) return { ...m, cultivos: ["frijolAbono", "frijol"], accion: "sembrar", sembrados: ["frijol"], cosechados: [] };
+      return { ...m, cultivos: [], accion: "descansar", sembrados: [], cosechados: [] };
+    }),
+  };
+  const [, , t3] = agruparPlan(conAbono, "trimestral");
+  assert.equal(t3.consejo, "Siembra frijol");
 });

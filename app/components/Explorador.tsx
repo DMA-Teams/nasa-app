@@ -54,6 +54,8 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
   const [plan, setPlan] = useState<PlanAnual | null>(null);
   const peticionClima = useRef<AbortController | null>(null);
   const peticionPlan = useRef<AbortController | null>(null);
+  // Sube con cada lugar elegido: una ubicación que llega tarde no pisa lo que el usuario ya eligió
+  const turno = useRef(0);
 
   const irA = (p: Paso) => setHistorial((h) => [...h, p]);
   const atras = () => (historial.length <= 2 ? volverAlMapa() : setHistorial((h) => h.slice(0, -1)));
@@ -64,6 +66,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
       setAviso("Ese punto está fuera de Honduras. Toca dentro del país.");
       return;
     }
+    turno.current++;
     setAviso(null);
     setLugar({ lat, lon, departamento: dep, municipio: municipio ?? null, origen, celda: celdaDePunto(celdas, lat, lon) });
     setDepartamentoEnfocado(dep);
@@ -72,6 +75,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
     setPlan(null);
     setHistorial(["inicio", "lugar"]);
 
+    peticionPlan.current?.abort();
     peticionClima.current?.abort();
     const control = new AbortController();
     peticionClima.current = control;
@@ -95,9 +99,11 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
       return;
     }
     setBuscandoUbicacion(true);
+    const miTurno = turno.current;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setBuscandoUbicacion(false);
+        if (miTurno !== turno.current) return; // mientras tanto eligió otro lugar
         const { latitude, longitude } = pos.coords;
         if (departamentoDe(departamentos, latitude, longitude)) {
           elegirLugar(latitude, longitude, "ubicacion");
@@ -108,6 +114,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
       },
       () => {
         setBuscandoUbicacion(false);
+        if (miTurno !== turno.current) return;
         setAviso("No pudimos ver tu ubicación. Elige tu departamento o toca tu terreno en el mapa.");
       },
       { timeout: 10000 },
@@ -132,6 +139,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
     peticionClima.current?.abort();
     peticionPlan.current?.abort();
     setHistorial(["inicio"]);
+    setAviso(null);
     setLugar(null);
     setClima(null);
     setPlan(null);
@@ -246,6 +254,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
               nombre={nombreLugar}
               clima={clima}
               altura={altura}
+              aviso={aviso}
               onInfo={() => irA("info")}
               onPlan={() => irA("modo")}
               onCambiar={volverAlMapa}

@@ -37,8 +37,10 @@ export function agruparPlan(plan: PlanAnual, division: Division): PeriodoPlan[] 
     const meses = plan.meses.filter((m) => numeros.includes(m.mes));
     const cultivos = [...new Set(meses.flatMap((m) => m.cultivos))];
     const accionPrincipal = PRIORIDAD_ACCION.find((a) => meses.some((m) => m.accion === a)) ?? "descansar";
-    // Los cultivos de los meses con la acción principal (p. ej. solo lo que se siembra)
-    const cultivosAccion = [...new Set(meses.filter((m) => m.accion === accionPrincipal).flatMap((m) => m.cultivos))];
+    // El consejo nombra solo lo que se siembra o se cosecha en el periodo, no todo lo que está en el terreno
+    const deMeses = (f: (m: (typeof meses)[number]) => CultivoId[]) => [...new Set(meses.flatMap(f))];
+    const cultivosAccion =
+      accionPrincipal === "sembrar" ? deMeses((m) => m.sembrados) : accionPrincipal === "cosechar" ? deMeses((m) => m.cosechados) : cultivos;
     const dificiles = meses.filter((m) => m.dificil).map((m) => m.mes);
     return {
       id: `${prefijo}${i + 1}`,

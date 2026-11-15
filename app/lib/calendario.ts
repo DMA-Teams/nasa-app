@@ -22,6 +22,8 @@ export function construirPlan(
   // Qué hay en el terreno cada mes, y qué se hace (índice 0 = enero)
   const enTerreno: CultivoId[][] = Array.from({ length: 12 }, () => []);
   const acciones: Set<AccionPeriodo>[] = Array.from({ length: 12 }, () => new Set());
+  const sembrados: CultivoId[][] = Array.from({ length: 12 }, () => []);
+  const cosechados: CultivoId[][] = Array.from({ length: 12 }, () => []);
   const notas: string[] = [];
 
   for (const id of elegidos) {
@@ -31,9 +33,13 @@ export function construirPlan(
       for (let i = 0; i < regla.duracionMeses; i++) {
         const mes = (siembra - 1 + i) % 12; // da la vuelta al año: diciembre → enero
         if (!enTerreno[mes].includes(id)) enTerreno[mes].push(id);
-        if (i === 0) acciones[mes].add("sembrar");
-        else if (i === regla.duracionMeses - 1) acciones[mes].add("cosechar");
-        else acciones[mes].add(id === "frijolAbono" ? "cubrir" : "cuidar");
+        if (i === 0) {
+          acciones[mes].add("sembrar");
+          sembrados[mes].push(id);
+        } else if (i === regla.duracionMeses - 1) {
+          acciones[mes].add("cosechar");
+          cosechados[mes].push(id);
+        } else acciones[mes].add(id === "frijolAbono" ? "cubrir" : "cuidar");
       }
     }
     const nota = regla.nota?.[zona];
@@ -45,6 +51,8 @@ export function construirPlan(
     return {
       mes: i + 1,
       cultivos,
+      sembrados: sembrados[i],
+      cosechados: cosechados[i],
       accion,
       lluvia: clima.meses[i].lluvia,
       dificil: clima.mesesDificiles.includes(i + 1),
