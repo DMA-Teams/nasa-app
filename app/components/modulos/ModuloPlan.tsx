@@ -2,10 +2,10 @@
 // Cambiar la división solo reagrupa los 12 meses: no se vuelve a pedir nada.
 // El PDF usa la impresión del navegador ("Guardar como PDF") con PlanImprimible: sin librerías, también en el celular.
 import { agruparPlan } from "@/lib/plan";
-import { useState } from "react";
-import type { CSSProperties } from "react";
+import { useId, useState, type CSSProperties } from "react";
 import type { Division, PeriodoPlan, PlanAnual } from "@/lib/tipos";
 import { CalendarioCultivos } from "../CalendarioCultivos";
+import { ExplicacionPlan } from "./ExplicacionPlan";
 import { DibujoCultivo } from "../dibujos";
 import { SimulacionParcela } from "../simulacion/SimulacionParcela";
 import { BotonPrimario, BotonSecundario, IconoAlerta, IconoDescargar, IconoGota, IconoInfo, IconoMapa, IconoParcela } from "../ui";
@@ -28,6 +28,11 @@ const DIVISIONES: { id: Division; texto: string }[] = [
 
 export function ModuloPlan({ plan, division, onDivision, periodoElegido, onPeriodo, lugar }: Props) {
   const periodos = agruparPlan(plan, division);
+  const [detallesAbiertos, setDetallesAbiertos] = useState(false);
+  const idDetalles = useId();
+  const corte = plan.resumen.indexOf(". ");
+  const titular = corte === -1 ? plan.resumen : plan.resumen.slice(0, corte + 1);
+  const detalleResumen = corte === -1 ? "" : plan.resumen.slice(corte + 2);
   const [simulacionAbierta, setSimulacionAbierta] = useState(false);
 
   function guardarPdf() {
@@ -43,13 +48,50 @@ export function ModuloPlan({ plan, division, onDivision, periodoElegido, onPerio
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-baseline gap-2">
           <h1 className="font-display text-titulo font-semibold">Tu plan del año</h1>
-          <span className="text-apoyo text-muted-foreground">(simulado)</span>
+          {plan.simulado && <span className="text-apoyo text-muted-foreground">(simulado)</span>}
         </div>
-        <p className="text-apoyo text-muted-foreground">{plan.resumen}</p>
+        <p className="text-cuerpo font-medium text-pretty">{titular}</p>
       </div>
 
-      {/* El año de un vistazo; los periodos de abajo dan el detalle */}
-      <CalendarioCultivos plan={plan} />
+      <section className="overflow-hidden rounded-2xl border border-border bg-card">
+        <button
+          type="button"
+          aria-expanded={detallesAbiertos}
+          aria-controls={idDetalles}
+          onClick={() => setDetallesAbiertos(!detallesAbiertos)}
+          className="flex min-h-14 w-full items-center gap-3 px-4 py-3 text-left focus-visible:-outline-offset-2"
+        >
+          <IconoInfo className="size-5 shrink-0 text-primary" />
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="text-cuerpo leading-tight font-semibold">{detallesAbiertos ? "Ocultar detalles" : "¿Por qué este plan?"}</span>
+            <span className="text-apoyo text-muted-foreground">Calendario de siembra, riesgos y pronóstico de lluvia</span>
+          </span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            aria-hidden="true"
+            className={`size-5 shrink-0 text-muted-foreground transition-transform duration-200 ease-out-strong ${detallesAbiertos ? "rotate-180" : ""}`}
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+
+        <div
+          id={idDetalles}
+          className={`grid transition-[grid-template-rows] duration-300 ease-out-strong ${detallesAbiertos ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        >
+          <div className="overflow-hidden" inert={!detallesAbiertos}>
+            <div className="flex flex-col gap-5 border-t border-border px-4 py-4">
+              {detalleResumen && <p className="text-apoyo text-muted-foreground">{detalleResumen}</p>}
+              <CalendarioCultivos plan={plan} />
+              {plan.explicacion && <ExplicacionPlan razones={plan.explicacion.razones} pronostico={plan.explicacion.pronostico} />}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="relative grid grid-cols-2 gap-1 rounded-full border border-border bg-card p-1" role="group" aria-label="Ver el plan">
         {/* La pastilla verde se desliza hacia la opción elegida */}
@@ -104,8 +146,8 @@ export function ModuloPlan({ plan, division, onDivision, periodoElegido, onPerio
       </p>
 
       <p className="text-nota text-muted-foreground">
-        Lluvia: {plan.fuente.dataset}, promedio {plan.fuente.periodo}, consultado el {plan.fuente.consultado.slice(0, 10)}. Meses de siembra:
-        reglas de ejemplo (simulado).
+        Lluvia: {plan.fuente.dataset}, promedio {plan.fuente.periodo}, consultado el {plan.fuente.consultado.slice(0, 10)}. Meses de siembra:{" "}
+        {plan.simulado ? "reglas de ejemplo (simulado)." : "calculados con el balance de agua de cada cultivo (FAO-56 y FAO-33)."}
       </p>
 
       <SimulacionParcela plan={plan} lugar={lugar} abierta={simulacionAbierta} onCerrar={() => setSimulacionAbierta(false)} />

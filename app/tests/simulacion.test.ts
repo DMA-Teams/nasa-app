@@ -226,3 +226,10 @@ test("el frijol abono se corta, y un cultivo sin cosecha no promete una", () => 
   assert.deepEqual(situacion(planSinSiembra, 4)[0], ["sorgo", "terreno", "En el terreno"]);
   assert.deepEqual(situacion(planSinSiembra, 1)[0], ["sorgo", "fuera", "Fuera del terreno"]);
 });
+
+test("la canavalia y el gandul se cortan, no se cosechan", async () => {
+  const { lineasDelMes } = await import("../lib/simulacion.ts");
+  const lineas = lineasDelMes({ mes: 1, cultivos: ["canavalia", "gandul", "maiz"], sembrados: [], cosechados: ["canavalia", "gandul", "maiz"], accion: "cosechar", lluvia: 10, dificil: false, cubierta: true });
+  assert.ok(lineas.includes("Se cosecha: Maíz"));
+  assert.ok(lineas.includes("Se corta: Canavalia, Gandul"));
+});

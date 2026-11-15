@@ -94,7 +94,7 @@ export function DatosLugar({ lugar, clima, falloClima, altura }: Props) {
               icono={<IconoMontana className="size-6 text-muted-foreground" />}
               titulo="Altura"
               valor={`${metros.toLocaleString("es-HN")} m · ${NOMBRE_RELIEVE[relieve]}`}
-              detalle={`${EXPLICA_RELIEVE[relieve]} ${altura === null ? "Es el promedio de la zona." : "Medida en tu punto exacto."}`}
+              detalle={`${EXPLICA_RELIEVE[relieve]} ${altura === null ? "Es el promedio de la zona." : "Altura en este punto del mapa."} El plan usa la altura típica de todo el municipio.`}
             />
             <Dato
               icono={<IconoGota className="size-6 text-muted-foreground" />}

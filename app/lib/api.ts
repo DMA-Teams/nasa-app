@@ -9,7 +9,7 @@ import { armarPlanLocal } from "./motor";
 import { municipiosDe } from "./municipios";
 import type { Celda, ClimaZona, Municipio, PedidoPlan, PlanAnual } from "./tipos";
 
-export const USAR_API = { municipios: false, plan: false };
+export const USAR_API = { municipios: true, plan: true };
 
 const celdas = celdasJson as Celda[];
 const municipios = municipiosJson as Municipio[];
@@ -43,7 +43,7 @@ export async function obtenerMunicipios(departamento: string): Promise<Municipio
       console.error("[api] municipios: usando respaldo:", (err as Error).message);
     }
   }
-  return municipiosDe(municipios, departamento);
+  return municipiosDe(municipios, departamento).map((m) => ({ ...m, simulado: true }));
 }
 
 /** Una respuesta 200 con forma rara (proxy del wifi, versión vieja del servidor) no debe romper las pantallas. */

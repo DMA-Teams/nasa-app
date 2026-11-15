@@ -70,7 +70,16 @@ Los tipos están en `lib/tipos.ts` y son el contrato: la API devuelve esos objet
 
 - `PlanAnual.meses` trae siempre **12 `MesPlan`**, de enero a diciembre. La API **no** agrupa: la app arma los trimestres o semestres con `agruparPlan` (`lib/plan.ts`), así que cambiar la vista no hace otra petición.
 - `PedidoPlan.modo`: `"recomendado"` (la API elige los cultivos, `cultivos` llega vacío) o `"mis-cultivos"` (al menos un cultivo).
-- `PlanAnual.simulado` es `true` mientras el calendario salga de reglas inventadas.
+- `PlanAnual.simulado` es `true` cuando el plan sale del motor local (reglas de ejemplo) y `false` cuando lo calcula el backend.
+
+### Conexión con nasa-app-api
+
+`/api/municipios` y `/api/plan` son adaptadores: llaman al backend en Go ([nasa-app-api](https://github.com/DMA-Teams/nasa-app-api)) y traducen su respuesta a los tipos de `lib/tipos.ts` (`lib/planApi.ts`, con pruebas en `tests/planApi.test.ts`). Las dos banderas de `USAR_API` están en `true`.
+
+- Dirección del backend: variable de entorno `NASA_API_URL` (por defecto `http://127.0.0.1:8080`). Solo la usa el servidor de Next; el navegador nunca llama al backend directo.
+- Cultivos: la app conoce los 22 cultivos del backend (`lib/cultivos.ts`). "Recomendado" muestra la mejor rotación del motor; "Mis cultivos" se manda como la rotación actual del productor (de 1 a 4 cultivos).
+- La lluvia de cada mes y el tipo de zona salen de los 30 años de clima del backend (1996–2025); los meses difíciles se marcan con las mismas reglas de `lib/clima.ts`.
+- Si el backend no responde o falla, la app usa el respaldo local como antes.
 
 ## Mapa
 

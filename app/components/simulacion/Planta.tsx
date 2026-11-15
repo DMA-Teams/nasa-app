@@ -175,10 +175,19 @@ export function Planta({ aspecto, estado, x, y, cosechada }: PropsPlanta) {
 }
 
 /** La misma planta, adulta y con su detalle, para la leyenda. */
-export function PlantaLeyenda({ id, className = "size-6" }: { id: string; className?: string }) {
+const ALTO_FORMA: Record<Forma, number> = { cana: 32, macolla: 19, mataBaja: 12, rastrera: 7, tutor: 22, roseta: 7, arbusto: 28 };
+const ANCHO_PLANTA = 22;
+
+function encuadreCentrado(forma: Forma): string {
+  const alto = ALTO_FORMA[forma];
+  const lado = Math.max(alto, ANCHO_PLANTA) + 2;
+  return `${-lado / 2} ${-alto / 2 - lado / 2} ${lado} ${lado}`;
+}
+
+export function PlantaLeyenda({ id, className = "size-6", centrada = false }: { id: string; className?: string; centrada?: boolean }) {
   const aspecto = aspectoDe(id);
   return (
-    <svg viewBox="-12 -30 24 32" className={`shrink-0 ${className}`} aria-hidden="true">
+    <svg viewBox={centrada ? encuadreCentrado(aspecto.forma) : "-12 -30 24 32"} className={`shrink-0 ${className}`} aria-hidden="true">
       <Cuerpo forma={aspecto.forma} hoja={aspecto.hoja} />
       <DibujoDetalle forma={aspecto.forma} detalle={aspecto.detalle} color={aspecto.colorDetalle} />
     </svg>
