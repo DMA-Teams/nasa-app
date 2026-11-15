@@ -89,3 +89,41 @@ test("el consejo de siembra solo nombra lo que se siembra ese periodo", () => {
   const [, , t3] = agruparPlan(conAbono, "trimestral");
   assert.equal(t3.consejo, "Siembra frijol");
 });
+
+test("cada periodo explica por qué, con los datos del lugar", () => {
+  const [t1, t2, t3, t4] = agruparPlan(plan, "trimestral");
+  assert.equal(t1.porque, "Llueve poco (60 mm en estos meses): no conviene sembrar.");
+  assert.equal(t2.porque, "Se siembra en mayo porque ya llueve (50 mm ese mes).");
+  assert.match(t3.porque, /^Se siembra en septiembre porque ya llueve \(90 mm ese mes\)\. /);
+  assert.match(t3.porque, /postrera/);
+  assert.match(t4.porque, /noviembre/);
+});
+
+test("el frijol abono no se cosecha: se corta y se deja en la tierra", () => {
+  const soloAbono: PlanAnual = {
+    ...plan,
+    meses: plan.meses.map((m) =>
+      m.mes === 10
+        ? { ...m, cultivos: ["frijolAbono"], sembrados: [], cosechados: ["frijolAbono"], accion: "cosechar" }
+        : { ...m, cultivos: [], sembrados: [], cosechados: [], accion: "descansar" },
+    ),
+  };
+  const t4 = agruparPlan(soloAbono, "trimestral")[3];
+  assert.equal(t4.consejo, "Corta el frijol abono y déjalo en la tierra");
+  assert.match(t4.porque, /abono/);
+});
+
+test("la explicación de cosecha nombra todos los cultivos y meses del periodo", () => {
+  const dos: PlanAnual = {
+    ...plan,
+    meses: plan.meses.map((m) =>
+      m.mes === 7
+        ? { ...m, cultivos: ["frijol", "maiz"], sembrados: [], cosechados: ["frijol"], accion: "cosechar" }
+        : m.mes === 8
+          ? { ...m, cultivos: ["maiz"], sembrados: [], cosechados: ["maiz"], accion: "cosechar" }
+          : { ...m, cultivos: [], sembrados: [], cosechados: [], accion: "descansar" },
+    ),
+  };
+  const t3 = agruparPlan(dos, "trimestral")[2];
+  assert.equal(t3.porque, "Se cosecha en julio y agosto: el frijol y el maíz ya terminaron su ciclo.");
+});

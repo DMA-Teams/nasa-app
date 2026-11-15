@@ -144,6 +144,7 @@ export interface PeriodoPlan {
   cultivos: CultivoId[];
   accionPrincipal: AccionPeriodo;
   consejo: string;
+  porque: string; // 1–2 frases cortas: por qué se hace eso en esos meses, con datos del lugar
   lluviaEsperada: number; // mm, suma de los meses
   alerta: string | null;
   mesesCubierta: number;

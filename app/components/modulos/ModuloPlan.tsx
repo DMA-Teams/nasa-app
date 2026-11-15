@@ -103,6 +103,11 @@ function Periodo({ periodo: p }: { periodo: PeriodoPlan }) {
         <span className="text-lg leading-snug font-semibold">{p.consejo}</span>
       </div>
 
+      <p className="text-[15px] leading-snug text-muted-foreground">
+        <span className="font-semibold text-foreground">¿Por qué? </span>
+        {p.porque}
+      </p>
+
       {p.alerta && (
         <span className="flex items-center gap-2 self-start rounded-full bg-decor-maiz-suave px-3 py-1 text-[15px] font-semibold">
           <IconoAlerta className="size-4.5 text-highlight" />
