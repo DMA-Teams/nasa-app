@@ -1,6 +1,6 @@
-// Dibujos a color (SVG, sin librerías): el clima, los cultivos y la carita de la tierra.
+// Dibujos a color (SVG, sin librerías): el clima y los cultivos.
 // Los colores salen de los tokens del tema Surco (--decor-* son solo para ilustración).
-import type { CultivoId, Semaforo, TipoZona } from "@/lib/tipos";
+import type { CultivoId, TipoZona } from "@/lib/tipos";
 
 const SOL = "var(--decor-sol)";
 const CIELO = "var(--decor-cielo)";
@@ -9,7 +9,6 @@ const SUELO = "var(--decor-suelo)";
 const VERDE = "var(--primary)";
 const AGUA = "var(--chart-3)";
 const BLANCO = "var(--card)";
-const TINTA = "var(--foreground)";
 
 function Sol({ cx, cy, r }: { cx: number; cy: number; r: number }) {
   return (
@@ -200,31 +199,6 @@ export function DibujoCultivo({ id, className = "size-14" }: { id: CultivoId; cl
           <path d="M24 33c0-4-3-6-7-6 0 4 3 6 7 6z" fill={HOJA} />
         </>
       )}
-    </svg>
-  );
-}
-
-const COLOR_CARITA: Record<Semaforo, string> = {
-  verde: "var(--risk-low)",
-  amarillo: "var(--decor-sol)",
-  rojo: "var(--risk-high)",
-};
-
-/** Semáforo con cara: contenta, seria o triste. El texto ("Sana", "En riesgo") va siempre al lado. */
-export function Carita({ semaforo, className = "size-12" }: { semaforo: Semaforo; className?: string }) {
-  const trazo = semaforo === "amarillo" ? TINTA : BLANCO;
-  return (
-    <svg viewBox="0 0 48 48" className={`shrink-0 ${className}`} aria-hidden="true">
-      <circle cx="24" cy="24" r="22" fill={COLOR_CARITA[semaforo]} />
-      <circle cx="16.5" cy="19" r="2.8" fill={trazo} />
-      <circle cx="31.5" cy="19" r="2.8" fill={trazo} />
-      <path
-        d={semaforo === "verde" ? "M14 28c3 6 17 6 20 0" : semaforo === "amarillo" ? "M15 31h18" : "M14 34c3-6 17-6 20 0"}
-        stroke={trazo}
-        strokeWidth="3.2"
-        strokeLinecap="round"
-        fill="none"
-      />
     </svg>
   );
 }

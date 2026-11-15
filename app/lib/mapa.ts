@@ -83,10 +83,6 @@ export function lugarMasCercano(lat: number, lon: number): string {
   return `${l.nombre}, ${l.departamento}`;
 }
 
-export function puebloMasCercano(lat: number, lon: number): string {
-  return masCercano(lat, lon).nombre;
-}
-
 /** El cuadro que contiene un punto, o el más cercano si el punto cae en un borde. */
 export function celdaDePunto(celdas: Celda[], lat: number, lon: number): Celda {
   return celdas.reduce((mejor, c) => {
@@ -94,17 +90,4 @@ export function celdaDePunto(celdas: Celda[], lat: number, lon: number): Celda {
     const dMejor = (mejor.lat - lat) ** 2 + (mejor.lon - lon) ** 2;
     return d < dMejor ? c : mejor;
   });
-}
-
-/** Busca por nombre de pueblo o departamento. */
-export function buscarLugares(texto: string): { etiqueta: string; lat: number; lon: number }[] {
-  const t = normalizar(texto);
-  if (t.length < 2) return [];
-  return LUGARES.filter((l) => normalizar(`${l.nombre} ${l.departamento}`).includes(t))
-    .slice(0, 5)
-    .map((l) => ({ etiqueta: `${l.nombre}, ${l.departamento}`, lat: l.lat, lon: l.lon }));
-}
-
-function normalizar(s: string): string {
-  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }

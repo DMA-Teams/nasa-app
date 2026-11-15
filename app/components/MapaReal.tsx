@@ -16,7 +16,7 @@ import {
 import "maplibre-gl/dist/maplibre-gl.css";
 import { COLOR_BORDE, COLOR_FONDO, COLOR_SELECCION, COLOR_ZONA, RAMPA_ALTURA } from "@/lib/colores";
 import { poligonosDe } from "@/lib/geo";
-import type { CapaMapa, DepartamentosGeoJSON, Punto } from "@/lib/tipos";
+import type { CapaMapa, DepartamentosGeoJSON, Lugar } from "@/lib/tipos";
 
 // El worker se copia a public/ en predev/prebuild (scripts/copiar-maplibre.mjs)
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
@@ -100,13 +100,15 @@ interface Props {
   departamentos: DepartamentosGeoJSON;
   capa: CapaMapa;
   inclinado: boolean;
-  punto: Punto | null;
+  lugar: Lugar | null;
+  /** Departamento elegido en la lista: el mapa se acerca a él y marca su borde. */
+  departamentoEnfocado: string | null;
   onTocar: (lat: number, lon: number, departamento: string | null) => void;
   /** Altura real del punto (m) según el modelo de elevación, cuando el 3D está activo. */
   onAltura: (metros: number | null) => void;
 }
 
-export function MapaReal({ departamentos, capa, inclinado, punto, onTocar, onAltura }: Props) {
+export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEnfocado, onTocar, onAltura }: Props) {
   const contenedor = useRef<HTMLDivElement>(null);
   const mapa = useRef<MapaLibre | null>(null);
   const pin = useRef<Marker | null>(null);
@@ -203,23 +205,46 @@ export function MapaReal({ departamentos, capa, inclinado, punto, onTocar, onAlt
     else m.once("load", aplicar);
   }, [inclinado]);
 
-  // Punto elegido: pin, borde del departamento y vuelo de cámara
+  // Departamento elegido en la lista: acercar el mapa a todo el departamento
+  useEffect(() => {
+    const m = mapa.current;
+    if (!m || !departamentoEnfocado || lugar) return;
+    const aplicar = () => {
+      const dep = departamentos.features.find((d) => d.properties.nombre === departamentoEnfocado);
+      if (!dep) return;
+      const puntos = poligonosDe(dep.geometry).flatMap((p) => p[0]);
+      const lons = puntos.map(([x]) => x);
+      const lats = puntos.map(([, y]) => y);
+      m.setFilter("dep-seleccion", ["==", ["get", "nombre"], departamentoEnfocado]);
+      m.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], {
+        padding: margen(m),
+        pitch: inclinado ? PITCH_3D : 0,
+        duration: 1000,
+      });
+    };
+    if (listo.current) aplicar();
+    else m.once("load", aplicar);
+    // inclinado y lugar se leen al acercar, pero cambiarlos no debe repetir el vuelo
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [departamentoEnfocado, departamentos]);
+
+  // Lugar elegido: pin, borde del departamento y vuelo de cámara
   useEffect(() => {
     const m = mapa.current;
     if (!m) return;
     const aplicar = () => {
       pin.current?.remove();
       pin.current = null;
-      m.setFilter("dep-seleccion", ["==", ["get", "nombre"], punto?.departamento ?? ""]);
+      m.setFilter("dep-seleccion", ["==", ["get", "nombre"], lugar?.departamento ?? ""]);
 
-      if (!punto) {
+      if (!lugar) {
         m.fitBounds(HONDURAS, { padding: margen(m), pitch: inclinado ? PITCH_3D : 0, bearing: inclinado ? -6 : 0, duration: 1200 });
         return;
       }
-      pin.current = new Marker({ color: COLOR_SELECCION }).setLngLat([punto.lon, punto.lat]).addTo(m);
-      m.flyTo({ center: [punto.lon, punto.lat], zoom: 9, pitch: inclinado ? 60 : 0, speed: 0.9, essential: true });
+      pin.current = new Marker({ color: COLOR_SELECCION }).setLngLat([lugar.lon, lugar.lat]).addTo(m);
+      m.flyTo({ center: [lugar.lon, lugar.lat], zoom: 9, pitch: inclinado ? 60 : 0, speed: 0.9, essential: true });
       m.once("moveend", () => {
-        const altura = m.getTerrain() ? m.queryTerrainElevation([punto.lon, punto.lat]) : null;
+        const altura = m.getTerrain() ? m.queryTerrainElevation([lugar.lon, lugar.lat]) : null;
         callbacks.current.onAltura(altura === null ? null : Math.round(altura / EXAGERACION));
       });
     };
@@ -227,7 +252,7 @@ export function MapaReal({ departamentos, capa, inclinado, punto, onTocar, onAlt
     else m.once("load", aplicar);
     // inclinado se lee al volar, pero cambiarlo no debe repetir el vuelo
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [punto]);
+  }, [lugar?.lat, lugar?.lon]);
 
   // El CSS de MapLibre pone `position: relative` al contenedor, así que el tamaño lo da el div de afuera
   return (

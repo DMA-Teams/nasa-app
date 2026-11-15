@@ -1,6 +1,6 @@
 // Piezas pequeñas reutilizables: botones, chips e íconos (trazos SVG, sin librerías).
 import type { ComponentProps, ReactNode } from "react";
-import type { Semaforo, TipoZona } from "@/lib/tipos";
+import type { TipoZona } from "@/lib/tipos";
 import { DibujoClima } from "./dibujos";
 
 export function BotonPrimario({ className = "", ...props }: ComponentProps<"button">) {
@@ -49,8 +49,6 @@ export function Chip({ children }: { children: ReactNode }) {
   return <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3.5 py-1.5 text-[15px] font-semibold text-foreground">{children}</span>;
 }
 
-export const TEXTO_SEMAFORO: Record<Semaforo, string> = { verde: "Sana", amarillo: "Regular", rojo: "En riesgo" };
-
 /* Íconos de trazo, 24×24 */
 function Icono({ children, className = "size-5" }: { children: ReactNode; className?: string }) {
   return (
@@ -61,17 +59,13 @@ function Icono({ children, className = "size-5" }: { children: ReactNode; classN
 }
 
 export const IconoAtras = (p: { className?: string }) => <Icono {...p}><path d="M15 18l-6-6 6-6" /></Icono>;
-export const IconoBuscar = (p: { className?: string }) => <Icono {...p}><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></Icono>;
 export const IconoUbicar = (p: { className?: string }) => <Icono {...p}><circle cx="12" cy="12" r="7" /><circle cx="12" cy="12" r="2.5" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></Icono>;
-export const IconoBrote = (p: { className?: string }) => <Icono {...p}><path d="M12 21V11" /><path d="M12 11c0-4 3-7 8-7 0 5-3 8-8 7z" /><path d="M12 15c0-3-2-5-6-5 0 4 2 6 6 5z" /></Icono>;
 export const IconoAlerta = (p: { className?: string }) => <Icono {...p}><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /></Icono>;
 export const IconoInfo = (p: { className?: string }) => <Icono {...p}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></Icono>;
 export const IconoMensaje = (p: { className?: string }) => <Icono {...p}><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.2A8.5 8.5 0 1 1 21 12z" /></Icono>;
 export const IconoCheck = (p: { className?: string }) => <Icono {...p}><path d="M5 12l5 5 9-10" /></Icono>;
 export const IconoCubo = (p: { className?: string }) => <Icono {...p}><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" /><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" /></Icono>;
-export const IconoMoneda = (p: { className?: string }) => <Icono {...p}><circle cx="12" cy="12" r="9" /><path d="M14.5 9.2c-.6-.8-1.5-1.2-2.5-1.2-1.7 0-3 .9-3 2.2 0 2.8 6 1.2 6 4 0 1.3-1.3 2.2-3 2.2-1.1 0-2.1-.5-2.7-1.3M12 6v2M12 16.4V18" /></Icono>;
 export const IconoSol = (p: { className?: string }) => <Icono {...p}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19" /></Icono>;
-export const IconoCapas = (p: { className?: string }) => <Icono {...p}><path d="M3 9l9-5 9 5-9 5-9-5z" /><path d="M3 14l9 5 9-5" /></Icono>;
 export const IconoCalendario = (p: { className?: string }) => <Icono {...p}><rect x="3.5" y="5" width="17" height="15" rx="3" /><path d="M8 3v4M16 3v4M3.5 10h17" /></Icono>;
 export const IconoMontana = (p: { className?: string }) => <Icono {...p}><path d="M2 20l7-12 4 6 2.5-3.5L22 20H2z" /></Icono>;
 export const IconoGota = (p: { className?: string }) => <Icono {...p}><path d="M12 3c4 5 6.5 8 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 11 8 8 12 3z" /></Icono>;

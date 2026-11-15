@@ -1,24 +1,24 @@
 // Pantalla única: mapa real siempre visible + panel que avanza por pasos.
-// Inicio → Estás aquí → 1 Clima → 2 Cultivos → 3 Tierra → 4 Plan
+// Inicio → Lugar → (Clima) → ¿Cómo quieres tu plan? → (Tus cultivos) → Plan del año
 "use client";
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import departamentosJson from "@/public/fallback/departamentos.json";
-import { construirClima } from "@/lib/clima";
+import { armarPlan, obtenerClima, obtenerMunicipios } from "@/lib/api";
 import { COLOR_ZONA, NOMBRE_ZONA, RAMPA_ALTURA } from "@/lib/colores";
 import { departamentoDe } from "@/lib/geo";
-import { celdaDePunto, puebloMasCercano } from "@/lib/mapa";
-import { evaluar } from "@/lib/motor";
-import type { CapaMapa, Celda, ClimaZona, CultivoId, DepartamentosGeoJSON, Prioridad, Punto, TipoZona } from "@/lib/tipos";
+import { celdaDePunto } from "@/lib/mapa";
+import { municipioMasCercano } from "@/lib/municipios";
+import type { CapaMapa, Celda, ClimaZona, CultivoId, DepartamentosGeoJSON, Division, Lugar, ModoPlan, PlanAnual, TipoZona } from "@/lib/tipos";
 import { ModuloClima } from "./modulos/ModuloClima";
 import { ModuloCultivos } from "./modulos/ModuloCultivos";
 import { ModuloPlan } from "./modulos/ModuloPlan";
-import { ModuloTierra } from "./modulos/ModuloTierra";
 import { PanelInicio, type Ejemplo } from "./PanelInicio";
-import { PanelUbicacion } from "./PanelUbicacion";
-import { BotonPrimario, BotonSecundario, ChipZona, IconoAtras, IconoBrote, IconoCalendario, IconoCapas, IconoCheck, IconoCubo, IconoSol } from "./ui";
+import { PanelLugar } from "./PanelLugar";
+import { PanelModo } from "./PanelModo";
+import { BotonPrimario, ChipZona, IconoAtras, IconoCubo } from "./ui";
 
 // MapLibre necesita el navegador: no se renderiza en el servidor
 const MapaReal = dynamic(() => import("./MapaReal").then((m) => m.MapaReal), {
@@ -27,14 +27,9 @@ const MapaReal = dynamic(() => import("./MapaReal").then((m) => m.MapaReal), {
 });
 
 const departamentos = departamentosJson as DepartamentosGeoJSON;
+const NOMBRES_DEPARTAMENTOS = departamentos.features.map((d) => d.properties.nombre).sort((a, b) => a.localeCompare(b, "es"));
 
-type Paso = "inicio" | "ubicacion" | "clima" | "cultivos" | "tierra" | "plan";
-const MODULOS = [
-  { paso: "clima", etiqueta: "Clima", Icono: IconoSol },
-  { paso: "cultivos", etiqueta: "Cultivos", Icono: IconoBrote },
-  { paso: "tierra", etiqueta: "Tierra", Icono: IconoCapas },
-  { paso: "plan", etiqueta: "Plan", Icono: IconoCalendario },
-] as const;
+type Paso = "inicio" | "lugar" | "info" | "modo" | "cultivos" | "plan";
 
 // Casos del pitch: Lempira (canícula fuerte) y Atlántida (exceso de lluvia)
 const EJEMPLOS: Ejemplo[] = [
@@ -43,54 +38,60 @@ const EJEMPLOS: Ejemplo[] = [
 ];
 
 export function Explorador({ celdas }: { celdas: Celda[] }) {
-  const [paso, setPaso] = useState<Paso>("inicio");
+  // historial: los pasos por los que pasó, para que "Atrás" vuelva al paso real anterior
+  const [historial, setHistorial] = useState<Paso[]>(["inicio"]);
+  const paso = historial.at(-1)!;
   const [capa, setCapa] = useState<CapaMapa>("clima");
   const [inclinado, setInclinado] = useState(true);
-  const [punto, setPunto] = useState<Punto | null>(null);
+  const [departamentoEnfocado, setDepartamentoEnfocado] = useState<string | null>(null);
+  const [lugar, setLugar] = useState<Lugar | null>(null);
   const [altura, setAltura] = useState<number | null>(null);
   const [clima, setClima] = useState<ClimaZona | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [buscandoUbicacion, setBuscandoUbicacion] = useState(false);
-  const [cultivos, setCultivos] = useState<CultivoId[]>(["maiz", "frijol"]);
-  const [prioridad, setPrioridad] = useState<Prioridad>("tierra");
-  const [elegidaId, setElegidaId] = useState<string | null>(null);
-  const peticion = useRef<AbortController | null>(null);
+  const [cultivos, setCultivos] = useState<CultivoId[]>([]);
+  const [division, setDivision] = useState<Division>("trimestral");
+  const [plan, setPlan] = useState<PlanAnual | null>(null);
+  const peticionClima = useRef<AbortController | null>(null);
+  const peticionPlan = useRef<AbortController | null>(null);
 
-  const resultado = useMemo(() => (clima ? evaluar(clima, cultivos, prioridad) : null), [clima, cultivos, prioridad]);
-  const rotacionElegida =
-    resultado?.opciones.find((o) => o.rotacion.id === (elegidaId ?? resultado.sugeridaId))?.rotacion ??
-    resultado?.opciones[0].rotacion;
+  const irA = (p: Paso) => setHistorial((h) => [...h, p]);
+  const atras = () => (historial.length <= 2 ? volverAlMapa() : setHistorial((h) => h.slice(0, -1)));
 
-  async function elegirPunto(lat: number, lon: number, departamento?: string | null) {
+  async function elegirLugar(lat: number, lon: number, origen: Lugar["origen"], departamento?: string | null, municipio?: string) {
     const dep = departamento ?? departamentoDe(departamentos, lat, lon);
     if (!dep) {
       setAviso("Ese punto está fuera de Honduras. Toca dentro del país.");
       return;
     }
-    const celda = celdaDePunto(celdas, lat, lon);
     setAviso(null);
-    setPunto({ lat, lon, departamento: dep, pueblo: puebloMasCercano(lat, lon), celda });
+    setLugar({ lat, lon, departamento: dep, municipio: municipio ?? null, origen, celda: celdaDePunto(celdas, lat, lon) });
+    setDepartamentoEnfocado(dep);
     setAltura(null);
-    setPaso("ubicacion");
     setClima(null);
-    setElegidaId(null);
+    setPlan(null);
+    setHistorial(["inicio", "lugar"]);
 
-    peticion.current?.abort();
+    peticionClima.current?.abort();
     const control = new AbortController();
-    peticion.current = control;
+    peticionClima.current = control;
+    // Desde la ubicación o el mapa no sabemos el municipio: el más cercano dentro del departamento
+    if (!municipio) {
+      obtenerMunicipios(dep).then((lista) => {
+        const cercano = municipioMasCercano(lista, dep, lat, lon);
+        if (cercano && !control.signal.aborted) setLugar((l) => (l && l.lat === lat && l.lon === lon ? { ...l, municipio: cercano.nombre } : l));
+      });
+    }
     try {
-      const res = await fetch(`/api/clima?lat=${lat.toFixed(3)}&lon=${lon.toFixed(3)}`, { signal: control.signal });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setClima(await res.json());
+      setClima(await obtenerClima(lat, lon, control.signal));
     } catch {
-      // Sin conexión con nuestra API: usamos el respaldo del cuadro de NASA POWER más cercano
-      if (!control.signal.aborted) setClima(construirClima(celda.lat, celda.lon, celda.resumen, "respaldo", "2026-11-14"));
+      // Petición cancelada porque eligió otro lugar: no hay nada que mostrar
     }
   }
 
   function ubicarme() {
     if (!navigator.geolocation) {
-      setAviso("Tu teléfono no comparte la ubicación. Toca tu terreno en el mapa.");
+      setAviso("Tu teléfono no comparte la ubicación. Elige tu departamento o toca tu terreno en el mapa.");
       return;
     }
     setBuscandoUbicacion(true);
@@ -99,30 +100,46 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
         setBuscandoUbicacion(false);
         const { latitude, longitude } = pos.coords;
         if (departamentoDe(departamentos, latitude, longitude)) {
-          elegirPunto(latitude, longitude);
+          elegirLugar(latitude, longitude, "ubicacion");
         } else {
-          elegirPunto(EJEMPLOS[0].lat, EJEMPLOS[0].lon);
+          elegirLugar(EJEMPLOS[0].lat, EJEMPLOS[0].lon, "lista");
           setAviso("Estás fuera de Honduras, así que te mostramos el ejemplo de Lempira.");
         }
       },
       () => {
         setBuscandoUbicacion(false);
-        setAviso("No pudimos ver tu ubicación. Toca tu terreno en el mapa o busca tu municipio.");
+        setAviso("No pudimos ver tu ubicación. Elige tu departamento o toca tu terreno en el mapa.");
       },
       { timeout: 10000 },
     );
   }
 
-  function volverAlMapa() {
-    peticion.current?.abort();
-    setPaso("inicio");
-    setPunto(null);
-    setClima(null);
+  async function verPlan(modo: ModoPlan) {
+    if (!lugar) return;
+    irA("plan");
+    setPlan(null);
+    peticionPlan.current?.abort();
+    const control = new AbortController();
+    peticionPlan.current = control;
+    try {
+      setPlan(await armarPlan({ lat: lugar.lat, lon: lugar.lon, modo, cultivos: modo === "recomendado" ? [] : cultivos }, control.signal));
+    } catch {
+      // Cancelada: el usuario volvió atrás o pidió otro plan
+    }
   }
 
-  const indiceModulo = MODULOS.findIndex((m) => m.paso === paso);
-  const irModulo = (i: number) => setPaso(i < 0 ? "ubicacion" : MODULOS[i].paso);
-  const tipoZona = clima?.tipo ?? punto?.celda.tipo;
+  function volverAlMapa() {
+    peticionClima.current?.abort();
+    peticionPlan.current?.abort();
+    setHistorial(["inicio"]);
+    setLugar(null);
+    setClima(null);
+    setPlan(null);
+    setDepartamentoEnfocado(null);
+  }
+
+  const nombreLugar = lugar ? (lugar.municipio ? `${lugar.municipio}, ${lugar.departamento}` : lugar.departamento) : "";
+  const tipoZona = clima?.tipo ?? lugar?.celda.tipo;
 
   return (
     <main className="flex h-dvh flex-col bg-background md:flex-row">
@@ -132,8 +149,9 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
           departamentos={departamentos}
           capa={capa}
           inclinado={inclinado}
-          punto={punto}
-          onTocar={(lat, lon, dep) => elegirPunto(lat, lon, dep)}
+          lugar={lugar}
+          departamentoEnfocado={departamentoEnfocado}
+          onTocar={(lat, lon, dep) => elegirLugar(lat, lon, "mapa", dep)}
           onAltura={setAltura}
         />
 
@@ -212,82 +230,77 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
           {paso === "inicio" && (
             <PanelInicio
               celdas={celdas}
+              departamentos={NOMBRES_DEPARTAMENTOS}
               aviso={aviso}
               buscandoUbicacion={buscandoUbicacion}
               ejemplos={EJEMPLOS}
-              onElegir={(lat, lon) => elegirPunto(lat, lon)}
+              onDepartamento={setDepartamentoEnfocado}
+              onElegir={elegirLugar}
               onUbicarme={ubicarme}
             />
           )}
 
-          {paso === "ubicacion" && punto && (
-            <PanelUbicacion punto={punto} clima={clima} altura={altura} onEmpezar={() => setPaso("clima")} onCambiar={volverAlMapa} />
+          {paso === "lugar" && lugar && (
+            <PanelLugar
+              lugar={lugar}
+              nombre={nombreLugar}
+              clima={clima}
+              altura={altura}
+              onInfo={() => irA("info")}
+              onPlan={() => irA("modo")}
+              onCambiar={volverAlMapa}
+            />
           )}
 
-          {indiceModulo >= 0 && punto && (
+          {paso !== "inicio" && paso !== "lugar" && lugar && (
             <>
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <span className="font-display text-[22px] leading-none font-semibold tracking-[-0.015em]">{punto.departamento}</span>
-                  {tipoZona && <ChipZona tipo={tipoZona} />}
-                </div>
-                {/* Camino de 4 pasos: los hechos llevan palomita, el actual es el grande */}
-                <ol className="relative grid grid-cols-4" aria-label={`Paso ${indiceModulo + 1} de 4`}>
-                  <span className="absolute top-5 right-[12.5%] left-[12.5%] h-1 -translate-y-1/2 rounded-full bg-border" aria-hidden="true">
-                    <span
-                      className="block h-full origin-left rounded-full bg-primary transition-transform duration-300 ease-out-strong"
-                      style={{ transform: `scaleX(${indiceModulo / (MODULOS.length - 1)})` }}
-                    />
-                  </span>
-                  {MODULOS.map(({ paso: p, etiqueta, Icono }, i) => (
-                    <li key={p} className="relative flex flex-col items-center gap-1" aria-current={i === indiceModulo ? "step" : undefined}>
-                      <span
-                        className={`flex size-10 items-center justify-center rounded-full border-[3px] ${
-                          i < indiceModulo
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : i === indiceModulo
-                              ? "scale-110 border-primary bg-card text-primary"
-                              : "border-border bg-card text-muted-foreground"
-                        }`}
-                      >
-                        {i < indiceModulo ? <IconoCheck className="size-5" /> : <Icono className="size-5" />}
-                      </span>
-                      <span className={`text-sm ${i === indiceModulo ? "font-semibold" : "text-muted-foreground"}`}>{etiqueta}</span>
-                    </li>
-                  ))}
-                </ol>
+              {/* Dónde estoy y cómo vuelvo: siempre arriba del panel */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={atras}
+                  className="flex h-11 items-center gap-1 rounded-full bg-background pr-4 pl-2.5 text-base font-semibold transition-transform duration-150 ease-out-strong active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  <IconoAtras className="size-5" />
+                  Atrás
+                </button>
+                <span className="min-w-0 truncate text-[15px] font-semibold">{nombreLugar}</span>
+                {tipoZona && <ChipZona tipo={tipoZona} />}
               </div>
 
-              {!clima || !resultado || !rotacionElegida ? (
-                <p role="status" className="animate-pulse py-10 text-center text-[17px] font-semibold text-muted-foreground">Preguntando a NASA POWER cómo llueve aquí…</p>
-              ) : (
-                <>
-                  {paso === "clima" && <ModuloClima clima={clima} />}
-                  {paso === "cultivos" && (
-                    <ModuloCultivos cultivos={cultivos} prioridad={prioridad} onCultivos={setCultivos} onPrioridad={setPrioridad} />
-                  )}
-                  {paso === "tierra" && <ModuloTierra resultado={resultado} elegidaId={rotacionElegida.id} onElegir={setElegidaId} />}
-                  {paso === "plan" && (
-                    <ModuloPlan rotacion={rotacionElegida} clima={clima} lugar={`${punto.pueblo}, ${punto.departamento}`} />
-                  )}
-                </>
-              )}
-
-              <div className="grid grid-cols-[1fr_2fr] items-start gap-3">
-                <BotonSecundario className="min-h-15" onClick={() => irModulo(indiceModulo - 1)}>Atrás</BotonSecundario>
-                {indiceModulo < MODULOS.length - 1 ? (
-                  <BotonPrimario onClick={() => irModulo(indiceModulo + 1)} disabled={!clima}>
-                    {["Siguiente", "Ver mi tierra", "Ver mi plan"][indiceModulo]}
-                  </BotonPrimario>
+              {paso === "info" &&
+                (clima ? (
+                  <>
+                    <ModuloClima clima={clima} />
+                    <BotonPrimario onClick={() => irA("modo")}>Armar mi plan</BotonPrimario>
+                  </>
                 ) : (
-                  <BotonSecundario className="min-h-15" onClick={volverAlMapa}>Ver otro lugar</BotonSecundario>
-                )}
-              </div>
+                  <Cargando />
+                ))}
+              {paso === "modo" && (
+                <PanelModo
+                  onRecomendado={() => verPlan("recomendado")}
+                  onMisCultivos={() => irA("cultivos")}
+                />
+              )}
+              {paso === "cultivos" && (
+                <ModuloCultivos cultivos={cultivos} onCultivos={setCultivos} onVerPlan={() => verPlan("mis-cultivos")} />
+              )}
+              {paso === "plan" &&
+                (plan ? <ModuloPlan plan={plan} division={division} onDivision={setDivision} lugar={nombreLugar} /> : <Cargando />)}
             </>
           )}
         </div>
       </aside>
     </main>
+  );
+}
+
+function Cargando() {
+  return (
+    <p role="status" className="animate-pulse py-10 text-center text-[17px] font-semibold text-muted-foreground">
+      Preguntando a NASA POWER cómo llueve aquí…
+    </p>
   );
 }
 

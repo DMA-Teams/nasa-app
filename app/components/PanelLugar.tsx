@@ -1,0 +1,72 @@
+// "Tu terreno está en…": resumen del lugar elegido y los dos caminos (ver el clima o armar el plan).
+import { NOMBRE_RELIEVE } from "@/lib/colores";
+import { relieveDe } from "@/lib/clima";
+import type { ClimaZona, Lugar } from "@/lib/tipos";
+import { Escena } from "./dibujos";
+import { BotonPrimario, BotonSecundario, Chip, ChipZona, IconoCalendario, IconoGota, IconoMontana, IconoSol } from "./ui";
+
+interface Props {
+  lugar: Lugar;
+  nombre: string; // "Gracias, Lempira" o solo el departamento si no hay municipio
+  clima: ClimaZona | null;
+  altura: number | null; // del modelo de elevación; si no hay, se usa el promedio de NASA POWER
+  onInfo: () => void;
+  onPlan: () => void;
+  onCambiar: () => void;
+}
+
+export function PanelLugar({ lugar, nombre, clima, altura, onInfo, onPlan, onCambiar }: Props) {
+  const metros = altura ?? clima?.elevacion ?? lugar.celda.elevacion;
+  const tipo = clima?.tipo ?? lugar.celda.tipo;
+  const lluvia = clima?.lluviaAnual ?? lugar.celda.lluviaAnual;
+
+  return (
+    <div className="flex flex-col gap-5">
+      <Escena tipo={tipo} className="h-24" />
+
+      <div className="flex flex-col gap-1">
+        <span className="text-base font-semibold text-primary">Tu terreno está en</span>
+        <h1 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em] text-balance">{nombre}</h1>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <ChipZona tipo={tipo} grande />
+        <Chip>
+          <IconoMontana className="size-4.5 text-muted-foreground" />
+          {NOMBRE_RELIEVE[relieveDe(metros)]}, {metros.toLocaleString("es-HN")} m{altura === null ? " (promedio de la zona)" : ""}
+        </Chip>
+        <Chip>
+          <IconoGota className="size-4.5 text-chart-3" />
+          {lluvia.toLocaleString("es-HN")} mm de lluvia al año
+        </Chip>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <BotonPrimario onClick={onPlan}>
+          <IconoCalendario className="size-6" />
+          Armar mi plan
+        </BotonPrimario>
+        <BotonSecundario className="min-h-15" onClick={onInfo}>
+          <IconoSol className="size-6 text-highlight" />
+          Ver cómo es el clima aquí
+        </BotonSecundario>
+        <button
+          type="button"
+          onClick={onCambiar}
+          className="min-h-11 self-center px-3 text-base font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+        >
+          Elegir otro lugar
+        </button>
+      </div>
+
+      <p className="text-[13px] text-muted-foreground" role="status">
+        {clima === null
+          ? "Consultando NASA POWER…"
+          : clima.fuente === "en-vivo"
+            ? "Datos en vivo de NASA POWER."
+            : `Datos de respaldo de NASA POWER, guardados el ${clima.consultado}.`}{" "}
+        Punto: {lugar.lat.toFixed(3)}° N, {Math.abs(lugar.lon).toFixed(3)}° O.
+      </p>
+    </div>
+  );
+}

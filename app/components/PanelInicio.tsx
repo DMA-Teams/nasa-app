@@ -1,12 +1,13 @@
-// Panel de bienvenida: una sola pregunta ("¿Dónde está tu terreno?"), el botón grande,
-// buscar, los ejemplos del pitch y, al final, los datos generales de Honduras.
+// Panel de bienvenida: una sola pregunta ("¿Dónde está tu terreno?"), departamento → municipio,
+// el botón de ubicación, los ejemplos del pitch y, al final, los datos generales de Honduras.
 "use client";
 
-import { useState } from "react";
-import { buscarLugares } from "@/lib/mapa";
-import type { Celda, TipoZona } from "@/lib/tipos";
+import { useRef, useState } from "react";
+import { obtenerMunicipios } from "@/lib/api";
+import { MUNICIPIOS_SIMULADOS } from "@/lib/municipios";
+import type { Celda, Lugar, Municipio, TipoZona } from "@/lib/tipos";
 import { DibujoClima } from "./dibujos";
-import { BotonPrimario, IconoBuscar, IconoUbicar } from "./ui";
+import { BotonPrimario, IconoUbicar } from "./ui";
 
 export interface Ejemplo {
   etiqueta: string;
@@ -18,16 +19,47 @@ export interface Ejemplo {
 
 interface Props {
   celdas: Celda[];
+  departamentos: string[];
   aviso: string | null;
   buscandoUbicacion: boolean;
   ejemplos: Ejemplo[];
-  onElegir: (lat: number, lon: number) => void;
+  onDepartamento: (nombre: string | null) => void;
+  onElegir: (lat: number, lon: number, origen: Lugar["origen"], departamento?: string | null, municipio?: string) => void;
   onUbicarme: () => void;
 }
 
-export function PanelInicio({ celdas, aviso, buscandoUbicacion, ejemplos, onElegir, onUbicarme }: Props) {
-  const [texto, setTexto] = useState("");
-  const resultados = buscarLugares(texto);
+// <select> nativo: en el celular abre la lista del sistema, que el usuario ya conoce
+const ESTILO_SELECT =
+  "h-14 w-full appearance-none rounded-2xl border-2 border-border bg-card px-4 pr-12 text-[17px] transition-colors duration-150 focus:border-primary focus:outline-none disabled:opacity-50";
+
+function Flecha() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" aria-hidden="true" className="pointer-events-none absolute top-1/2 right-4 size-5 -translate-y-1/2 text-primary">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, ejemplos, onDepartamento, onElegir, onUbicarme }: Props) {
+  const [departamento, setDepartamento] = useState("");
+  const [municipios, setMunicipios] = useState<Municipio[]>([]);
+  const pedido = useRef("");
+
+  async function elegirDepartamento(nombre: string) {
+    // Al cambiar de departamento se vacía el municipio: nunca queda uno de otro departamento
+    setDepartamento(nombre);
+    setMunicipios([]);
+    onDepartamento(nombre || null);
+    pedido.current = nombre;
+    if (!nombre) return;
+    const lista = await obtenerMunicipios(nombre);
+    if (pedido.current === nombre) setMunicipios(lista);
+  }
+
+  function elegirMunicipio(id: string) {
+    const m = municipios.find((x) => x.id === id);
+    if (m) onElegir(m.lat, m.lon, "lista", m.departamento, m.nombre);
+  }
 
   // Datos generales calculados con NASA POWER (promedio 2015–2025)
   const secas = celdas.filter((c) => c.tipo === "seca").length;
@@ -38,52 +70,55 @@ export function PanelInicio({ celdas, aviso, buscandoUbicacion, ejemplos, onEleg
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
         <h1 className="font-display text-[32px] leading-[1.05] font-semibold tracking-[-0.015em] text-balance">¿Dónde está tu terreno?</h1>
-        <p className="text-[17px] leading-snug text-muted-foreground">Toca el mapa en ese lugar, o usa el botón verde.</p>
+        <p className="text-[17px] leading-snug text-muted-foreground">Elige tu departamento y tu municipio, o toca tu terreno en el mapa.</p>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="departamento" className="text-base font-semibold">Departamento</label>
+          <div className="relative">
+            <select id="departamento" value={departamento} onChange={(e) => elegirDepartamento(e.target.value)} className={ESTILO_SELECT}>
+              <option value="">Elige tu departamento</option>
+              {departamentos.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+            <Flecha />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="municipio" className="text-base font-semibold">
+            Municipio{MUNICIPIOS_SIMULADOS && <span className="font-normal text-muted-foreground"> (simulado)</span>}
+          </label>
+          <div className="relative">
+            <select
+              id="municipio"
+              // La key reinicia el selector cuando cambia el departamento
+              key={departamento}
+              defaultValue=""
+              disabled={!departamento || municipios.length === 0}
+              onChange={(e) => elegirMunicipio(e.target.value)}
+              className={ESTILO_SELECT}
+            >
+              <option value="">{departamento ? "Elige tu municipio" : "Primero elige el departamento"}</option>
+              {municipios.map((m) => (
+                <option key={m.id} value={m.id}>{m.nombre}</option>
+              ))}
+            </select>
+            <Flecha />
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2.5">
         <BotonPrimario onClick={onUbicarme} disabled={buscandoUbicacion}>
           <IconoUbicar className="size-6" />
-          {buscandoUbicacion ? "Buscando dónde estás…" : "Estoy en mi terreno"}
+          {buscandoUbicacion ? "Buscando dónde estás…" : "Usar mi ubicación"}
         </BotonPrimario>
         {aviso && (
-          <p role="status" className="rounded-2xl bg-zona-seca/35 px-4 py-3 text-base font-semibold">
+          <p role="status" className="rounded-2xl bg-decor-maiz-suave px-4 py-3 text-base font-semibold">
             {aviso}
           </p>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <label htmlFor="buscar" className="text-base font-semibold">O escribe el nombre de tu pueblo</label>
-        <div className="flex h-14 items-center gap-2.5 rounded-2xl border-2 border-border bg-card px-4 transition-colors duration-150 focus-within:border-primary">
-          <IconoBuscar className="size-5.5 text-primary" />
-          <input
-            id="buscar"
-            type="search"
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            placeholder="Por ejemplo: Gracias"
-            autoComplete="off"
-            className="min-w-0 flex-1 bg-transparent text-[17px] outline-none placeholder:text-muted-foreground"
-          />
-        </div>
-        {resultados.length > 0 && (
-          <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-2xl border-2 border-border bg-card">
-            {resultados.map((r) => (
-              <li key={r.etiqueta}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTexto("");
-                    onElegir(r.lat, r.lon);
-                  }}
-                  className="min-h-12 w-full px-4 py-3 text-left text-[17px] hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
-                >
-                  {r.etiqueta}
-                </button>
-              </li>
-            ))}
-          </ul>
         )}
       </div>
 
@@ -94,9 +129,9 @@ export function PanelInicio({ celdas, aviso, buscandoUbicacion, ejemplos, onEleg
             <button
               key={e.etiqueta}
               type="button"
-              onClick={() => onElegir(e.lat, e.lon)}
+              onClick={() => onElegir(e.lat, e.lon, "lista")}
               className={`flex min-h-20 items-center gap-2 rounded-2xl px-3 py-2.5 text-left transition-transform duration-150 ease-out-strong active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
-                e.tipo === "seca" ? "bg-zona-seca/40" : "bg-zona-lluviosa/45"
+                e.tipo === "seca" ? "bg-decor-maiz-suave" : "bg-zona-lluviosa/45"
               }`}
             >
               <DibujoClima tipo={e.tipo} className="size-11" />

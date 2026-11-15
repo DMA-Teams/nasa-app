@@ -53,15 +53,6 @@ export interface DepartamentosGeoJSON {
   }[];
 }
 
-/** El lugar que eligió el agricultor: un punto exacto del mapa. */
-export interface Punto {
-  lat: number;
-  lon: number;
-  departamento: string;
-  pueblo: string; // pueblo de referencia más cercano
-  celda: Celda; // cuadro de NASA POWER más cercano (respaldo)
-}
-
 /** Lo que devuelve /api/clima para un punto. */
 export interface ClimaZona {
   lat: number;
@@ -84,8 +75,6 @@ export interface ClimaZona {
 }
 
 export type CultivoId = "maiz" | "frijol" | "sorgo" | "frijolAbono";
-export type Prioridad = "agua" | "dinero" | "tierra";
-export type Semaforo = "verde" | "amarillo" | "rojo";
 export type Nivel = "poco" | "regular" | "bien";
 
 export interface ReglaCultivo {
@@ -100,46 +89,6 @@ export interface ReglaCultivo {
   nota?: Partial<Record<TipoZona, string>>; // por qué va en esa temporada en esa zona
 }
 
-export interface Temporada {
-  primera: CultivoId[];
-  postrera: CultivoId[];
-}
-
-export interface Rotacion {
-  id: string;
-  nombre: string;
-  descripcion: string;
-  zonas: TipoZona[]; // dónde tiene sentido sugerirla
-  anio1: Temporada;
-  anio2: Temporada;
-}
-
-export interface EvaluacionRotacion {
-  rotacion: Rotacion;
-  esActual: boolean;
-  semaforo: Semaforo;
-  puntaje: number; // 0–100
-  mesesDesnuda: number;
-  aguantaClima: Nivel;
-  porque: string;
-  evidencia: string;
-}
-
-export interface Resultado {
-  actual: EvaluacionRotacion;
-  opciones: EvaluacionRotacion[]; // 3 opciones, la actual incluida
-  sugeridaId: string;
-  /** La proyección a 3 años es un índice de reglas, no una medición. */
-  proyeccionSimulada: true;
-}
-
-export interface FilaPlan {
-  anio: 1 | 2;
-  temporada: "primera" | "postrera";
-  cultivos: CultivoId[];
-  mesInicio: number;
-  mesFin: number;
-}
 
 // ---------- Recorrido nuevo: lugar → información o plan anual ----------
 // Contrato con el backend: la API devuelve estos tipos tal cual (ver README, "Contrato con el backend").
