@@ -1,9 +1,8 @@
 // "Tu terreno está en…": resumen del lugar elegido y los dos caminos (ver el clima o armar el plan).
-import { NOMBRE_RELIEVE } from "@/lib/colores";
-import { relieveDe } from "@/lib/clima";
 import type { ClimaZona, Lugar } from "@/lib/tipos";
+import { DatosLugar } from "./DatosLugar";
 import { Escena } from "./dibujos";
-import { BotonPrimario, BotonSecundario, Chip, ChipZona, IconoCalendario, IconoGota, IconoMontana, IconoSol } from "./ui";
+import { BotonPrimario, BotonSecundario, IconoCalendario, IconoSol } from "./ui";
 
 interface Props {
   lugar: Lugar;
@@ -17,9 +16,7 @@ interface Props {
 }
 
 export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan, onCambiar }: Props) {
-  const metros = altura ?? clima?.elevacion ?? lugar.celda.elevacion;
   const tipo = clima?.tipo ?? lugar.celda.tipo;
-  const lluvia = clima?.lluviaAnual ?? lugar.celda.lluviaAnual;
 
   return (
     <div className="flex flex-col gap-5">
@@ -36,17 +33,7 @@ export function PanelLugar({ lugar, nombre, clima, altura, aviso, onInfo, onPlan
         <h1 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em] text-balance">{nombre}</h1>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <ChipZona tipo={tipo} grande />
-        <Chip>
-          <IconoMontana className="size-4.5 text-muted-foreground" />
-          {NOMBRE_RELIEVE[relieveDe(metros)]}, {metros.toLocaleString("es-HN")} m{altura === null ? " (promedio de la zona)" : ""}
-        </Chip>
-        <Chip>
-          <IconoGota className="size-4.5 text-chart-3" />
-          {lluvia.toLocaleString("es-HN")} mm de lluvia al año
-        </Chip>
-      </div>
+      <DatosLugar lugar={lugar} clima={clima} altura={altura} />
 
       <div className="flex flex-col gap-3">
         <BotonPrimario onClick={onPlan}>

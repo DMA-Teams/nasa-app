@@ -45,10 +45,6 @@ export function ChipZona({ tipo, grande = false }: { tipo: TipoZona; grande?: bo
   );
 }
 
-export function Chip({ children }: { children: ReactNode }) {
-  return <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3.5 py-1.5 text-[15px] font-semibold text-foreground">{children}</span>;
-}
-
 /* Íconos de trazo, 24×24 */
 function Icono({ children, className = "size-5" }: { children: ReactNode; className?: string }) {
   return (
