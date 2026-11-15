@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ciclosDelPlan, estadoCarril, estadoEn, lineasDelMes, nivelLluvia, numCarriles, pasoInicial, rangoPasos, surcosPara, tamanoPlanta } from "../lib/simulacion.ts";
+import { ciclosDelPlan, estadoCarril, estadoEn, lineasDelMes, nivelLluvia, numCarriles, pasoInicial, rangoPasos, situacionCultivos, surcosPara, tamanoPlanta } from "../lib/simulacion.ts";
 import type { Ciclo } from "../lib/simulacion.ts";
 import type { CultivoId, PlanAnual } from "../lib/tipos.ts";
 
@@ -199,4 +199,30 @@ test("la simulación arranca en el primer mes que tiene algo en el terreno", () 
   assert.equal(pasoInicial(planSeco), paso(5, 0));
   assert.equal(pasoInicial(planLluvioso), 0);
   assert.equal(pasoInicial(planVacio), 0);
+});
+
+// ---------- Qué pasa con cada cultivo en un mes ----------
+const situacion = (plan: PlanAnual, mes: number) => situacionCultivos(plan, ciclosDelPlan(plan), mes).map((s) => [s.id, s.tipo, s.texto]);
+
+test("cada cultivo dice qué le pasa en el mes", () => {
+  assert.deepEqual(situacion(planSeco, 5), [["maiz", "siembra", "Se siembra este mes"], ["frijol", "fuera", "Se siembra en septiembre"]]);
+  assert.deepEqual(situacion(planSeco, 6)[0], ["maiz", "terreno", "En el terreno · se cosecha en agosto"]);
+  assert.deepEqual(situacion(planSeco, 8)[0], ["maiz", "cosecha", "Se cosecha este mes"]);
+  assert.deepEqual(situacion(planSeco, 10), [["maiz", "fuera", "Ya salió del terreno"], ["frijol", "terreno", "En el terreno · se cosecha en noviembre"]]);
+});
+
+test("un cultivo con dos siembras anuncia la siguiente", () => {
+  assert.deepEqual(situacion(planLluvioso, 4)[0], ["maiz", "fuera", "Se siembra en mayo"]);
+  assert.deepEqual(situacion(planLluvioso, 10)[0], ["maiz", "fuera", "Se siembra en diciembre"]);
+  assert.deepEqual(situacion(planLluvioso, 1)[0], ["maiz", "terreno", "En el terreno · se cosecha en marzo"]);
+});
+
+test("el frijol abono se corta, y un cultivo sin cosecha no promete una", () => {
+  const abono = planDe(["frijolAbono"], {
+    5: { cultivos: ["frijolAbono"], sembrados: ["frijolAbono"] }, 6: { cultivos: ["frijolAbono"] }, 7: { cultivos: ["frijolAbono"], cosechados: ["frijolAbono"] },
+  });
+  assert.deepEqual(situacion(abono, 6)[0], ["frijolAbono", "terreno", "En el terreno · se corta en julio"]);
+  assert.deepEqual(situacion(abono, 7)[0], ["frijolAbono", "cosecha", "Se corta este mes"]);
+  assert.deepEqual(situacion(planSinSiembra, 4)[0], ["sorgo", "terreno", "En el terreno"]);
+  assert.deepEqual(situacion(planSinSiembra, 1)[0], ["sorgo", "fuera", "Fuera del terreno"]);
 });

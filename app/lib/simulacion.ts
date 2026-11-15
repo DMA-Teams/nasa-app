@@ -1,6 +1,7 @@
 // Lógica de la simulación visual de la parcela: qué cultivo ocupa cada surco y en qué etapa se ve en cada momento.
 // Funciones puras (las usan la pantalla y las pruebas). No inventa fechas: solo reordena los meses del plan.
 import { nombreCultivo } from "./aspecto-cultivos.ts";
+import { MESES_LARGOS } from "./textos.ts";
 import type { Division, MesPlan, PlanAnual } from "./tipos";
 
 export const PASOS_POR_MES = 4;
@@ -170,4 +171,39 @@ export function lineasDelMes(mes: MesPlan): string[] {
 export function pasoInicial(plan: PlanAnual): number {
   const primero = plan.meses.findIndex((m) => m.cultivos.length > 0);
   return Math.max(primero, 0) * PASOS_POR_MES;
+}
+
+// ---------- Qué pasa con cada cultivo en un mes ----------
+
+export interface SituacionCultivo {
+  id: string;
+  tipo: "siembra" | "cosecha" | "terreno" | "fuera";
+  texto: string; // "Se siembra este mes", "En el terreno · se cosecha en agosto", "Ya salió del terreno"…
+}
+
+/** Para cada cultivo del plan, qué le pasa en un mes (1–12). Solo usa los meses de siembra y cosecha que el plan trae. */
+export function situacionCultivos(plan: PlanAnual, ciclos: Ciclo[], mes: number): SituacionCultivo[] {
+  const datos = plan.meses[mes - 1];
+  const tiene = (lista: string[], id: string) => lista.includes(id);
+  const seSiembraEn = (c: Ciclo) => tiene(plan.meses[c.meses[0] - 1].sembrados, c.cultivo);
+  const ids = [...new Set(ciclos.map((c) => c.cultivo))];
+
+  return ids.map((id): SituacionCultivo => {
+    const verbo = SE_CORTA.includes(id) ? "corta" : "cosecha";
+    const propios = ciclos.filter((c) => c.cultivo === id);
+    const actual = propios.find((c) => c.meses.includes(mes));
+
+    if (actual) {
+      if (tiene(datos.sembrados, id)) return { id, tipo: "siembra", texto: "Se siembra este mes" };
+      if (tiene(datos.cosechados, id)) return { id, tipo: "cosecha", texto: `Se ${verbo} este mes` };
+      const fin = actual.tieneCosecha ? ` · se ${verbo} en ${MESES_LARGOS[actual.meses.at(-1)! - 1]}` : "";
+      return { id, tipo: "terreno", texto: `En el terreno${fin}` };
+    }
+
+    // Fuera del terreno: la siguiente siembra de este año, si el plan la tiene
+    const siguiente = propios.filter((c) => c.meses[0] > mes && seSiembraEn(c)).sort((a, b) => a.meses[0] - b.meses[0])[0];
+    if (siguiente) return { id, tipo: "fuera", texto: `Se siembra en ${MESES_LARGOS[siguiente.meses[0] - 1]}` };
+    const yaSalio = propios.some((c) => c.meses[0] <= c.meses.at(-1)! && c.meses.at(-1)! < mes);
+    return { id, tipo: "fuera", texto: yaSalio ? "Ya salió del terreno" : "Fuera del terreno" };
+  });
 }

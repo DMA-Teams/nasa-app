@@ -6,16 +6,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { nombreCultivo } from "@/lib/aspecto-cultivos";
 import { agruparPlan } from "@/lib/plan";
-import { ciclosDelPlan, lineasDelMes, nivelLluvia, PASOS_ANIO, PASOS_POR_MES, pasoInicial, rangoPasos } from "@/lib/simulacion";
-import type { Vista } from "@/lib/simulacion";
+import { ciclosDelPlan, lineasDelMes, nivelLluvia, PASOS_ANIO, PASOS_POR_MES, pasoInicial, rangoPasos, situacionCultivos } from "@/lib/simulacion";
+import type { SituacionCultivo, Vista } from "@/lib/simulacion";
 import { MESES_LARGOS, nombreMesesDificiles } from "@/lib/textos";
 import type { PlanAnual } from "@/lib/tipos";
+import { CalendarioCultivos } from "../CalendarioCultivos";
 import { IconoAtras, IconoGota } from "../ui";
 import { LineaTiempo } from "./LineaTiempo";
 import { PlantaLeyenda } from "./Planta";
 import { Terreno } from "./Terreno";
 
-const MS_POR_PASO = 400;
+const MS_POR_PASO = 500;
+
+// Cómo se marca cada situación: siembra en verde, cosecha o corte en el color de acento, lo que sigue creciendo en neutro
+const CLASE_ETIQUETA = {
+  siembra: "bg-primary text-primary-foreground",
+  cosecha: "bg-highlight text-highlight-foreground",
+  terreno: "border border-border bg-card text-foreground",
+};
+const seCorta = (s: SituacionCultivo) => s.texto.startsWith("Se corta");
+const etiquetaDe = (s: SituacionCultivo) => (s.tipo === "siembra" ? "Siembra" : s.tipo === "cosecha" ? (seCorta(s) ? "Corte" : "Cosecha") : "Creciendo");
 
 interface PropsSimulacion {
   plan: PlanAnual;
@@ -39,7 +49,7 @@ export function SimulacionParcela({ plan, lugar, abierta, onCerrar }: PropsSimul
       ref={dialogo}
       onClose={onCerrar}
       aria-labelledby="titulo-simulacion"
-      className="m-0 h-dvh max-h-none w-dvw max-w-none border-0 bg-background p-0 text-foreground print:hidden"
+      className="m-0 h-dvh max-h-none w-dvw max-w-none overflow-hidden border-0 bg-background p-0 text-foreground print:hidden"
     >
       {/* El contenido se monta al abrir: cada vez empieza desde el inicio y, al cerrar, el temporizador se va con él */}
       {abierta && <Contenido plan={plan} lugar={lugar} onCerrar={() => dialogo.current?.close()} />}
@@ -58,7 +68,6 @@ function Contenido({ plan, lugar, onCerrar }: Omit<PropsSimulacion, "abierta">) 
   const [reproduciendo, setReproduciendo] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   const ciclos = useMemo(() => ciclosDelPlan(plan), [plan]);
-  const cultivos = useMemo(() => [...new Set(ciclos.map((c) => c.cultivo))], [ciclos]);
   const periodos = useMemo(() => (vista === "anual" ? [] : agruparPlan(plan, vista).map(({ id, nombre }) => ({ id, nombre }))), [plan, vista]);
 
   const rango = rangoPasos(vista, periodo);
@@ -111,12 +120,25 @@ function Contenido({ plan, lugar, onCerrar }: Omit<PropsSimulacion, "abierta">) 
   const indicador = vista === "anual" ? nombreMes : `${nombreMes} · ${periodos[periodo]?.nombre ?? ""}`;
   const lineas = lineasDelMes(mes);
   const lluvia = `Lluvia: ${mes.lluvia.toLocaleString("es-HN")} mm`;
+  const situaciones = situacionCultivos(plan, ciclos, indiceMes + 1);
+  // Lo que pasa este mes, en etiquetas: primero siembra y cosecha (lo que el plan fija), luego lo que sigue en el terreno
+  const grupo = (titulo: string, clase: string, filtro: (s: SituacionCultivo) => boolean) => {
+    const nombres = situaciones.filter(filtro).map((s) => nombreCultivo(s.id));
+    return nombres.length > 0 ? [{ texto: `${titulo}: ${nombres.join(", ")}`, clase }] : [];
+  };
+  const eventos = [
+    ...grupo("Siembra", CLASE_ETIQUETA.siembra, (s) => s.tipo === "siembra"),
+    ...grupo("Cosecha", CLASE_ETIQUETA.cosecha, (s) => s.tipo === "cosecha" && !seCorta(s)),
+    ...grupo("Corte", CLASE_ETIQUETA.cosecha, (s) => s.tipo === "cosecha" && seCorta(s)),
+    ...grupo("Creciendo", CLASE_ETIQUETA.terreno, (s) => s.tipo === "terreno"),
+    ...(mes.cultivos.length === 0 ? [{ texto: "Tierra en descanso", clase: "border border-border bg-card text-muted-foreground" }] : []),
+  ];
   const descripcion = `${indicador}. ${lineas.join(". ")}. ${lluvia}.`;
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
-      <div className="flex min-h-[46dvh] flex-1 flex-col lg:min-h-0">
-        <header className="flex flex-col gap-2 px-4 pt-4 lg:px-8 lg:pt-6">
+    <div className="flex h-full flex-col overflow-x-hidden overflow-y-auto lg:flex-row lg:overflow-hidden">
+      <div className="flex min-h-[58dvh] flex-1 flex-col lg:min-h-0">
+        <header className="flex flex-col gap-1 px-4 pt-3 lg:px-8 lg:pt-6">
           <button
             type="button"
             onClick={onCerrar}
@@ -125,14 +147,36 @@ function Contenido({ plan, lugar, onCerrar }: Omit<PropsSimulacion, "abierta">) 
             <IconoAtras className="size-5" />
             Volver al plan
           </button>
-          <div className="flex flex-wrap items-baseline gap-2">
-            <h2 id="titulo-simulacion" className="font-display text-titulo font-semibold">
+          <div className="flex flex-wrap items-baseline gap-x-2">
+            <h2 id="titulo-simulacion" className="font-display text-subtitulo font-semibold">
               Tu parcela en el año
             </h2>
-            <span className="text-apoyo text-muted-foreground">(simulado)</span>
+            <span className="text-apoyo text-muted-foreground">(simulado) · {lugar}</span>
           </div>
-          <p className="text-apoyo text-muted-foreground">{lugar}</p>
         </header>
+
+        {/* En qué mes va y qué pasa: grande y pegado a la parcela, para no tener que buscarlo */}
+        <div className="flex flex-col gap-2 px-4 pt-3 lg:px-8 lg:pt-5">
+          <p className="flex flex-wrap items-baseline gap-x-3">
+            <span className="font-display text-[2.25rem] leading-none font-semibold lg:text-[3rem]">{nombreMes}</span>
+            <span className="text-apoyo text-muted-foreground tabular-nums">
+              Mes {indiceMes + 1} de 12{vista !== "anual" && periodos[periodo] ? ` · ${periodos[periodo].nombre}` : ""}
+            </span>
+          </p>
+          <ul className="flex min-h-9 flex-wrap items-center gap-2" aria-label="Lo que pasa este mes">
+            {eventos.map((e) => (
+              <li key={e.texto} className={`rounded-full px-3 py-1 text-apoyo ${e.clase}`}>
+                {e.texto}
+              </li>
+            ))}
+            <li className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-apoyo">
+              <IconoGota className="size-4 text-muted-foreground" />
+              {mes.lluvia.toLocaleString("es-HN")} mm de lluvia
+            </li>
+            {mes.dificil && <li className="rounded-full bg-aviso px-3 py-1 text-apoyo">{nombreMesesDificiles(plan.tipoZona)}</li>}
+          </ul>
+        </div>
+
         <Terreno
           ciclos={ciclos}
           paso={paso}
@@ -143,22 +187,7 @@ function Contenido({ plan, lugar, onCerrar }: Omit<PropsSimulacion, "abierta">) 
         />
       </div>
 
-      <div className="flex shrink-0 flex-col gap-4 border-t border-border bg-card/60 px-4 py-4 lg:w-[26rem] lg:overflow-y-auto lg:border-t-0 lg:border-l lg:px-6 lg:py-6">
-        {/* Lo que el plan dice de este mes. Mientras se reproduce no se anuncia cada paso. */}
-        <div className="flex min-h-[7.5rem] flex-col gap-1" aria-live={activa ? "off" : "polite"}>
-          <p className="font-display text-subtitulo font-semibold">{indicador}</p>
-          {lineas.map((l) => (
-            <p key={l} className="text-cuerpo leading-snug">
-              {l}
-            </p>
-          ))}
-          <p className="inline-flex flex-wrap items-center gap-1.5 text-apoyo text-muted-foreground">
-            <IconoGota className="size-4" />
-            {lluvia}
-            {mes.dificil && <span className="rounded-full bg-aviso px-2 py-0.5 text-nota text-foreground">{nombreMesesDificiles(plan.tipoZona)}</span>}
-          </p>
-        </div>
-
+      <div className="relative flex shrink-0 flex-col gap-5 overflow-x-hidden border-t border-border bg-card/60 px-4 py-4 lg:w-[27rem] lg:overflow-y-auto lg:border-t-0 lg:border-l lg:px-6 lg:py-6">
         <LineaTiempo
           vista={vista}
           onVista={cambiarVista}
@@ -175,16 +204,31 @@ function Contenido({ plan, lugar, onCerrar }: Omit<PropsSimulacion, "abierta">) 
           mesesDificiles={plan.meses.filter((m) => m.dificil).map((m) => m.mes)}
         />
 
-        {cultivos.length > 0 && (
-          <ul className="flex flex-wrap gap-x-4 gap-y-1.5" aria-label="Cultivos del plan">
-            {cultivos.map((id) => (
-              <li key={id} className="inline-flex items-center gap-1.5 text-apoyo">
-                <PlantaLeyenda id={id} className="size-7" />
-                {nombreCultivo(id)}
-              </li>
-            ))}
-          </ul>
-        )}
+        {/* Cultivo por cultivo: qué le pasa en este mes. Mientras se reproduce no se anuncia cada paso. */}
+        <section className="flex flex-col gap-2" aria-labelledby="titulo-situacion">
+          <h3 id="titulo-situacion" className="text-cuerpo font-semibold">
+            Tus cultivos en {MESES_LARGOS[indiceMes]}
+          </h3>
+          {situaciones.length === 0 ? (
+            <p className="text-apoyo text-muted-foreground">Tierra en descanso todo el año.</p>
+          ) : (
+            <ul className="flex flex-col divide-y divide-border border-y border-border" aria-live={activa ? "off" : "polite"}>
+              {situaciones.map((s) => (
+                <li key={s.id} className={`flex items-center gap-3 py-2.5 ${s.tipo === "fuera" ? "opacity-60" : ""}`}>
+                  <PlantaLeyenda id={s.id} className="size-9" />
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="text-cuerpo leading-tight font-semibold">{nombreCultivo(s.id)}</span>
+                    <span className="text-apoyo leading-snug text-muted-foreground">{s.texto}</span>
+                  </span>
+                  {s.tipo !== "fuera" && <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-nota ${CLASE_ETIQUETA[s.tipo]}`}>{etiquetaDe(s)}</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {/* El mismo calendario del plan, con el mes que se está viendo marcado */}
+        <CalendarioCultivos plan={plan} mesActual={indiceMes + 1} />
 
         <p className="text-apoyo text-muted-foreground">Ilustración de tu plan. No es una predicción.</p>
         <p className="text-nota text-muted-foreground">
