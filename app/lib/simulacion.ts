@@ -98,12 +98,19 @@ export function estadoEn(ciclo: Ciclo, paso: number): EstadoCiclo | null {
 
 const PASOS_RASTROJO = 2;
 
-/** Lo que se ve en un carril en un paso: el ciclo activo, o el rastrojo del que acaba de terminar, o null (descanso). */
+/** Lo que se ve en un carril en un paso: su ciclo activo, o el de un vecino si el carril le queda libre, o el rastrojo del que acaba de terminar, o null (descanso). */
 export function estadoCarril(ciclos: Ciclo[], carril: number, paso: number): { ciclo: Ciclo; estado: EstadoCiclo } | null {
   const delCarril = ciclos.filter((c) => c.carril === carril);
   for (const ciclo of delCarril) {
     const estado = estadoEn(ciclo, paso);
     if (estado) return { ciclo, estado };
+  }
+  // Si este carril queda libre durante todo el ciclo de un cultivo vecino, ese cultivo también lo ocupa:
+  // así un cultivo que va solo (frijol después de maíz y sorgo) llena la parcela y no deja surcos vacíos.
+  for (const vecino of ciclos) {
+    if (vecino.carril === carril) continue;
+    const estado = estadoEn(vecino, paso);
+    if (estado && delCarril.every((c) => !c.meses.some((m) => vecino.meses.includes(m)))) return { ciclo: vecino, estado };
   }
   for (const ciclo of delCarril) {
     if (!ciclo.tieneCosecha) continue;

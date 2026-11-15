@@ -166,3 +166,11 @@ test("rangos de pasos por vista", () => {
 test("niveles de lluvia", () => {
   assert.deepEqual([0, 59, 60, 199, 200].map(nivelLluvia), ["poca", "poca", "regular", "regular", "mucha"]);
 });
+
+test("un cultivo que va solo ocupa también los surcos que quedaron libres", () => {
+  // En septiembre–noviembre el sorgo ya salió: su carril lo usa el frijol, no se queda vacío
+  const c = ciclosDelPlan(planSecoRecomendado);
+  assert.equal(estadoCarril(c, 1, paso(10, 0))!.ciclo.cultivo, "frijol");
+  assert.equal(estadoCarril(c, 1, paso(6, 0))!.ciclo.cultivo, "sorgo");
+  assert.equal(estadoCarril(c, 1, paso(2, 0)), null);
+});
