@@ -6,7 +6,8 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { armarPlan, obtenerClima, obtenerMunicipios } from "@/lib/api";
-import { COLOR_ZONA, NOMBRE_ZONA } from "@/lib/colores";
+import { COLOR_ZONA, NOMBRE_ZONA, RAMPA_LLUVIA } from "@/lib/colores";
+import { agruparPlan } from "@/lib/plan";
 import { departamentoDe } from "@/lib/geo";
 import { celdaDePunto } from "@/lib/mapa";
 import { municipioMasCercano } from "@/lib/municipios";
@@ -64,6 +65,8 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
   const [cultivos, setCultivos] = useState<CultivoId[]>([]);
   const [division, setDivision] = useState<Division>("trimestral");
   const [plan, setPlan] = useState<PlanAnual | null>(null);
+  // Periodo del plan que se ve en el mapa (id "T1"…"T4" o "S1"/"S2"); null = el primero
+  const [periodoElegido, setPeriodoElegido] = useState<string | null>(null);
   // Error inesperado al leer el clima o armar el plan (la red caída ya se cubre con el respaldo, en lib/api.ts)
   const [fallo, setFallo] = useState<"clima" | "plan" | null>(null);
   const peticionClima = useRef<AbortController | null>(null);
@@ -196,6 +199,7 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
     if (!lugar) return;
     ultimoModo.current = modo;
     setPlan(null);
+    setPeriodoElegido(null); // un plan nuevo empieza mostrando su primer periodo en el mapa
     setFallo((f) => (f === "plan" ? null : f));
     peticionPlan.current?.abort();
     const control = new AbortController();
@@ -220,6 +224,10 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
     setPlan(null);
     setDepartamentoEnfocado(null);
   }
+
+  // En el paso del plan, el mapa pinta la lluvia del periodo elegido (si no hay uno válido, el primero)
+  const periodos = paso === "plan" && plan ? agruparPlan(plan, division) : null;
+  const periodoMapa = periodos ? (periodos.find((p) => p.id === periodoElegido) ?? periodos[0]) : null;
 
   const nombreLugar = lugar ? (lugar.municipio ? `${lugar.municipio}, ${lugar.departamento}` : lugar.departamento) : "";
   const tipoZona = clima?.tipo ?? lugar?.celda.tipo;
@@ -246,6 +254,7 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
             departamentos={departamentos}
             inclinado={inclinado}
             lugar={lugar}
+            meses={periodoMapa?.meses ?? null}
             departamentoEnfocado={departamentoEnfocado}
             onTocar={(lat, lon, dep) => elegirLugar(lat, lon, "mapa", dep)}
             onAltura={setAltura}
@@ -282,13 +291,26 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
             {/* Una sola superficie de vidrio para toda la leyenda: cada desenfoque se recalcula en cada cuadro del mapa */}
             <div
               role="group"
-              aria-label="Leyenda: clima de cada departamento"
-              // En la computadora la leyenda se envuelve antes de llegar al panel (472 px a la derecha)
+              aria-label={periodoMapa ? `Leyenda: lluvia en ${periodoMapa.nombre}` : "Leyenda: clima de cada departamento"}
+              // En la computadora la leyenda se envuelve antes de llegar al panel (432 px a la derecha)
               className="vidrio-control pointer-events-auto flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-2.5 py-1 text-nota md:max-w-[calc(100vw-432px-2rem)]"
             >
-              {(Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => (
-                <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />
-              ))}
+              {periodoMapa ? (
+                // Con un periodo del plan elegido: escala de lluvia promedio por mes
+                <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span>Lluvia en {periodoMapa.nombre}</span>
+                  <span className="inline-flex items-center gap-1.5 text-muted-foreground tabular-nums">
+                    0
+                    <i
+                      className="h-2 w-20 rounded-full"
+                      style={{ background: `linear-gradient(to right, ${RAMPA_LLUVIA.map(([, c]) => c).join(", ")})` }}
+                    />
+                    300+ mm al mes
+                  </span>
+                </span>
+              ) : (
+                (Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />)
+              )}
             </div>
           </div>
 
@@ -384,7 +406,17 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
                 )}
                 {paso === "plan" &&
                   (plan ? (
-                    <ModuloPlan plan={plan} division={division} onDivision={setDivision} lugar={nombreLugar} />
+                    <ModuloPlan
+                      plan={plan}
+                      division={division}
+                      onDivision={(d) => {
+                        setDivision(d);
+                        setPeriodoElegido(null); // al cambiar de división, el mapa vuelve al primer periodo
+                      }}
+                      periodoElegido={periodoMapa?.id ?? null}
+                      onPeriodo={setPeriodoElegido}
+                      lugar={nombreLugar}
+                    />
                   ) : fallo === "plan" ? (
                     <Fallo titulo={FALLO.plan.titulo} onReintentar={() => pedirPlan(ultimoModo.current)} onOtroLugar={volverAlMapa} />
                   ) : (

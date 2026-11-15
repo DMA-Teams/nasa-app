@@ -40,6 +40,7 @@ export interface PropiedadesDepartamento {
   relieve: Relieve;
   elevacion: number;
   lluviaAnual: number;
+  lluviaMensual: number[]; // 12 valores en mm, de enero a diciembre (promedio NASA POWER 2015–2025)
   centro: [number, number]; // lon, lat (para la etiqueta)
 }
 

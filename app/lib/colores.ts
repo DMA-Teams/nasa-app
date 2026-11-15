@@ -29,6 +29,23 @@ function mezclar(a: string, b: string, p: number): string {
   return `#${rgb.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 
+/**
+ * Rampa de lluvia para el mapa del plan: mm por mes (promedio del periodo elegido), de blanco azulado a azul.
+ * En mm por mes y no en total, para que trimestres y semestres compartan la misma escala.
+ */
+export const RAMPA_LLUVIA: [number, string][] = [
+  [0, mezclar(TOKENS.chart3, TOKENS.card, 0.08)],
+  [50, mezclar(TOKENS.chart3, TOKENS.card, 0.3)],
+  [150, mezclar(TOKENS.chart3, TOKENS.card, 0.6)],
+  [300, TOKENS.chart3],
+];
+
+/** Lluvia promedio por mes en esos meses (1–12). [55, 42, 102, …], [1, 2, 3] → 66 */
+export function lluviaPromedio(lluviaMensual: number[], meses: number[]): number {
+  if (meses.length === 0) return 0;
+  return Math.round(meses.reduce((s, m) => s + (lluviaMensual[m - 1] ?? 0), 0) / meses.length);
+}
+
 export const COLOR_BORDE = TOKENS.card;
 export const COLOR_SELECCION = TOKENS.highlight;
 export const COLOR_FONDO = mezclar(TOKENS.chart3, TOKENS.foreground, 0.25); // océano mientras carga la imagen

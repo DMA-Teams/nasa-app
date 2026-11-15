@@ -6,12 +6,16 @@ import type { CSSProperties } from "react";
 import type { Division, PeriodoPlan, PlanAnual } from "@/lib/tipos";
 import { CalendarioCultivos } from "../CalendarioCultivos";
 import { DibujoCultivo } from "../dibujos";
-import { BotonPrimario, IconoAlerta, IconoDescargar, IconoGota, IconoInfo } from "../ui";
+import { BotonPrimario, IconoAlerta, IconoDescargar, IconoGota, IconoInfo, IconoMapa } from "../ui";
 
 interface Props {
   plan: PlanAnual;
   division: Division;
   onDivision: (d: Division) => void;
+  /** Periodo que el mapa está pintando ("T1", "S2"…). */
+  periodoElegido: string | null;
+  /** Tocar un periodo de la lista lo pinta en el mapa (lluvia de esos meses). */
+  onPeriodo: (id: string) => void;
   lugar: string; // "Gracias, Lempira": nombre del archivo PDF
 }
 
@@ -20,7 +24,7 @@ const DIVISIONES: { id: Division; texto: string }[] = [
   { id: "semestral", texto: "Por semestres" },
 ];
 
-export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
+export function ModuloPlan({ plan, division, onDivision, periodoElegido, onPeriodo, lugar }: Props) {
   const periodos = agruparPlan(plan, division);
 
   function guardarPdf() {
@@ -67,12 +71,16 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
         ))}
       </div>
 
-      {/* Lista con divisores: sin tarjetas, el aire y una línea de 1 px separan cada periodo */}
-      <ol className="flex flex-col divide-y divide-border border-y border-border">
-        {periodos.map((p, i) => (
-          <Periodo key={p.id} periodo={p} orden={i} />
-        ))}
-      </ol>
+      {/* Lista con divisores: sin tarjetas, el aire y una línea de 1 px separan cada periodo.
+          Cada periodo se puede tocar: el mapa pinta la lluvia de esos meses. */}
+      <div className="flex flex-col gap-2">
+        <p className="text-nota text-muted-foreground">Toca un periodo para ver su lluvia en el mapa.</p>
+        <ol className="flex flex-col divide-y divide-border border-y border-border">
+          {periodos.map((p, i) => (
+            <Periodo key={p.id} periodo={p} orden={i} elegido={p.id === periodoElegido} onElegir={() => onPeriodo(p.id)} />
+          ))}
+        </ol>
+      </div>
 
       <BotonPrimario onClick={guardarPdf}>
         <IconoDescargar className="size-5" />
@@ -94,40 +102,65 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
   );
 }
 
-function Periodo({ periodo: p, orden }: { periodo: PeriodoPlan; orden: number }) {
-  return (
-    <li className="entrar-lista flex flex-col gap-2 py-4" style={{ "--i": orden } as CSSProperties}>
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="font-display text-subtitulo font-semibold">{p.nombre}</span>
-        <span className="inline-flex shrink-0 items-center gap-1 text-apoyo font-semibold tabular-nums">
-          <IconoGota className="size-4 text-muted-foreground" />
-          {p.lluviaEsperada.toLocaleString("es-HN")} mm
-        </span>
-      </div>
+interface PropsPeriodo {
+  periodo: PeriodoPlan;
+  orden: number;
+  /** Es el periodo que pinta el mapa. */
+  elegido: boolean;
+  onElegir: () => void;
+}
 
-      <div className="flex items-center gap-2">
-        {p.cultivos.length > 0 && (
-          <span className="flex shrink-0 gap-0.5" aria-hidden="true">
-            {p.cultivos.map((c) => (
-              <DibujoCultivo key={c} id={c} className="size-6" />
-            ))}
+// Todo el periodo es un botón (solo con <span>, que es lo que un botón admite adentro).
+// Elegido: el nombre en verde y "En el mapa", sin caja de color.
+function Periodo({ periodo: p, orden, elegido, onElegir }: PropsPeriodo) {
+  return (
+    <li className="entrar-lista" style={{ "--i": orden } as CSSProperties}>
+      <button
+        type="button"
+        aria-pressed={elegido}
+        onClick={onElegir}
+        className="-mx-2 flex w-[calc(100%+1rem)] flex-col gap-2 rounded-lg px-2 py-4 text-left transition-colors duration-150 hover:bg-background/60"
+      >
+        <span className="flex w-full items-baseline justify-between gap-3">
+          <span className={`font-display text-subtitulo font-semibold ${elegido ? "text-primary" : ""}`}>{p.nombre}</span>
+          <span className="inline-flex shrink-0 items-center gap-3">
+            {elegido && (
+              <span className="inline-flex items-center gap-1 text-nota text-primary">
+                <IconoMapa className="size-4" />
+                En el mapa
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1 text-apoyo font-semibold tabular-nums">
+              <IconoGota className="size-4 text-muted-foreground" />
+              {p.lluviaEsperada.toLocaleString("es-HN")} mm
+            </span>
+          </span>
+        </span>
+
+        <span className="flex items-center gap-2">
+          {p.cultivos.length > 0 && (
+            <span className="flex shrink-0 gap-0.5" aria-hidden="true">
+              {p.cultivos.map((c) => (
+                <DibujoCultivo key={c} id={c} className="size-6" />
+              ))}
+            </span>
+          )}
+          <span className="text-cuerpo leading-snug">{p.consejo}</span>
+        </span>
+
+        <span className="block text-apoyo leading-snug text-muted-foreground">¿Por qué? {p.porque}</span>
+
+        {p.alerta && (
+          <span className="flex items-center gap-2 self-start rounded-full bg-aviso px-3 py-1 text-apoyo">
+            <IconoAlerta className="size-4 text-highlight" />
+            {p.alerta}
           </span>
         )}
-        <span className="text-cuerpo leading-snug">{p.consejo}</span>
-      </div>
 
-      <p className="text-apoyo leading-snug text-muted-foreground">¿Por qué? {p.porque}</p>
-
-      {p.alerta && (
-        <span className="flex items-center gap-2 self-start rounded-full bg-aviso px-3 py-1 text-apoyo">
-          <IconoAlerta className="size-4 text-highlight" />
-          {p.alerta}
+        <span className="block text-nota text-muted-foreground">
+          Tierra cubierta {p.mesesCubierta} de {p.meses.length} meses
         </span>
-      )}
-
-      <span className="text-nota text-muted-foreground">
-        Tierra cubierta {p.mesesCubierta} de {p.meses.length} meses
-      </span>
+      </button>
     </li>
   );
 }

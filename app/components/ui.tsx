@@ -59,3 +59,4 @@ export const IconoSol = (p: { className?: string }) => <Icono {...p}><circle cx=
 export const IconoCalendario = (p: { className?: string }) => <Icono {...p}><rect x="3.5" y="5" width="17" height="15" rx="3" /><path d="M8 3v4M16 3v4M3.5 10h17" /></Icono>;
 export const IconoMontana = (p: { className?: string }) => <Icono {...p}><path d="M2 20l7-12 4 6 2.5-3.5L22 20H2z" /></Icono>;
 export const IconoGota = (p: { className?: string }) => <Icono {...p}><path d="M12 3c4 5 6.5 8 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 11 8 8 12 3z" /></Icono>;
+export const IconoMapa = (p: { className?: string }) => <Icono {...p}><path d="M9 4L3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z" /><path d="M9 4v13M15 6.5v13" /></Icono>;

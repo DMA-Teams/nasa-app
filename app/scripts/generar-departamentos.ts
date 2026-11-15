@@ -54,6 +54,7 @@ for (const f of fuente.features) {
       relieve: relieveDe(elevacion),
       elevacion,
       lluviaAnual: lluvias.reduce((a, b) => a + b, 0),
+      lluviaMensual: lluvias, // mm de enero a diciembre: el mapa los usa para pintar la lluvia de cada periodo del plan
       centro,
     },
     geometry: { type: f.geometry.type, coordinates: redondear(f.geometry.coordinates) as number[][][] },

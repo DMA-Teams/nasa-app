@@ -9,11 +9,13 @@ import {
   Map as MapaLibre,
   Marker,
   setWorkerUrl,
+  type DataDrivenPropertyValueSpecification,
+  type ExpressionSpecification,
   type LngLatBoundsLike,
   type StyleSpecification,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { COLOR_BORDE, COLOR_FONDO, COLOR_SELECCION, COLOR_ZONA } from "@/lib/colores";
+import { COLOR_BORDE, COLOR_FONDO, COLOR_SELECCION, COLOR_ZONA, RAMPA_LLUVIA } from "@/lib/colores";
 import { poligonosDe } from "@/lib/geo";
 import type { DepartamentosGeoJSON, Lugar } from "@/lib/tipos";
 
@@ -37,6 +39,21 @@ function margenPanel(m: MapaLibre) {
 const LIMITE_PANEO: LngLatBoundsLike = [[-93, 10.5], [-79.5, 19]];
 const EXAGERACION = 1.5;
 const PITCH_3D = 40;
+
+// Relleno de los departamentos. Normal: color de la zona de clima. Con un periodo del plan elegido:
+// azul según la lluvia promedio por mes de esos meses (propiedad lluviaMensual, NASA POWER).
+const COLOR_POR_ZONA: ExpressionSpecification = [
+  "match", ["get", "tipo"], "seca", COLOR_ZONA.seca, "lluviosa", COLOR_ZONA.lluviosa, COLOR_ZONA.equilibrada,
+];
+// Más transparente al acercarse, para que se vea el relieve del terreno
+const OPACIDAD_ZONA: DataDrivenPropertyValueSpecification<number> = ["interpolate", ["linear"], ["zoom"], 6, 0.45, 9, 0.18];
+// La lluvia del periodo es el dato principal en el paso del plan: se queda visible aunque se acerque el mapa
+const OPACIDAD_LLUVIA: DataDrivenPropertyValueSpecification<number> = ["interpolate", ["linear"], ["zoom"], 6, 0.7, 9, 0.55];
+
+function colorPorLluvia(meses: number[]): ExpressionSpecification {
+  const suma: ExpressionSpecification = ["+", 0, ...meses.map((m): ExpressionSpecification => ["at", m - 1, ["get", "lluviaMensual"]])];
+  return ["interpolate", ["linear"], ["/", suma, meses.length], ...RAMPA_LLUVIA.flat()];
+}
 
 const SATELITE = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg";
 const ELEVACION = "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png";
@@ -77,9 +94,9 @@ function estilo(departamentos: DepartamentosGeoJSON): StyleSpecification {
         type: "fill",
         source: "departamentos",
         paint: {
-          "fill-color": ["match", ["get", "tipo"], "seca", COLOR_ZONA.seca, "lluviosa", COLOR_ZONA.lluviosa, COLOR_ZONA.equilibrada],
-          // Más transparente al acercarse, para que se vea el relieve del terreno
-          "fill-opacity": ["interpolate", ["linear"], ["zoom"], 6, 0.45, 9, 0.18],
+          "fill-color": COLOR_POR_ZONA,
+          "fill-opacity": OPACIDAD_ZONA,
+          "fill-color-transition": { duration: 300 },
         },
       },
       { id: "dep-borde", type: "line", source: "departamentos", paint: { "line-color": COLOR_BORDE, "line-width": 1.2, "line-opacity": 0.8 } },
@@ -98,6 +115,8 @@ interface Props {
   departamentos: DepartamentosGeoJSON;
   inclinado: boolean;
   lugar: Lugar | null;
+  /** Meses (1–12) del periodo del plan elegido: el mapa pinta su lluvia. null = zonas de clima. */
+  meses: number[] | null;
   /** Departamento elegido en la lista: el mapa se acerca a él y marca su borde. */
   departamentoEnfocado: string | null;
   onTocar: (lat: number, lon: number, departamento: string | null) => void;
@@ -110,7 +129,7 @@ interface Props {
 // Tras estos fallos de una misma fuente de mosaicos, se deja de usar (un mosaico suelto puede fallar sin más)
 const FALLOS_PARA_RENDIRSE = 3;
 
-export function MapaReal({ departamentos, inclinado, lugar, departamentoEnfocado, onTocar, onAltura, onSinRelieve }: Props) {
+export function MapaReal({ departamentos, inclinado, lugar, meses, departamentoEnfocado, onTocar, onAltura, onSinRelieve }: Props) {
   const contenedor = useRef<HTMLDivElement>(null);
   const mapa = useRef<MapaLibre | null>(null);
   const pin = useRef<Marker | null>(null);
@@ -217,6 +236,23 @@ export function MapaReal({ departamentos, inclinado, lugar, departamentoEnfocado
       listo.current = false;
     };
   }, [departamentos]);
+
+  // Periodo del plan elegido: lluvia de esos meses; sin periodo, las zonas de clima.
+  // La clave en texto evita repintar si llega el mismo periodo en un arreglo nuevo.
+  const clavesMeses = meses?.join(",") ?? "";
+  useEffect(() => {
+    const m = mapa.current;
+    if (!m) return;
+    const lista = clavesMeses ? clavesMeses.split(",").map(Number) : null;
+    const aplicar = () => {
+      const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      m.setPaintProperty("dep-relleno", "fill-color-transition", { duration: quieto ? 0 : 300 });
+      m.setPaintProperty("dep-relleno", "fill-color", lista ? colorPorLluvia(lista) : COLOR_POR_ZONA);
+      m.setPaintProperty("dep-relleno", "fill-opacity", lista ? OPACIDAD_LLUVIA : OPACIDAD_ZONA);
+    };
+    if (listo.current) aplicar();
+    else m.once("load", aplicar);
+  }, [clavesMeses]);
 
   // 3D o plano
   useEffect(() => {
