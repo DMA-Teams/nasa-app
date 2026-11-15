@@ -1,5 +1,6 @@
 // Piezas pequeñas reutilizables: botones, chips e íconos (trazos SVG, sin librerías).
 import type { ComponentProps, ReactNode } from "react";
+import { NOMBRE_ZONA } from "@/lib/colores";
 import type { TipoZona } from "@/lib/tipos";
 import { DibujoClima } from "./dibujos";
 
@@ -29,7 +30,6 @@ const ESTILO_ZONA: Record<TipoZona, string> = {
   equilibrada: "bg-zona-equilibrada/55 text-[color-mix(in_oklab,var(--primary)_75%,var(--foreground))]",
   lluviosa: "bg-zona-lluviosa/50 text-[color-mix(in_oklab,var(--chart-3)_70%,var(--foreground))]",
 };
-const TEXTO_ZONA: Record<TipoZona, string> = { seca: "Falta agua", equilibrada: "Equilibrado", lluviosa: "Sobra agua" };
 
 /** El clima de la zona con su dibujo: sol, sol con nube o lluvia. */
 export function ChipZona({ tipo, grande = false }: { tipo: TipoZona; grande?: boolean }) {
@@ -40,7 +40,7 @@ export function ChipZona({ tipo, grande = false }: { tipo: TipoZona; grande?: bo
       }`}
     >
       <DibujoClima tipo={tipo} className={grande ? "size-8" : "size-6"} />
-      {TEXTO_ZONA[tipo]}
+      {NOMBRE_ZONA[tipo]}
     </span>
   );
 }

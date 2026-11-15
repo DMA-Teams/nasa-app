@@ -26,6 +26,15 @@ const HONDURAS: LngLatBoundsLike = [[-89.4, 12.95], [-83.1, 16.55]];
 const MARGEN = { top: 70, bottom: 60, left: 8, right: 8 };
 const MARGEN_MOVIL = { top: 64, bottom: 56, left: 0, right: 0 };
 const margen = (m: MapaLibre) => (m.getContainer().clientWidth < 600 ? MARGEN_MOVIL : MARGEN);
+// El mapa pasa por detrás del panel de vidrio: la cámara centra en la parte libre.
+// Computadora: panel flotante a la derecha (440 px + 16 de separación a cada lado). Celular: hoja de hasta 60 % del alto.
+const ANCHO_PANEL = 472;
+function margenPanel(m: MapaLibre) {
+  const { clientWidth, clientHeight } = m.getContainer();
+  return clientWidth >= 768
+    ? { top: 0, bottom: 0, left: 0, right: ANCHO_PANEL }
+    : { top: 0, bottom: Math.round(clientHeight * 0.6), left: 0, right: 0 };
+}
 const LIMITE_PANEO: LngLatBoundsLike = [[-93, 10.5], [-79.5, 19]];
 const EXAGERACION = 1.5;
 const PITCH_3D = 40;
@@ -133,8 +142,10 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
       maxPitch: 75,
       attributionControl: false,
     });
+    m.setPadding(margenPanel(m));
+    m.fitBounds(HONDURAS, { padding: margen(m), pitch: PITCH_3D, bearing: -6, duration: 0 });
     m.addControl(new AttributionControl({ compact: true }), "top-right");
-    m.addControl(new NavigationControl({ visualizePitch: true }), "top-right");
+    m.addControl(new NavigationControl({ visualizePitch: true }), "top-left");
 
     m.on("load", () => {
       listo.current = true;
@@ -166,7 +177,10 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
     m.on("mouseenter", "dep-relleno", () => (m.getCanvas().style.cursor = "pointer"));
     m.on("mouseleave", "dep-relleno", () => (m.getCanvas().style.cursor = ""));
 
-    const observador = new ResizeObserver(() => m.resize());
+    const observador = new ResizeObserver(() => {
+      m.resize();
+      m.setPadding(margenPanel(m));
+    });
     observador.observe(contenedor.current);
     mapa.current = m;
     return () => {
