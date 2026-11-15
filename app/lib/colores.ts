@@ -18,7 +18,7 @@ export const COLOR_ZONA: Record<TipoZona, string> = {
   lluviosa: TOKENS.chart3,
 };
 
-export const NOMBRE_ZONA: Record<TipoZona, string> = { seca: "Falta agua", equilibrada: "Equilibrado", lluviosa: "Sobra agua" };
+export const NOMBRE_ZONA: Record<TipoZona, string> = { seca: "Déficit de lluvia", equilibrada: "Lluvia equilibrada", lluviosa: "Exceso de lluvia" };
 export const NOMBRE_RELIEVE: Record<Relieve, string> = { bajo: "Costa y valles", medio: "Zona media", montana: "Montaña" };
 
 /** Mezcla dos colores hex en sRGB (p = cuánto de `a`). Así derivamos tonos sin inventar colores. */

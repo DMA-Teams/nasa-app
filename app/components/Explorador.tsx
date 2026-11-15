@@ -1,4 +1,4 @@
-// Pantalla única: mapa real siempre visible + panel que avanza por pasos.
+// Pantalla única: mapa real a pantalla completa + panel de vidrio encima que avanza por pasos.
 // Inicio → Lugar → (Clima) → ¿Cómo quieres tu plan? → (Tus cultivos) → Plan del año
 "use client";
 
@@ -35,8 +35,8 @@ type Paso = "inicio" | "lugar" | "info" | "modo" | "cultivos" | "plan";
 
 // Casos del pitch: Lempira (canícula fuerte) y Atlántida (exceso de lluvia)
 const EJEMPLOS: Ejemplo[] = [
-  { etiqueta: "Lempira", detalle: "Aquí falta agua", tipo: "seca", lat: 14.3, lon: -88.6 },
-  { etiqueta: "Atlántida", detalle: "Aquí sobra agua", tipo: "lluviosa", lat: 15.7, lon: -86.9 },
+  { etiqueta: "Lempira", detalle: "Déficit de lluvia", tipo: "seca", lat: 14.3, lon: -88.6 },
+  { etiqueta: "Atlántida", detalle: "Exceso de lluvia", tipo: "lluviosa", lat: 15.7, lon: -86.9 },
 ];
 
 export function Explorador({ celdas }: { celdas: Celda[] }) {
@@ -154,9 +154,9 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
   return (
     <>
       {/* Al imprimir (Guardar como PDF) la app se oculta y sale PlanImprimible */}
-      <main className="flex h-dvh flex-col bg-background md:flex-row print:hidden">
-        {/* Mapa */}
-        <section className="relative min-h-0 flex-1 overflow-hidden bg-mapa-fondo" aria-label="Mapa">
+      <main className="relative h-dvh overflow-hidden bg-mapa-fondo print:hidden">
+        {/* Mapa: ocupa toda la pantalla y pasa por detrás del panel, que lo deja ver borroso */}
+        <section className="absolute inset-0" aria-label="Mapa">
           <MapaReal
             departamentos={departamentos}
             capa={capa}
@@ -166,11 +166,15 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
             onTocar={(lat, lon, dep) => elegirLugar(lat, lon, "mapa", dep)}
             onAltura={setAltura}
           />
+        </section>
 
+        {/* Celular: columna (zona libre del mapa arriba, panel abajo). Computadora: todo flota sobre el mapa. */}
+        <div className="pointer-events-none absolute inset-0 flex flex-col md:block">
+         <div className="relative min-h-0 flex-1 md:absolute md:inset-0">
           <header className="pointer-events-none absolute top-0 left-0 z-10 flex items-center gap-3 p-4">
             {paso === "inicio" ? (
               // Espacio libre alrededor del logo: ¼ de la altura del símbolo (guía de marca)
-              <div className="pointer-events-auto flex flex-col gap-1 rounded-xl bg-card px-3 py-2.5 shadow-[0_3px_0_rgb(28_36_32/0.2)]">
+              <div className="vidrio-control pointer-events-auto flex flex-col gap-1 rounded-2xl px-3 py-2.5">
                 <Image src="/marca/surco-horizontal-color.svg" alt="Surco" width={102} height={32} priority />
                 <span className="text-nota leading-tight text-muted-foreground">Qué sembrar, con datos de NASA</span>
               </div>
@@ -178,7 +182,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
               <button
                 type="button"
                 onClick={volverAlMapa}
-                className="pointer-events-auto flex h-12 items-center gap-1.5 rounded-full bg-card pr-5 pl-3.5 text-cuerpo font-semibold shadow-[0_3px_0_rgb(28_36_32/0.2)] transition-transform duration-150 ease-out-strong active:scale-[0.96]"
+                className="vidrio-control pointer-events-auto flex h-12 items-center gap-1.5 rounded-full pr-5 pl-3.5 text-cuerpo font-semibold transition-transform duration-150 ease-out-strong active:scale-[0.96]"
               >
                 <IconoAtras className="size-5" />
                 Mapa
@@ -186,12 +190,12 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
             )}
           </header>
 
-          <div className="pointer-events-none absolute bottom-7 left-3 z-10 md:bottom-4 md:left-4">
+          <div className="pointer-events-none absolute bottom-3 left-3 z-10 md:bottom-4 md:left-4">
             <div className="pointer-events-auto flex flex-wrap gap-1.5" aria-label="Leyenda">
               {capa === "clima" ? (
                 (Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />)
               ) : (
-                <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-nota font-semibold shadow-sm">
+                <span className="vidrio-control inline-flex items-center gap-2 rounded-full px-3 py-1 text-nota font-semibold">
                   0 m
                   <i
                     className="h-2.5 w-24 rounded-full"
@@ -203,10 +207,10 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
             </div>
           </div>
 
-          {/* Celular: arriba a la derecha, en columna. Computadora: abajo a la derecha. */}
-          <div className="absolute top-14 right-3 z-10 md:top-auto md:right-4 md:bottom-4">
+          {/* Celular: arriba a la derecha, en columna. Computadora: abajo a la izquierda, sobre la leyenda (el panel va a la derecha). */}
+          <div className="pointer-events-auto absolute top-14 right-3 z-10 md:top-auto md:right-auto md:bottom-14 md:left-4">
             <div className="flex flex-col items-end gap-1.5 md:flex-row">
-              <div className="flex flex-col rounded-3xl bg-card p-1 shadow-sm md:flex-row md:rounded-full" role="group" aria-label="Capa del mapa">
+              <div className="vidrio-control flex flex-col rounded-3xl p-1 md:flex-row md:rounded-full" role="group" aria-label="Capa del mapa">
                 {(["clima", "altura"] as const).map((c) => (
                   <button
                     key={c}
@@ -225,20 +229,22 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
                 type="button"
                 aria-pressed={inclinado}
                 onClick={() => setInclinado(!inclinado)}
-                className="flex h-12 items-center gap-1.5 rounded-full bg-card px-4 text-apoyo font-semibold shadow-sm"
+                className="vidrio-control flex h-12 items-center gap-1.5 rounded-full px-4 text-apoyo font-semibold transition-transform duration-150 ease-out-strong active:scale-[0.96]"
               >
                 <IconoCubo className="size-4.5" />
                 {inclinado ? "3D" : "Plano"}
               </button>
             </div>
           </div>
-        </section>
+         </div>
 
-        {/* Panel */}
-        <aside className="relative z-20 -mt-6 max-h-[60dvh] w-full overflow-y-auto rounded-t-3xl bg-card shadow-[0_-8px_24px_rgb(28_36_32/0.2)] md:mt-0 md:max-h-none md:w-[460px] md:rounded-none md:shadow-[-8px_0_24px_rgb(28_36_32/0.16)]">
-          <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-border md:hidden" aria-hidden="true" />
+        {/* Panel de vidrio: hoja abajo en el celular; tarjeta flotante a la derecha en la computadora, tan alta como su contenido.
+            El contenido se desplaza por dentro, así la barra de desplazamiento no se sale de las esquinas redondeadas. */}
+        <aside className="vidrio pointer-events-auto relative z-20 flex max-h-[60dvh] w-full flex-col overflow-hidden rounded-t-3xl md:absolute md:top-4 md:right-4 md:max-h-[calc(100dvh-2rem)] md:w-[440px] md:rounded-3xl">
+          <div className="mx-auto mt-2.5 h-1.5 w-12 shrink-0 rounded-full bg-foreground/20 md:hidden" aria-hidden="true" />
+          <div className="desplazable min-h-0 overflow-y-auto md:my-3">
           {/* La key hace que el contenido entre suave cada vez que cambia el paso */}
-          <div key={paso} className="entrar-paso flex flex-col gap-5 p-5 pb-8 md:p-7">
+          <div key={paso} className="entrar-paso flex flex-col gap-5 p-5 pb-8 md:px-7 md:py-4">
             {paso === "inicio" && (
               <PanelInicio
                 celdas={celdas}
@@ -304,7 +310,9 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
               </>
             )}
           </div>
+          </div>
         </aside>
+        </div>
       </main>
       {paso === "plan" && plan && <PlanImprimible plan={plan} division={division} lugar={nombreLugar} />}
     </>
@@ -322,7 +330,7 @@ function Cargando() {
 
 function Leyenda({ color, texto }: { color: string; texto: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-nota font-semibold shadow-sm">
+    <span className="vidrio-control inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-nota font-semibold">
       <i className="size-3.5 rounded-full" style={{ background: color }} />
       {texto}
     </span>

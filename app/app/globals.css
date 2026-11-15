@@ -245,9 +245,67 @@ body {
   }
 }
 
+/* Vidrio esmerilado: el mapa se adivina borroso detrás del panel y de los botones.
+   El fondo queda casi opaco para que el texto se lea bien bajo el sol; sin backdrop-filter, es una tarjeta normal. */
+.vidrio,
+.vidrio-control {
+  background: var(--card);
+  border: 1px solid rgb(255 255 255 / 0.6);
+}
+.vidrio {
+  box-shadow: 0 16px 48px rgb(28 36 32 / 0.32), inset 0 1px 0 rgb(255 255 255 / 0.8);
+}
+.vidrio-control {
+  box-shadow: 0 4px 16px rgb(28 36 32 / 0.24), inset 0 1px 0 rgb(255 255 255 / 0.8);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .vidrio {
+    background: color-mix(in oklab, var(--card) 84%, transparent);
+    -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.25);
+    backdrop-filter: blur(28px) saturate(1.8) brightness(1.25);
+  }
+  .vidrio-control {
+    background: color-mix(in oklab, var(--card) 78%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.25);
+    backdrop-filter: blur(16px) saturate(1.8) brightness(1.25);
+  }
+}
+
+/* Controles de MapLibre con el mismo vidrio */
+.maplibregl-map .maplibregl-ctrl-group:not(:empty) {
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.6);
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--card) 78%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.25);
+  backdrop-filter: blur(16px) saturate(1.8) brightness(1.25);
+  box-shadow: 0 4px 16px rgb(28 36 32 / 0.24);
+}
+.maplibregl-map .maplibregl-ctrl-group button {
+  width: 36px;
+  height: 36px;
+  background-color: transparent;
+}
+
 /* En el celular el mapa se mueve con los dedos: sin botones de zoom */
 @media (max-width: 767px) {
-  .maplibregl-ctrl-top-right .maplibregl-ctrl-group {
+  .maplibregl-map .maplibregl-ctrl-top-left .maplibregl-ctrl-group {
     display: none;
   }
+}
+/* Computadora: el zoom va a la izquierda bajo el logo, y los créditos del mapa no quedan tapados por el panel */
+@media (min-width: 768px) {
+  .maplibregl-map .maplibregl-ctrl-top-left {
+    top: 96px;
+    left: 6px;
+  }
+  .maplibregl-map .maplibregl-ctrl-top-right {
+    right: 464px;
+  }
+}
+
+/* Barra de desplazamiento del panel: fina, sin carril, del color del texto */
+.desplazable {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(28 36 32 / 0.28) transparent;
 }
