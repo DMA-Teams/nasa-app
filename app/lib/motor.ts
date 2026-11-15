@@ -3,7 +3,8 @@
 // nitrógeno e ingreso, con pesos según lo que el agricultor prioriza.
 import reglasJson from "@/data/reglas.json";
 import rotacionesJson from "@/data/rotaciones.json";
-import { listaMeses } from "./textos";
+import { construirPlan } from "./calendario";
+import { listaMeses, NOMBRE_CULTIVO } from "./textos";
 import type {
   ClimaZona,
   CultivoId,
@@ -16,13 +17,22 @@ import type {
   Rotacion,
   Semaforo,
   Temporada,
+  PedidoPlan,
+  PlanAnual,
+  TipoZona,
 } from "./tipos";
 
 export const REGLAS = reglasJson.cultivos as ReglaCultivo[];
 export const ROTACIONES = rotacionesJson.rotaciones as Rotacion[];
+export const RECOMENDADOS = reglasJson.recomendados as Record<TipoZona, CultivoId[]>;
+
+/** Plan del año con el motor local (respaldo mientras no exista POST /api/plan). */
+export function armarPlanLocal(pedido: PedidoPlan, clima: ClimaZona): PlanAnual {
+  return construirPlan(pedido, clima, REGLAS, RECOMENDADOS);
+}
 
 const regla = (id: CultivoId) => REGLAS.find((r) => r.id === id)!;
-export const nombreCultivo = (id: CultivoId) => regla(id).nombre;
+export const nombreCultivo = (id: CultivoId) => NOMBRE_CULTIVO[id];
 export const nombresCultivos = (ids: CultivoId[]) => ids.map(nombreCultivo).join(" + ");
 
 const VALOR_NIVEL: Record<Nivel, number> = { poco: 0, regular: 0.5, bien: 1 };

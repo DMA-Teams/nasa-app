@@ -1,5 +1,6 @@
 // Módulo 2: qué siembra hoy y qué le importa más.
 import { REGLAS } from "@/lib/motor";
+import { NOMBRE_CULTIVO } from "@/lib/textos";
 import type { CultivoId, Prioridad } from "@/lib/tipos";
 import { DibujoCultivo } from "../dibujos";
 import { IconoBrote, IconoCheck, IconoGota, IconoMoneda } from "../ui";
@@ -42,7 +43,7 @@ export function ModuloCultivos({ cultivos, prioridad, onCultivos, onPrioridad }:
               }`}
             >
               <DibujoCultivo id={r.id} className={`size-16 transition-transform duration-200 ease-out-strong ${activo ? "scale-110" : ""}`} />
-              {r.nombre}
+              {NOMBRE_CULTIVO[r.id]}
               {activo && (
                 <span className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
                   <IconoCheck className="size-4" />

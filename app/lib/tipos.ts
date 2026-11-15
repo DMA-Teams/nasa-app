@@ -90,12 +90,14 @@ export type Nivel = "poco" | "regular" | "bien";
 
 export interface ReglaCultivo {
   id: CultivoId;
-  nombre: string;
   toleraSequia: Nivel;
   toleraEncharcamiento: Nivel;
   mesesCubreSuelo: number;
   aportaNitrogeno: boolean;
   ingreso: "bajo" | "medio" | "alto";
+  siembra: Record<TipoZona, number[]>; // meses de siembra según la zona
+  duracionMeses: number; // cuánto dura en el terreno
+  nota?: Partial<Record<TipoZona, string>>; // por qué va en esa temporada en esa zona
 }
 
 export interface Temporada {
