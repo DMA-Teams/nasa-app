@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ciclosDelPlan, estadoCarril, estadoEn, nivelLluvia, numCarriles, rangoPasos, surcosPara, tamanoPlanta } from "../lib/simulacion.ts";
+import { ciclosDelPlan, estadoCarril, estadoEn, lineasDelMes, nivelLluvia, numCarriles, pasoInicial, rangoPasos, surcosPara, tamanoPlanta } from "../lib/simulacion.ts";
 import type { Ciclo } from "../lib/simulacion.ts";
 import type { CultivoId, PlanAnual } from "../lib/tipos.ts";
 
@@ -173,4 +173,30 @@ test("un cultivo que va solo ocupa también los surcos que quedaron libres", () 
   assert.equal(estadoCarril(c, 1, paso(10, 0))!.ciclo.cultivo, "frijol");
   assert.equal(estadoCarril(c, 1, paso(6, 0))!.ciclo.cultivo, "sorgo");
   assert.equal(estadoCarril(c, 1, paso(2, 0)), null);
+});
+
+test("el rastrojo también queda en los surcos que el cultivo tomó prestados", () => {
+  const c = ciclosDelPlan(planSecoRecomendado);
+  assert.equal(estadoCarril(c, 0, paso(12, 0))!.estado.etapa, "rastrojo");
+  assert.deepEqual([estadoCarril(c, 1, paso(12, 0))!.ciclo.cultivo, estadoCarril(c, 1, paso(12, 0))!.estado.etapa], ["frijol", "rastrojo"]);
+  assert.equal(estadoCarril(c, 1, paso(12, 2)), null);
+});
+
+// ---------- Textos del mes y arranque ----------
+
+test("el texto del mes solo dice lo que el plan dice", () => {
+  assert.deepEqual(lineasDelMes(planSeco.meses[4]), ["Se siembra: Maíz", "En el terreno: Maíz"]);
+  assert.deepEqual(lineasDelMes(planSeco.meses[7]), ["Se cosecha: Maíz", "En el terreno: Maíz"]);
+  assert.deepEqual(lineasDelMes(planSeco.meses[0]), ["Tierra en descanso"]);
+});
+
+test("el frijol abono no se cosecha: se corta", () => {
+  const p = planDe(["frijolAbono", "frijol"], { 10: { cultivos: ["frijolAbono", "frijol"], cosechados: ["frijolAbono", "frijol"] } });
+  assert.deepEqual(lineasDelMes(p.meses[9]), ["Se cosecha: Frijol", "Se corta: Frijol abono", "En el terreno: Frijol abono, Frijol"]);
+});
+
+test("la simulación arranca en el primer mes que tiene algo en el terreno", () => {
+  assert.equal(pasoInicial(planSeco), paso(5, 0));
+  assert.equal(pasoInicial(planLluvioso), 0);
+  assert.equal(pasoInicial(planVacio), 0);
 });

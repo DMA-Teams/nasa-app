@@ -108,7 +108,7 @@ export function ModuloPlan({ plan, division, onDivision, periodoElegido, onPerio
         reglas de ejemplo (simulado).
       </p>
 
-      <SimulacionParcela plan={plan} division={division} lugar={lugar} abierta={simulacionAbierta} onCerrar={() => setSimulacionAbierta(false)} />
+      <SimulacionParcela plan={plan} lugar={lugar} abierta={simulacionAbierta} onCerrar={() => setSimulacionAbierta(false)} />
     </div>
   );
 }

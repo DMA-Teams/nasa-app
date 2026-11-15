@@ -6,10 +6,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { nombreCultivo } from "@/lib/aspecto-cultivos";
 import { agruparPlan } from "@/lib/plan";
-import { ciclosDelPlan, nivelLluvia, PASOS_ANIO, PASOS_POR_MES, rangoPasos } from "@/lib/simulacion";
+import { ciclosDelPlan, lineasDelMes, nivelLluvia, PASOS_ANIO, PASOS_POR_MES, pasoInicial, rangoPasos } from "@/lib/simulacion";
 import type { Vista } from "@/lib/simulacion";
 import { MESES_LARGOS, nombreMesesDificiles } from "@/lib/textos";
-import type { Division, PlanAnual } from "@/lib/tipos";
+import type { PlanAnual } from "@/lib/tipos";
 import { IconoAtras, IconoGota } from "../ui";
 import { LineaTiempo } from "./LineaTiempo";
 import { PlantaLeyenda } from "./Planta";
@@ -19,13 +19,12 @@ const MS_POR_PASO = 400;
 
 interface PropsSimulacion {
   plan: PlanAnual;
-  division: Division; // la que el usuario tenía en el plan: vista inicial
   lugar: string;
   abierta: boolean;
   onCerrar: () => void;
 }
 
-export function SimulacionParcela({ plan, division, lugar, abierta, onCerrar }: PropsSimulacion) {
+export function SimulacionParcela({ plan, lugar, abierta, onCerrar }: PropsSimulacion) {
   const dialogo = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -43,18 +42,18 @@ export function SimulacionParcela({ plan, division, lugar, abierta, onCerrar }: 
       className="m-0 h-dvh max-h-none w-dvw max-w-none border-0 bg-background p-0 text-foreground print:hidden"
     >
       {/* El contenido se monta al abrir: cada vez empieza desde el inicio y, al cerrar, el temporizador se va con él */}
-      {abierta && <Contenido plan={plan} division={division} lugar={lugar} onCerrar={() => dialogo.current?.close()} />}
+      {abierta && <Contenido plan={plan} lugar={lugar} onCerrar={() => dialogo.current?.close()} />}
     </dialog>
   );
 }
 
-const lista = (ids: string[]) => ids.map(nombreCultivo).join(", ");
 const mayuscula = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1);
 
-function Contenido({ plan, division, lugar, onCerrar }: Omit<PropsSimulacion, "abierta">) {
-  const [vista, setVista] = useState<Vista>(division);
+function Contenido({ plan, lugar, onCerrar }: Omit<PropsSimulacion, "abierta">) {
+  // Abre en el año completo y en el primer mes con algo sembrado, para que lo primero que se vea sea la parcela creciendo
+  const [vista, setVista] = useState<Vista>("anual");
   const [periodo, setPeriodo] = useState(0);
-  const [paso, setPaso] = useState(0);
+  const [paso, setPaso] = useState(() => pasoInicial(plan));
   // Arranca sola, salvo que la persona haya pedido reducir el movimiento
   const [reproduciendo, setReproduciendo] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
@@ -110,11 +109,7 @@ function Contenido({ plan, division, lugar, onCerrar }: Omit<PropsSimulacion, "a
   const mes = plan.meses[indiceMes];
   const nombreMes = mayuscula(MESES_LARGOS[indiceMes]);
   const indicador = vista === "anual" ? nombreMes : `${nombreMes} · ${periodos[periodo]?.nombre ?? ""}`;
-  const lineas = [
-    mes.sembrados.length > 0 && `Se siembra: ${lista(mes.sembrados)}`,
-    mes.cosechados.length > 0 && `Se cosecha: ${lista(mes.cosechados)}`,
-    mes.cultivos.length > 0 ? `En el terreno: ${lista(mes.cultivos)}` : "Tierra en descanso",
-  ].filter((l): l is string => Boolean(l));
+  const lineas = lineasDelMes(mes);
   const lluvia = `Lluvia: ${mes.lluvia.toLocaleString("es-HN")} mm`;
   const descripcion = `${indicador}. ${lineas.join(". ")}. ${lluvia}.`;
 

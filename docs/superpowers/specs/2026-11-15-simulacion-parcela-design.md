@@ -1,6 +1,6 @@
 # Simulación visual de la parcela ("Ver mi parcela en el año")
 
-Fecha: 2026-11-15 · Rama: `visual-crop-simulation` · Estado: **pendiente de aprobación**
+Fecha: 2026-11-15 · Rama: `visual-crop-simulation` · Estado: **aprobado e implementado** (con los tres ajustes de la sección 11)
 
 ## 1. Qué es y para qué
 
@@ -85,9 +85,9 @@ Funciones sin React, probadas con `node --test` igual que `plan.ts`.
 | Maduración | Último tramo antes de la cosecha: aparece el fruto o la espiga | Transición genérica |
 | Cosecha | Mes de cosecha: las plantas se retiran y queda rastrojo | Plan |
 
-Después de la cosecha, el rastrojo se desvanece a tierra en descanso. Si ningún cultivo ocupa un carril, sus surcos se ven como tierra en descanso.
+Después de la cosecha, el rastrojo se desvanece a tierra en descanso. Si un carril queda libre durante todo el ciclo de un cultivo vecino, ese cultivo también lo ocupa (y deja ahí su rastrojo). Si ningún cultivo puede ocuparlo, sus surcos se ven como tierra en descanso.
 
-**Honestidad.** El texto en pantalla solo nombra lo que el plan dice: "Se siembra: maíz", "Se cosecha: frijol", "En el terreno: sorgo". Las etapas intermedias se ven pero no se rotulan con fecha. La vista lleva "(simulado)" y la nota "Ilustración de tu plan. No es una predicción."
+**Honestidad.** El texto en pantalla solo nombra lo que el plan dice: "Se siembra: maíz", "Se cosecha: frijol", "En el terreno: sorgo". El frijol abono no se cosecha: dice "Se corta: frijol abono", igual que el resto de la app. Las etapas intermedias se ven pero no se rotulan con fecha. La vista lleva "(simulado)" y la nota "Ilustración de tu plan. No es una predicción."
 
 ### 5.3 Aspecto de los cultivos: `app/lib/aspecto-cultivos.ts`
 
@@ -148,7 +148,7 @@ No se dibujan 22 especies a mano. Hay **7 formas base**, cada una con sus etapas
 
 **Controles**
 
-- **Vista:** Año, Semestres o Trimestres. Arranca en la división que el usuario tenía en el plan. En Año se reproduce de enero a diciembre; en las otras, solo el periodo elegido.
+- **Vista:** Año, Semestres o Trimestres. Abre en Año y en el primer mes que tiene algo en el terreno. En Año se reproduce de enero a diciembre; en las otras, solo el periodo elegido.
 - **⏮ ⏭:** en Año saltan un mes; en Semestres o Trimestres pasan al periodo anterior o siguiente.
 - **▶ / ⏸:** reproduce el tramo y se detiene al final. Si ya está al final, vuelve a empezar el tramo.
 - **Barra:** un `<input type="range">` (funciona con teclado y lector de pantalla), con las 12 iniciales de los meses y los meses difíciles sombreados.
@@ -202,3 +202,9 @@ Revisión manual: abrir la simulación con el caso de "Ver ejemplo" en ancho de 
 5. **La preparación del terreno ocurre al inicio del mes de siembra**, no en un mes anterior, para no inventar una actividad con fecha.
 6. **La lluvia del mes se muestra en la escena**, aunque no estaba en tu pedido, porque es el dato NASA del plan.
 7. **La simulación no entra al PDF.**
+
+## 11. Ajustes hechos durante la implementación
+
+1. **Surcos libres.** Un cultivo que va solo (el frijol después del maíz y el sorgo) ocupa también los surcos que quedaron libres. Con el diseño original salía en la mitad de los surcos y parecía que el plan dejaba media parcela vacía. Límite conocido: si el carril vecino se traslapa aunque sea un mes, no se presta, y esos surcos se ven en descanso.
+2. **Arranque.** La simulación abre en la vista Año y en el primer mes con algo sembrado. Abrir en el primer trimestre mostraba solo tierra vacía durante cinco segundos en las zonas seca y equilibrada.
+3. **Frijol abono.** El texto dice "Se corta" en lugar de "Se cosecha".

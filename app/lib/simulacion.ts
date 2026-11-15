@@ -1,6 +1,7 @@
 // Lógica de la simulación visual de la parcela: qué cultivo ocupa cada surco y en qué etapa se ve en cada momento.
 // Funciones puras (las usan la pantalla y las pruebas). No inventa fechas: solo reordena los meses del plan.
-import type { Division, PlanAnual } from "./tipos";
+import { nombreCultivo } from "./aspecto-cultivos.ts";
+import type { Division, MesPlan, PlanAnual } from "./tipos";
 
 export const PASOS_POR_MES = 4;
 export const PASOS_ANIO = 48;
@@ -98,21 +99,21 @@ export function estadoEn(ciclo: Ciclo, paso: number): EstadoCiclo | null {
 
 const PASOS_RASTROJO = 2;
 
-/** Lo que se ve en un carril en un paso: su ciclo activo, o el de un vecino si el carril le queda libre, o el rastrojo del que acaba de terminar, o null (descanso). */
+/**
+ * Lo que se ve en un carril en un paso: un ciclo activo, o el rastrojo del que acaba de terminar, o null (descanso).
+ * Un carril muestra sus propios ciclos y, además, los de un vecino cuando el carril queda libre durante todo ese ciclo:
+ * así un cultivo que va solo (frijol después de maíz y sorgo) llena la parcela y no deja surcos vacíos.
+ */
 export function estadoCarril(ciclos: Ciclo[], carril: number, paso: number): { ciclo: Ciclo; estado: EstadoCiclo } | null {
-  const delCarril = ciclos.filter((c) => c.carril === carril);
-  for (const ciclo of delCarril) {
+  const propios = ciclos.filter((c) => c.carril === carril);
+  const prestados = ciclos.filter((c) => c.carril !== carril && propios.every((p) => !p.meses.some((m) => c.meses.includes(m))));
+  const visibles = [...propios, ...prestados];
+
+  for (const ciclo of visibles) {
     const estado = estadoEn(ciclo, paso);
     if (estado) return { ciclo, estado };
   }
-  // Si este carril queda libre durante todo el ciclo de un cultivo vecino, ese cultivo también lo ocupa:
-  // así un cultivo que va solo (frijol después de maíz y sorgo) llena la parcela y no deja surcos vacíos.
-  for (const vecino of ciclos) {
-    if (vecino.carril === carril) continue;
-    const estado = estadoEn(vecino, paso);
-    if (estado && delCarril.every((c) => !c.meses.some((m) => vecino.meses.includes(m)))) return { ciclo: vecino, estado };
-  }
-  for (const ciclo of delCarril) {
+  for (const ciclo of visibles) {
     if (!ciclo.tieneCosecha) continue;
     const ultimoPaso = ciclo.meses.at(-1)! * PASOS_POR_MES - 1;
     const pasados = (paso - ultimoPaso + PASOS_ANIO) % PASOS_ANIO; // circular: diciembre → enero
@@ -145,4 +146,28 @@ export type NivelLluvia = "poca" | "regular" | "mucha";
 /** Qué tanto llueve en un mes, para dibujar el cielo (el número en mm siempre se muestra aparte). */
 export function nivelLluvia(mm: number): NivelLluvia {
   return mm < 60 ? "poca" : mm < 200 ? "regular" : "mucha";
+}
+
+// ---------- Textos del mes y arranque ----------
+
+// El frijol abono no se cosecha: se corta y se incorpora a la tierra (igual que en lib/plan.ts)
+const SE_CORTA = ["frijolAbono", "mucuna"];
+const lista = (ids: string[]) => ids.map(nombreCultivo).join(", ");
+
+/** Lo que el plan dice de un mes, en frases cortas. Solo siembra, cosecha o corte, y lo que hay en el terreno. */
+export function lineasDelMes(mes: MesPlan): string[] {
+  const cosechados = mes.cosechados.filter((id) => !SE_CORTA.includes(id));
+  const cortados = mes.cosechados.filter((id) => SE_CORTA.includes(id));
+  const lineas: string[] = [];
+  if (mes.sembrados.length > 0) lineas.push(`Se siembra: ${lista(mes.sembrados)}`);
+  if (cosechados.length > 0) lineas.push(`Se cosecha: ${lista(cosechados)}`);
+  if (cortados.length > 0) lineas.push(`Se corta: ${lista(cortados)}`);
+  lineas.push(mes.cultivos.length > 0 ? `En el terreno: ${lista(mes.cultivos)}` : "Tierra en descanso");
+  return lineas;
+}
+
+/** Dónde arranca la simulación: el primer mes con algo en el terreno, para no abrir con la tierra vacía. */
+export function pasoInicial(plan: PlanAnual): number {
+  const primero = plan.meses.findIndex((m) => m.cultivos.length > 0);
+  return Math.max(primero, 0) * PASOS_POR_MES;
 }
