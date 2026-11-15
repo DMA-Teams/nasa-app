@@ -2,7 +2,7 @@
 // Funciones puras: cambiar de trimestral a semestral no vuelve a pedir nada al servidor.
 import { PRIORIDAD_ACCION } from "./calendario.ts";
 import { listaMeses, MESES, MESES_LARGOS, NOMBRE_CULTIVO } from "./textos.ts";
-import type { AccionPeriodo, CultivoId, Division, MesPlan, PeriodoPlan, PlanAnual, TipoZona } from "./tipos";
+import type { AccionPeriodo, CultivoId, Division, EstadoCalendario, FilaCalendario, MesPlan, PeriodoPlan, PlanAnual, TipoZona } from "./tipos";
 
 const GRUPOS: Record<Division, { prefijo: string; meses: number[][] }> = {
   trimestral: { prefijo: "T", meses: [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]] },
@@ -101,4 +101,29 @@ export function agruparPlan(plan: PlanAnual, division: Division): PeriodoPlan[] 
       mesesCubierta: meses.filter((m) => m.cubierta).length,
     };
   });
+}
+
+/**
+ * El calendario de siembra: una fila por cultivo con lo que pasa cada mes (siembra, en el terreno, cosecha).
+ * Solo reordena los 12 meses del plan; si un cultivo da la vuelta al año (maíz de apante en diciembre),
+ * cada mes ya trae su estado. Orden: por el primer mes de siembra.
+ */
+export function filasCalendario(plan: PlanAnual): FilaCalendario[] {
+  const ids = [...new Set(plan.meses.flatMap((m) => m.cultivos))];
+  const primeraSiembra = (id: CultivoId) => {
+    const i = plan.meses.findIndex((m) => m.sembrados.includes(id));
+    return i === -1 ? 12 : i;
+  };
+  const ordenElegido = (id: CultivoId) => {
+    const i = plan.cultivosElegidos.indexOf(id);
+    return i === -1 ? plan.cultivosElegidos.length : i;
+  };
+  return ids
+    .sort((a, b) => primeraSiembra(a) - primeraSiembra(b) || ordenElegido(a) - ordenElegido(b))
+    .map((id) => ({
+      id,
+      meses: plan.meses.map((m): EstadoCalendario =>
+        m.sembrados.includes(id) ? "siembra" : m.cosechados.includes(id) ? "cosecha" : m.cultivos.includes(id) ? "terreno" : null,
+      ),
+    }));
 }

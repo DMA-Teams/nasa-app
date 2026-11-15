@@ -4,6 +4,7 @@
 import { agruparPlan } from "@/lib/plan";
 import type { CSSProperties } from "react";
 import type { Division, PeriodoPlan, PlanAnual } from "@/lib/tipos";
+import { CalendarioCultivos } from "../CalendarioCultivos";
 import { DibujoCultivo } from "../dibujos";
 import { BotonPrimario, IconoAlerta, IconoDescargar, IconoGota, IconoInfo } from "../ui";
 
@@ -39,6 +40,9 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
         </div>
         <p className="text-cuerpo">{plan.resumen}</p>
       </div>
+
+      {/* El año de un vistazo; los periodos de abajo dan el detalle */}
+      <CalendarioCultivos plan={plan} />
 
       <div className="relative grid grid-cols-2 gap-1 rounded-full bg-background p-1" role="group" aria-label="Ver el plan">
         {/* La pastilla verde se desliza hacia la opción elegida */}

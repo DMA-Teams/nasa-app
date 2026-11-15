@@ -8,21 +8,20 @@ import {
   AttributionControl,
   Map as MapaLibre,
   Marker,
-  NavigationControl,
   setWorkerUrl,
   type LngLatBoundsLike,
   type StyleSpecification,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { COLOR_BORDE, COLOR_FONDO, COLOR_SELECCION, COLOR_ZONA, RAMPA_ALTURA } from "@/lib/colores";
+import { COLOR_BORDE, COLOR_FONDO, COLOR_SELECCION, COLOR_ZONA } from "@/lib/colores";
 import { poligonosDe } from "@/lib/geo";
-import type { CapaMapa, DepartamentosGeoJSON, Lugar } from "@/lib/tipos";
+import type { DepartamentosGeoJSON, Lugar } from "@/lib/tipos";
 
 // El worker se copia a public/ en predev/prebuild (scripts/copiar-maplibre.mjs)
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 const HONDURAS: LngLatBoundsLike = [[-89.4, 12.95], [-83.1, 16.55]];
-// Arriba deja lugar al título; abajo, a la leyenda y los botones de capa
+// Arriba deja lugar al título; abajo, a la leyenda y al botón 3D
 const MARGEN = { top: 70, bottom: 60, left: 8, right: 8 };
 const MARGEN_MOVIL = { top: 64, bottom: 56, left: 0, right: 0 };
 const margen = (m: MapaLibre) => (m.getContainer().clientWidth < 600 ? MARGEN_MOVIL : MARGEN);
@@ -74,16 +73,6 @@ function estilo(departamentos: DepartamentosGeoJSON): StyleSpecification {
       { id: "sombra", type: "hillshade", source: "relieveCapas", paint: { "hillshade-exaggeration": 0.35 } },
       { id: "mascara", type: "fill", source: "mascara", paint: { "fill-color": COLOR_FONDO, "fill-opacity": 0.55 } },
       {
-        id: "altura",
-        type: "color-relief",
-        source: "relieveCapas",
-        layout: { visibility: "none" },
-        paint: {
-          "color-relief-color": ["interpolate", ["linear"], ["elevation"], ...RAMPA_ALTURA.flat()],
-          "color-relief-opacity": 0.75,
-        },
-      },
-      {
         id: "dep-relleno",
         type: "fill",
         source: "departamentos",
@@ -107,7 +96,6 @@ function estilo(departamentos: DepartamentosGeoJSON): StyleSpecification {
 
 interface Props {
   departamentos: DepartamentosGeoJSON;
-  capa: CapaMapa;
   inclinado: boolean;
   lugar: Lugar | null;
   /** Departamento elegido en la lista: el mapa se acerca a él y marca su borde. */
@@ -122,7 +110,7 @@ interface Props {
 // Tras estos fallos de una misma fuente de mosaicos, se deja de usar (un mosaico suelto puede fallar sin más)
 const FALLOS_PARA_RENDIRSE = 3;
 
-export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEnfocado, onTocar, onAltura, onSinRelieve }: Props) {
+export function MapaReal({ departamentos, inclinado, lugar, departamentoEnfocado, onTocar, onAltura, onSinRelieve }: Props) {
   const contenedor = useRef<HTMLDivElement>(null);
   const mapa = useRef<MapaLibre | null>(null);
   const pin = useRef<Marker | null>(null);
@@ -158,13 +146,13 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
       console.error("[mapa] no se pudo crear (¿sin WebGL?):", err);
       // eslint-disable-next-line react-hooks/set-state-in-effect -- solo se sabe al intentar crear el mapa en el navegador
       setSinMapa(true);
-      callbacks.current.onSinRelieve(); // también esconde los botones de capa y 3D
+      callbacks.current.onSinRelieve(); // también esconde el botón 3D
       return;
     }
     m.setPadding(margenPanel(m));
     m.fitBounds(HONDURAS, { padding: margen(m), pitch: PITCH_3D, bearing: -6, duration: 0 });
     m.addControl(new AttributionControl({ compact: true }), "top-right");
-    m.addControl(new NavigationControl({ visualizePitch: true }), "top-left");
+    // Sin botones de zoom: se acerca con la rueda, pellizcando o con doble toque
 
     m.on("load", () => {
       listo.current = true;
@@ -209,7 +197,6 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
         sinRelieve.current = true;
         m.setTerrain(null);
         m.setLayoutProperty("sombra", "visibility", "none");
-        m.setLayoutProperty("altura", "visibility", "none");
         m.easeTo({ pitch: 0, bearing: 0, duration: 600 });
         callbacks.current.onSinRelieve();
       }
@@ -230,22 +217,6 @@ export function MapaReal({ departamentos, capa, inclinado, lugar, departamentoEn
       listo.current = false;
     };
   }, [departamentos]);
-
-  // Capa: clima (departamentos pintados) o altura (relieve real)
-  useEffect(() => {
-    const m = mapa.current;
-    if (!m) return;
-    const aplicar = () => {
-      m.setLayoutProperty("altura", "visibility", capa === "altura" ? "visible" : "none");
-      m.setPaintProperty(
-        "dep-relleno",
-        "fill-opacity",
-        capa === "clima" ? ["interpolate", ["linear"], ["zoom"], 6, 0.45, 9, 0.18] : 0,
-      );
-    };
-    if (listo.current) aplicar();
-    else m.once("load", aplicar);
-  }, [capa]);
 
   // 3D o plano
   useEffect(() => {

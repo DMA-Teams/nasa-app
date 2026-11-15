@@ -55,13 +55,8 @@
   --zona-seca: color-mix(in oklab, var(--highlight) 42%, var(--card));
   --zona-equilibrada: color-mix(in oklab, var(--primary) 32%, var(--card));
   --zona-lluviosa: color-mix(in oklab, var(--chart-3) 40%, var(--card));
-  --relieve-bajo: color-mix(in oklab, var(--success) 22%, var(--card));
-  --relieve-medio: color-mix(in oklab, var(--warning) 40%, var(--card));
-  --relieve-montana: color-mix(in oklab, var(--warning) 70%, var(--foreground));
   --mapa-lado: color-mix(in oklab, var(--foreground) 60%, var(--primary));
   --mapa-fondo: color-mix(in oklab, var(--chart-3) 10%, var(--background));
-  /* Borde inferior "con peso" de los botones grandes */
-  --primary-sombra: color-mix(in oklab, var(--primary) 70%, var(--foreground));
   /* Verde un poco más oscuro al pasar el mouse (solo en equipos con mouse: Tailwind pone hover: dentro de @media (hover: hover)) */
   --primary-hover: color-mix(in oklab, var(--primary) 88%, var(--foreground));
 }
@@ -106,11 +101,7 @@
   --color-zona-seca: var(--zona-seca);
   --color-zona-equilibrada: var(--zona-equilibrada);
   --color-zona-lluviosa: var(--zona-lluviosa);
-  --color-relieve-bajo: var(--relieve-bajo);
-  --color-relieve-medio: var(--relieve-medio);
-  --color-relieve-montana: var(--relieve-montana);
   --color-mapa-fondo: var(--mapa-fondo);
-  --color-primary-sombra: var(--primary-sombra);
   --color-primary-hover: var(--primary-hover);
   --font-display: var(--font-inter), system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
@@ -285,16 +276,14 @@ h1[tabindex="-1"]:focus {
 }
 
 .vidrio,
-.vidrio-control,
-.maplibregl-map .maplibregl-ctrl-group:not(:empty) {
+.vidrio-control {
   background: var(--card);
   border: 1px solid var(--vidrio-borde);
 }
 .vidrio {
   box-shadow: var(--sombra-panel), var(--vidrio-brillo);
 }
-.vidrio-control,
-.maplibregl-map .maplibregl-ctrl-group:not(:empty) {
+.vidrio-control {
   box-shadow: var(--sombra-control), var(--vidrio-brillo);
 }
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -303,8 +292,7 @@ h1[tabindex="-1"]:focus {
     -webkit-backdrop-filter: var(--vidrio-filtro);
     backdrop-filter: var(--vidrio-filtro);
   }
-  .vidrio-control,
-  .maplibregl-map .maplibregl-ctrl-group:not(:empty) {
+  .vidrio-control {
     background: color-mix(in oklab, var(--card) 80%, transparent);
     -webkit-backdrop-filter: var(--vidrio-filtro-control);
     backdrop-filter: var(--vidrio-filtro-control);
@@ -313,37 +301,15 @@ h1[tabindex="-1"]:focus {
 /* Quien pide menos transparencia recibe tarjetas sólidas */
 @media (prefers-reduced-transparency: reduce) {
   .vidrio,
-  .vidrio-control,
-  .maplibregl-map .maplibregl-ctrl-group:not(:empty) {
+  .vidrio-control {
     background: var(--card);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 }
 
-/* Controles de MapLibre con el mismo vidrio */
-.maplibregl-map .maplibregl-ctrl-group:not(:empty) {
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-}
-.maplibregl-map .maplibregl-ctrl-group button {
-  width: 40px;
-  height: 40px;
-  background-color: transparent;
-}
-
-/* En el celular el mapa se mueve con los dedos: sin botones de zoom */
-@media (max-width: 767px) {
-  .maplibregl-map .maplibregl-ctrl-top-left .maplibregl-ctrl-group {
-    display: none;
-  }
-}
-/* Computadora: el zoom va a la izquierda bajo el logo, y los créditos del mapa no quedan tapados por el panel */
+/* Computadora: los créditos del mapa no quedan tapados por el panel */
 @media (min-width: 768px) {
-  .maplibregl-map .maplibregl-ctrl-top-left {
-    top: 96px;
-    left: 6px;
-  }
   .maplibregl-map .maplibregl-ctrl-top-right {
     right: 464px;
   }

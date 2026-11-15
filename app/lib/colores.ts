@@ -29,15 +29,6 @@ function mezclar(a: string, b: string, p: number): string {
   return `#${rgb.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 
-// Rampa de altura (metros) para la capa "Altura"
-export const RAMPA_ALTURA: [number, string][] = [
-  [0, mezclar(TOKENS.success, TOKENS.card, 0.45)],
-  [300, mezclar(TOKENS.warning, TOKENS.card, 0.4)],
-  [800, TOKENS.warning],
-  [1500, mezclar(TOKENS.warning, TOKENS.foreground, 0.5)],
-  [2500, TOKENS.card],
-];
-
 export const COLOR_BORDE = TOKENS.card;
 export const COLOR_SELECCION = TOKENS.highlight;
 export const COLOR_FONDO = mezclar(TOKENS.chart3, TOKENS.foreground, 0.25); // océano mientras carga la imagen

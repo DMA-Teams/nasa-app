@@ -3,7 +3,6 @@
 
 export type TipoZona = "seca" | "equilibrada" | "lluviosa";
 export type Relieve = "bajo" | "medio" | "montana";
-export type CapaMapa = "clima" | "altura";
 
 /** Promedio de un mes (2015–2025) en un cuadro. Todo en milímetros, salvo la temperatura. */
 export interface MesClima {
@@ -134,6 +133,15 @@ export interface MesPlan {
   lluvia: number; // mm, promedio NASA POWER 2015–2025 del lugar
   dificil: boolean; // canícula o aguacero (ClimaZona.mesesDificiles)
   cubierta: boolean; // la tierra tiene algo sembrado
+}
+
+/** Qué pasa con un cultivo en un mes del calendario de siembra (null = no está en el terreno). */
+export type EstadoCalendario = "siembra" | "terreno" | "cosecha" | null;
+
+/** Una fila del calendario de siembra: un cultivo y sus 12 meses (enero a diciembre). Lo calcula el frontend. */
+export interface FilaCalendario {
+  id: CultivoId;
+  meses: EstadoCalendario[];
 }
 
 /** Un trimestre o semestre ya agrupado, listo para pintar. Lo calcula el frontend. */

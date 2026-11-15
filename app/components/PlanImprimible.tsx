@@ -4,6 +4,7 @@ import { NOMBRE_ZONA } from "@/lib/colores";
 import { agruparPlan } from "@/lib/plan";
 import { MESES, NOMBRE_CULTIVO, nombreMesesDificiles } from "@/lib/textos";
 import type { Division, PeriodoPlan, PlanAnual } from "@/lib/tipos";
+import { CalendarioCultivos } from "./CalendarioCultivos";
 import { DibujoCultivo } from "./dibujos";
 import { IconoAlerta } from "./ui";
 
@@ -72,6 +73,10 @@ export function PlanImprimible({ plan, division, lugar }: Props) {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="mt-4 break-inside-avoid">
+        <CalendarioCultivos plan={plan} />
       </section>
 
       <section className="mt-5">

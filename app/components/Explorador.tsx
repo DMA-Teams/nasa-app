@@ -6,11 +6,11 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { armarPlan, obtenerClima, obtenerMunicipios } from "@/lib/api";
-import { COLOR_ZONA, NOMBRE_ZONA, RAMPA_ALTURA } from "@/lib/colores";
+import { COLOR_ZONA, NOMBRE_ZONA } from "@/lib/colores";
 import { departamentoDe } from "@/lib/geo";
 import { celdaDePunto } from "@/lib/mapa";
 import { municipioMasCercano } from "@/lib/municipios";
-import type { CapaMapa, Celda, ClimaZona, CultivoId, DepartamentosGeoJSON, Division, Lugar, ModoPlan, PlanAnual, TipoZona } from "@/lib/tipos";
+import type { Celda, ClimaZona, CultivoId, DepartamentosGeoJSON, Division, Lugar, ModoPlan, PlanAnual, TipoZona } from "@/lib/tipos";
 import { ModuloClima } from "./modulos/ModuloClima";
 import { ModuloCultivos } from "./modulos/ModuloCultivos";
 import { ModuloPlan } from "./modulos/ModuloPlan";
@@ -52,7 +52,6 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
   // historial: los pasos por los que pasó, para que "Atrás" vuelva al paso real anterior
   const [historial, setHistorial] = useState<Paso[]>(["inicio"]);
   const paso = historial.at(-1)!;
-  const [capa, setCapa] = useState<CapaMapa>("clima");
   const [inclinado, setInclinado] = useState(true);
   // Si el servidor de relieve no responde, se quitan "Altura" y "3D" (no tendrían nada que mostrar)
   const [sinRelieve, setSinRelieve] = useState(false);
@@ -245,7 +244,6 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
         <section className="absolute inset-0" aria-label="Mapa">
           <MapaReal
             departamentos={departamentos}
-            capa={capa}
             inclinado={inclinado}
             lugar={lugar}
             departamentoEnfocado={departamentoEnfocado}
@@ -253,7 +251,6 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
             onAltura={setAltura}
             onSinRelieve={() => {
               setSinRelieve(true);
-              setCapa("clima");
               setInclinado(false);
             }}
           />
@@ -285,44 +282,20 @@ export function Explorador({ celdas, departamentos }: { celdas: Celda[]; departa
             {/* Una sola superficie de vidrio para toda la leyenda: cada desenfoque se recalcula en cada cuadro del mapa */}
             <div
               role="group"
-              aria-label={capa === "clima" ? "Leyenda: clima de cada departamento" : "Leyenda: altura del terreno"}
+              aria-label="Leyenda: clima de cada departamento"
               // En la computadora la leyenda se envuelve antes de llegar al panel (472 px a la derecha)
               className="vidrio-control pointer-events-auto flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl px-3 py-1.5 text-nota font-semibold md:max-w-[calc(100vw-472px-2rem)]"
             >
-              {capa === "clima" ? (
-                (Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />)
-              ) : (
-                <span className="inline-flex items-center gap-2">
-                  0 m
-                  <i
-                    className="h-2.5 w-24 rounded-full"
-                    style={{ background: `linear-gradient(to right, ${RAMPA_ALTURA.map(([, c]) => c).join(", ")})` }}
-                  />
-                  2,500 m
-                </span>
-              )}
+              {(Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => (
+                <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />
+              ))}
             </div>
           </div>
 
-          {/* Celular: arriba a la derecha, en columna. Computadora: abajo a la izquierda, sobre la leyenda (el panel va a la derecha). */}
+          {/* El único control del mapa. Celular: arriba a la derecha. Computadora: abajo a la izquierda, sobre la leyenda (el panel va a la derecha). */}
           {!sinRelieve && (
           <div className="pointer-events-auto absolute top-14 right-3 z-10 md:top-auto md:right-auto md:bottom-14 md:left-4">
-            <div className="flex flex-col items-end gap-1.5 md:flex-row">
-              <div className="vidrio-control flex flex-col rounded-3xl p-1 md:flex-row md:rounded-full" role="group" aria-label="Capa del mapa">
-                {(["clima", "altura"] as const).map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    aria-pressed={capa === c}
-                    onClick={() => setCapa(c)}
-                    className={`min-h-10 rounded-full px-4 text-apoyo font-semibold capitalize transition-colors duration-150 ${
-                      capa === c ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-foreground/5"
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
+            <div className="flex">
               <button
                 type="button"
                 aria-pressed={inclinado}
