@@ -1,41 +1,106 @@
 {
-  "nota": "Valores iniciales para el prototipo (simulado). Revisar con FAO ECOCROP y un técnico agrícola antes del demo, y citar la fuente final en la app.",
+  "nota": "Valores iniciales para el prototipo (simulado). 'siembra' son los meses en que se siembra cada cultivo según el tipo de zona (primera: mayo, postrera: septiembre, apante: diciembre). Revisar con FAO ECOCROP y un técnico agrícola antes del demo.",
   "cultivos": [
     {
       "id": "maiz",
-      "nombre": "Maíz",
       "toleraSequia": "poco",
       "toleraEncharcamiento": "poco",
       "mesesCubreSuelo": 4,
       "aportaNitrogeno": false,
-      "ingreso": "medio"
+      "ingreso": "medio",
+      "siembra": {
+        "seca": [
+          5
+        ],
+        "equilibrada": [
+          5
+        ],
+        "lluviosa": [
+          5,
+          12
+        ]
+      },
+      "duracionMeses": 4
     },
     {
       "id": "frijol",
-      "nombre": "Frijol",
       "toleraSequia": "poco",
       "toleraEncharcamiento": "poco",
       "mesesCubreSuelo": 3,
       "aportaNitrogeno": true,
-      "ingreso": "alto"
+      "ingreso": "alto",
+      "siembra": {
+        "seca": [
+          9
+        ],
+        "equilibrada": [
+          9
+        ],
+        "lluviosa": [
+          5
+        ]
+      },
+      "duracionMeses": 3,
+      "nota": {
+        "lluviosa": "El frijol va en primera para que no lo agarren los aguaceros de fin de año."
+      }
     },
     {
       "id": "sorgo",
-      "nombre": "Sorgo",
       "toleraSequia": "bien",
       "toleraEncharcamiento": "regular",
       "mesesCubreSuelo": 4,
       "aportaNitrogeno": false,
-      "ingreso": "bajo"
+      "ingreso": "bajo",
+      "siembra": {
+        "seca": [
+          5
+        ],
+        "equilibrada": [
+          5
+        ],
+        "lluviosa": [
+          9
+        ]
+      },
+      "duracionMeses": 4
     },
     {
       "id": "frijolAbono",
-      "nombre": "Frijol abono",
       "toleraSequia": "regular",
       "toleraEncharcamiento": "regular",
       "mesesCubreSuelo": 6,
       "aportaNitrogeno": true,
-      "ingreso": "bajo"
+      "ingreso": "bajo",
+      "siembra": {
+        "seca": [
+          5
+        ],
+        "equilibrada": [
+          5
+        ],
+        "lluviosa": [
+          5
+        ]
+      },
+      "duracionMeses": 6
     }
-  ]
+  ],
+  "recomendados": {
+    "seca": [
+      "maiz",
+      "sorgo",
+      "frijol"
+    ],
+    "equilibrada": [
+      "maiz",
+      "frijolAbono",
+      "frijol"
+    ],
+    "lluviosa": [
+      "frijol",
+      "maiz",
+      "frijolAbono"
+    ]
+  }
 }

@@ -1,43 +1,43 @@
 @import "tailwindcss";
 
-/* Tema Milpa · copiado de design-tokens/build/milpa.css (generado por npm run tokens en la raíz).
+/* Tema Surco · copiado de design-tokens/build/surco.css (generado por npm run tokens en la raíz).
    Si cambian los tokens, vuelve a copiar este bloque. Las fuentes vienen de next/font (layout.tsx). */
 :root {
   color-scheme: light;
 
   /* Variables de shadcn/ui */
-  --background: #FBF3DC;
-  --foreground: #2B1D0E;
-  --card: #FFFDF6;
-  --card-foreground: #2B1D0E;
-  --popover: #FFFDF6;
-  --popover-foreground: #2B1D0E;
-  --primary: #1F7A3D;
+  --background: #F5F1E6;
+  --foreground: #1C2420;
+  --card: #FFFFFF;
+  --card-foreground: #1C2420;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C2420;
+  --primary: #155E4B;
   --primary-foreground: #FFFFFF;
-  --secondary: #F3E7C4;
-  --secondary-foreground: #2B1D0E;
-  --muted: #F3E7C4;
-  --muted-foreground: #65502F;
-  --accent: #F3E7C4;
-  --accent-foreground: #2B1D0E;
+  --secondary: #EDE7D8;
+  --secondary-foreground: #1C2420;
+  --muted: #EDE7D8;
+  --muted-foreground: #56615B;
+  --accent: #EDE7D8;
+  --accent-foreground: #1C2420;
   --destructive: #B3261E;
-  --border: #DCCB9C;
-  --input: #DCCB9C;
-  --ring: #1F7A3D;
-  --chart-1: #1F7A3D;
-  --chart-2: #C7381A;
+  --border: #DDD6C6;
+  --input: #DDD6C6;
+  --ring: #155E4B;
+  --chart-1: #155E4B;
+  --chart-2: #9C5B0A;
   --chart-3: #1D6FB8;
   --chart-4: #7A4FB5;
-  --chart-5: #96600A;
-  --radius: 16px;
+  --chart-5: #56615B;
+  --radius: 10px;
 
   /* Extras de Space Apps Starter */
-  --highlight: #C7381A;
+  --highlight: #9C5B0A;
   --highlight-foreground: #FFFFFF;
-  --success: #1F7A3D;
-  --warning: #96600A;
-  --risk-low: #1F7A3D;
-  --risk-medium: #96600A;
+  --success: #155E4B;
+  --warning: #8A5A00;
+  --risk-low: #155E4B;
+  --risk-medium: #8A5A00;
   --risk-high: #B3261E;
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
@@ -45,10 +45,12 @@
   --duration-base: 200ms;
   --duration-slow: 300ms;
   --touch-target: 44px;
-  --decor-sol: #F5B921;
+  --decor-sol: #F2B134;
   --decor-cielo: #BFE3F2;
-  --decor-hoja: #58A84A;
+  --decor-hoja: #4E9A6F;
   --decor-suelo: #8A5A2B;
+  --decor-maiz-suave: #FBEBC6;
+  --decor-verde-suave: #DCEBE3;
   /* Colores del mapa, derivados de los tokens (no son colores nuevos) */
   --zona-seca: color-mix(in oklab, var(--highlight) 42%, var(--card));
   --zona-equilibrada: color-mix(in oklab, var(--primary) 32%, var(--card));
@@ -97,6 +99,8 @@
   --color-decor-cielo: var(--decor-cielo);
   --color-decor-hoja: var(--decor-hoja);
   --color-decor-suelo: var(--decor-suelo);
+  --color-decor-maiz-suave: var(--decor-maiz-suave);
+  --color-decor-verde-suave: var(--decor-verde-suave);
   --color-zona-seca: var(--zona-seca);
   --color-zona-equilibrada: var(--zona-equilibrada);
   --color-zona-lluviosa: var(--zona-lluviosa);
@@ -105,9 +109,27 @@
   --color-relieve-montana: var(--relieve-montana);
   --color-mapa-fondo: var(--mapa-fondo);
   --color-primary-sombra: var(--primary-sombra);
-  --font-display: var(--font-baloo), ui-rounded, system-ui, sans-serif;
-  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  /* La marca usa Inter con números tabulares para los datos (tabular-nums), no una fuente mono */
+  --font-mono: var(--font-inter), system-ui, sans-serif;
+  /* Escala de letra por papel (tamaño, interlínea y espaciado van juntos). Usa solo estas seis:
+     text-titulo · text-subtitulo · text-cuerpo · text-apoyo · text-nota · text-dato (números grandes) */
+  --text-nota: 0.8125rem;
+  --text-nota--line-height: 1.4;
+  --text-apoyo: 0.9375rem;
+  --text-apoyo--line-height: 1.4;
+  --text-cuerpo: 1.0625rem;
+  --text-cuerpo--line-height: 1.45;
+  --text-subtitulo: 1.25rem;
+  --text-subtitulo--line-height: 1.2;
+  --text-subtitulo--letter-spacing: -0.015em;
+  --text-titulo: 1.75rem;
+  --text-titulo--line-height: 1.1;
+  --text-titulo--letter-spacing: -0.02em;
+  --text-dato: 2rem;
+  --text-dato--line-height: 1;
+  --text-dato--letter-spacing: -0.02em;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 6px);
@@ -126,12 +148,78 @@ body {
   color: var(--foreground);
 }
 
+/* PDF del plan: márgenes de hoja y colores de fondo impresos (sin esto el navegador los quita) */
+@page {
+  margin: 14mm 14mm 16mm;
+}
+@media print {
+  body {
+    background: var(--card);
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+/* Anillo de foco de la marca: 2 px en verde Surco, separado 2 px. Igual en toda la app. */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Carga de la marca: las cuatro parcelas giran sus surcos una tras otra, 45° cada vez.
+   Cada parcela da media vuelta (180°) por ciclo; como los surcos son simétricos, el ciclo empata sin salto. */
+@keyframes surcos {
+  0% { transform: rotate(var(--base)); }
+  6.25%, 25% { transform: rotate(calc(var(--base) + 45deg)); }
+  31.25%, 50% { transform: rotate(calc(var(--base) + 90deg)); }
+  56.25%, 75% { transform: rotate(calc(var(--base) + 135deg)); }
+  81.25%, 100% { transform: rotate(calc(var(--base) + 180deg)); }
+}
+.surcos {
+  transform: rotate(var(--base));
+  animation: surcos 6.4s var(--ease-in-out-strong) infinite both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .surcos {
+    animation: none;
+  }
+}
+
 /* El panel entra suave cada vez que cambia de paso (una sola animación, corta) */
 @keyframes entrar-paso {
   from { opacity: 0; transform: translateY(8px); }
 }
 .entrar-paso {
   animation: entrar-paso var(--duration-slow) var(--ease-out-strong);
+}
+
+/* Las barras de datos se llenan como agua: de izquierda a derecha al entrar en pantalla (data-visto),
+   y de abajo hacia arriba en la gráfica de meses, un mes tras otro (también al entrar en pantalla). Con clip-path no se deforman las puntas. */
+.llenar-x {
+  clip-path: inset(0 100% 0 0 round 999px);
+  transition: clip-path 700ms var(--ease-out-strong);
+}
+.llenar-x[data-visto="true"] {
+  clip-path: inset(0 0 0 0 round 999px);
+}
+@keyframes llenar-y {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.llenar-y {
+  animation: llenar-y 500ms var(--ease-out-strong) both;
+  animation-delay: calc(var(--i, 0) * 25ms);
+  animation-play-state: paused;
+}
+
+[data-visto="true"] .llenar-y {
+  animation-play-state: running;
+}
+
+/* Los periodos del plan entran como lista, uno tras otro (60 ms entre cada uno) */
+.entrar-lista {
+  animation: entrar-paso var(--duration-slow) var(--ease-out-strong) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
 
 /* La lluvia de los dibujos cae despacio; el sol gira apenas */

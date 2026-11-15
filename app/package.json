@@ -11,7 +11,8 @@
     "predev": "node scripts/copiar-maplibre.mjs",
     "prebuild": "node scripts/copiar-maplibre.mjs",
     "datos": "node scripts/generar-celdas.ts && node scripts/generar-departamentos.ts",
-    "departamentos": "node scripts/generar-departamentos.ts"
+    "departamentos": "node scripts/generar-departamentos.ts",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test \"tests/*.test.ts\""
   },
   "dependencies": {
     "maplibre-gl": "^6.18.0",

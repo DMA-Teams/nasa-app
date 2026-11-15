@@ -1,26 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible, Baloo_2, JetBrains_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-// Baloo 2: títulos redondos y amables. Atkinson Hyperlegible: hecha para leerse fácil.
-const baloo = Baloo_2({ variable: "--font-baloo", subsets: ["latin"], weight: ["600", "800"] });
-const atkinson = Atkinson_Hyperlegible({ variable: "--font-atkinson", subsets: ["latin"], weight: ["400", "700"] });
-const jetbrainsMono = JetBrains_Mono({ variable: "--font-jetbrains-mono", subsets: ["latin"] });
+// Inter es la tipografía de la marca Surco (pesos 400 y 600)
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["400", "600"] });
 
 export const metadata: Metadata = {
-  title: "Mi Parcela",
-  description: "Rotación de cultivos para pequeños agricultores de Honduras, con datos de NASA POWER.",
+  title: "Surco",
+  description: "Qué sembrar en tu terreno en Honduras, con datos de NASA POWER.",
+  icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }], apple: "/apple-touch-icon.png" },
+  manifest: "/site.webmanifest",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1F7A3D",
+  themeColor: "#155E4B",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${baloo.variable} ${atkinson.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>

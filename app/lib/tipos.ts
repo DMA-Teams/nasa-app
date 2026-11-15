@@ -53,15 +53,6 @@ export interface DepartamentosGeoJSON {
   }[];
 }
 
-/** El lugar que eligió el agricultor: un punto exacto del mapa. */
-export interface Punto {
-  lat: number;
-  lon: number;
-  departamento: string;
-  pueblo: string; // pueblo de referencia más cercano
-  celda: Celda; // cuadro de NASA POWER más cercano (respaldo)
-}
-
 /** Lo que devuelve /api/clima para un punto. */
 export interface ClimaZona {
   lat: number;
@@ -84,57 +75,88 @@ export interface ClimaZona {
 }
 
 export type CultivoId = "maiz" | "frijol" | "sorgo" | "frijolAbono";
-export type Prioridad = "agua" | "dinero" | "tierra";
-export type Semaforo = "verde" | "amarillo" | "rojo";
 export type Nivel = "poco" | "regular" | "bien";
 
 export interface ReglaCultivo {
   id: CultivoId;
-  nombre: string;
   toleraSequia: Nivel;
   toleraEncharcamiento: Nivel;
   mesesCubreSuelo: number;
   aportaNitrogeno: boolean;
   ingreso: "bajo" | "medio" | "alto";
+  siembra: Record<TipoZona, number[]>; // meses de siembra según la zona
+  duracionMeses: number; // cuánto dura en el terreno
+  nota?: Partial<Record<TipoZona, string>>; // por qué va en esa temporada en esa zona
 }
 
-export interface Temporada {
-  primera: CultivoId[];
-  postrera: CultivoId[];
-}
 
-export interface Rotacion {
-  id: string;
+// ---------- Recorrido nuevo: lugar → información o plan anual ----------
+// Contrato con el backend: la API devuelve estos tipos tal cual (ver README, "Contrato con el backend").
+
+/** Un municipio de Honduras. lat/lon es el punto que se usa para pedir el clima. */
+export interface Municipio {
+  id: string; // código de geoBoundaries si existe, si no un slug
   nombre: string;
-  descripcion: string;
-  zonas: TipoZona[]; // dónde tiene sentido sugerirla
-  anio1: Temporada;
-  anio2: Temporada;
+  departamento: string; // igual que PropiedadesDepartamento.nombre
+  lat: number;
+  lon: number;
 }
 
-export interface EvaluacionRotacion {
-  rotacion: Rotacion;
-  esActual: boolean;
-  semaforo: Semaforo;
-  puntaje: number; // 0–100
-  mesesDesnuda: number;
-  aguantaClima: Nivel;
-  porque: string;
-  evidencia: string;
+/** El lugar elegido por cualquiera de los 3 caminos: lista, ubicación o mapa. */
+export interface Lugar {
+  lat: number;
+  lon: number;
+  departamento: string;
+  municipio: string | null; // desde ubicación o mapa: el municipio más cercano de ese departamento
+  origen: "lista" | "ubicacion" | "mapa";
+  celda: Celda; // cuadro de NASA POWER más cercano (respaldo)
 }
 
-export interface Resultado {
-  actual: EvaluacionRotacion;
-  opciones: EvaluacionRotacion[]; // 3 opciones, la actual incluida
-  sugeridaId: string;
-  /** La proyección a 3 años es un índice de reglas, no una medición. */
-  proyeccionSimulada: true;
+export type ModoPlan = "recomendado" | "mis-cultivos";
+export type Division = "trimestral" | "semestral";
+export type AccionPeriodo = "sembrar" | "cuidar" | "cosechar" | "cubrir" | "descansar";
+
+/** Lo que la app le pide al backend para armar el plan. */
+export interface PedidoPlan {
+  lat: number;
+  lon: number;
+  modo: ModoPlan;
+  cultivos: CultivoId[]; // vacío si modo = "recomendado"
 }
 
-export interface FilaPlan {
-  anio: 1 | 2;
-  temporada: "primera" | "postrera";
+/** Un mes del plan: la unidad base. Los periodos se arman agrupando meses. */
+export interface MesPlan {
+  mes: number; // 1–12
+  cultivos: CultivoId[]; // lo que está en el terreno ese mes ([] = nada)
+  sembrados: CultivoId[]; // lo que se siembra ese mes
+  cosechados: CultivoId[]; // lo que se cosecha (o se corta, si es frijol abono) ese mes
+  accion: AccionPeriodo;
+  lluvia: number; // mm, promedio NASA POWER 2015–2025 del lugar
+  dificil: boolean; // canícula o aguacero (ClimaZona.mesesDificiles)
+  cubierta: boolean; // la tierra tiene algo sembrado
+}
+
+/** Un trimestre o semestre ya agrupado, listo para pintar. Lo calcula el frontend. */
+export interface PeriodoPlan {
+  id: string; // "T1".."T4" o "S1", "S2"
+  nombre: string; // "Ene – Mar"
+  meses: number[];
   cultivos: CultivoId[];
-  mesInicio: number;
-  mesFin: number;
+  accionPrincipal: AccionPeriodo;
+  consejo: string;
+  porque: string; // 1–2 frases cortas: por qué se hace eso en esos meses, con datos del lugar
+  lluviaEsperada: number; // mm, suma de los meses
+  alerta: string | null;
+  mesesCubierta: number;
+}
+
+/** El plan de un año. La API devuelve siempre 12 meses; el frontend los agrupa. */
+export interface PlanAnual {
+  modo: ModoPlan;
+  cultivosElegidos: CultivoId[];
+  tipoZona: TipoZona;
+  meses: MesPlan[]; // 12, de enero a diciembre
+  resumen: string;
+  fuente: { dataset: string; periodo: string; consultado: string };
+  simulado: true; // el calendario de cultivos sale de reglas inventadas
 }
