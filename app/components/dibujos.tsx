@@ -1,7 +1,7 @@
 // Dibujos a color (SVG, sin librerías): el clima y los cultivos.
 // Los colores salen de los tokens del tema Surco (--decor-* son solo para ilustración).
 import type { CultivoId, TipoZona } from "@/lib/tipos";
-import { PlantaLeyenda } from "./simulacion/Planta";
+import { apiDeCultivo } from "@/lib/cultivos";
 
 const SOL = "var(--decor-sol)";
 const CIELO = "var(--decor-cielo)";
@@ -159,60 +159,10 @@ export function DibujoClima({ tipo, className = "size-10" }: { tipo: TipoZona; c
   );
 }
 
-/** Cultivos dibujados a color: se reconocen sin leer el nombre. */
-const CON_DIBUJO_PROPIO = new Set<CultivoId>(["maiz", "frijol", "sorgo", "frijolAbono"]);
-
-export function DibujoCultivo({ id: cultivo, className = "size-14" }: { id: CultivoId; className?: string }) {
-  if (!CON_DIBUJO_PROPIO.has(cultivo)) return <PlantaLeyenda id={cultivo} className={className} centrada />;
-  const id = cultivo;
+/** Cultivos dibujados a color (SVG en public/cultivos/): se reconocen sin leer el nombre. */
+export function DibujoCultivo({ id, className = "size-14" }: { id: CultivoId; className?: string }) {
   return (
-    <svg viewBox="0 0 48 48" className={`shrink-0 ${className}`} aria-hidden="true">
-      {id === "maiz" && (
-        <>
-          <path d="M24 5c6 0 9 8 9 18s-3 20-9 20-9-10-9-20S18 5 24 5z" fill={SOL} />
-          <g stroke="color-mix(in oklab, var(--decor-sol) 60%, var(--decor-suelo))" strokeWidth="1.6" strokeLinecap="round">
-            <path d="M17 14h14M16 20h16M15.5 26h17M16.5 32h15M21 7v34M27 7v34" />
-          </g>
-          <path d="M24 44c-9 0-15-7-16-18 7 2 12 7 16 18z" fill={HOJA} />
-          <path d="M24 44c9 0 15-7 16-18-7 2-12 7-16 18z" fill={VERDE} />
-        </>
-      )}
-      {id === "frijol" && (
-        <>
-          <path
-            d="M13 11c7-6 20-4 24 6 3 8-3 12-6 16-5 7-18 8-22-2-3-8-1-15 4-20z"
-            fill="var(--highlight)"
-            transform="rotate(-12 24 24)"
-          />
-          <path d="M19 18c3-3 8-3 10 0" stroke={BLANCO} strokeOpacity="0.55" strokeWidth="2.6" strokeLinecap="round" fill="none" />
-          <ellipse cx="27" cy="27" rx="2.4" ry="4" fill={BLANCO} fillOpacity="0.85" transform="rotate(-30 27 27)" />
-        </>
-      )}
-      {id === "sorgo" && (
-        <>
-          <path d="M24 45V22" stroke={VERDE} strokeWidth="3" strokeLinecap="round" />
-          <path d="M24 38c-7-1-11-5-13-11 6 0 11 4 13 11zM24 33c6-1 10-4 12-9-6 0-10 3-12 9z" fill={HOJA} />
-          <g fill="color-mix(in oklab, var(--highlight) 55%, var(--decor-suelo))">
-            <circle cx="24" cy="6" r="3.6" />
-            <circle cx="19" cy="11" r="3.6" />
-            <circle cx="29" cy="11" r="3.6" />
-            <circle cx="24" cy="15" r="3.6" />
-            <circle cx="20" cy="20" r="3.4" />
-            <circle cx="28" cy="20" r="3.4" />
-            <circle cx="24" cy="24" r="3" />
-          </g>
-        </>
-      )}
-      {id === "frijolAbono" && (
-        <>
-          <path d="M4 40c7-4 13-5 20-5s13 1 20 5v4H4z" fill={SUELO} />
-          <path d="M24 37V15" stroke={VERDE} strokeWidth="3" strokeLinecap="round" />
-          <path d="M24 16c0-7 5-11 12-11 0 7-5 11-12 11z" fill={HOJA} />
-          <path d="M24 22c0-6-4-9-10-9 0 6 4 9 10 9z" fill={VERDE} />
-          <path d="M24 30c0-5 4-8 9-8 0 5-4 8-9 8z" fill={VERDE} />
-          <path d="M24 33c0-4-3-6-7-6 0 4 3 6 7 6z" fill={HOJA} />
-        </>
-      )}
-    </svg>
+    // eslint-disable-next-line @next/next/no-img-element -- SVG estático decorativo, no necesita optimización
+    <img src={`/cultivos/${apiDeCultivo(id)}.svg`} alt="" aria-hidden="true" loading="lazy" draggable={false} className={`shrink-0 object-contain ${className}`} />
   );
 }
