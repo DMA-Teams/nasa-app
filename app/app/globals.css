@@ -131,6 +131,18 @@ body {
   color: var(--foreground);
 }
 
+/* PDF del plan: márgenes de hoja y colores de fondo impresos (sin esto el navegador los quita) */
+@page {
+  margin: 14mm 14mm 16mm;
+}
+@media print {
+  body {
+    background: var(--card);
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
 /* Anillo de foco de la marca: 2 px en verde Surco, separado 2 px. Igual en toda la app. */
 :focus-visible {
   outline: 2px solid var(--ring);

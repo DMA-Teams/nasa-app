@@ -7,6 +7,7 @@ import { obtenerMunicipios } from "@/lib/api";
 import { MUNICIPIOS_SIMULADOS } from "@/lib/municipios";
 import type { Celda, Lugar, Municipio, TipoZona } from "@/lib/tipos";
 import { DibujoClima } from "./dibujos";
+import { HondurasEnDatos } from "./HondurasEnDatos";
 import { BotonPrimario, IconoUbicar } from "./ui";
 
 export interface Ejemplo {
@@ -60,11 +61,6 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
     const m = municipios.find((x) => x.id === id);
     if (m) onElegir(m.lat, m.lon, "lista", m.departamento, m.nombre);
   }
-
-  // Datos generales calculados con NASA POWER (promedio 2015–2025)
-  const secas = celdas.filter((c) => c.tipo === "seca").length;
-  const masLluviosa = celdas.reduce((a, c) => (c.lluviaAnual > a.lluviaAnual ? c : a));
-  const masSeca = celdas.reduce((a, c) => (c.lluviaAnual < a.lluviaAnual ? c : a));
 
   return (
     <div className="flex flex-col gap-5">
@@ -144,29 +140,7 @@ export function PanelInicio({ celdas, departamentos, aviso, buscandoUbicacion, e
         </div>
       </section>
 
-      <section className="flex flex-col gap-2 border-t-2 border-dashed border-border pt-4" aria-labelledby="titulo-datos">
-        <h2 id="titulo-datos" className="text-base font-semibold">Así llueve en Honduras</h2>
-        <ul className="flex flex-col gap-2">
-          <Dato valor={`${Math.round((secas / celdas.length) * 100)} %`} texto="del país sufre canícula fuerte" />
-          <Dato
-            valor={`${masLluviosa.lluviaAnual.toLocaleString("es-HN")} mm`}
-            texto={`de lluvia al año en ${masLluviosa.lugar.split(", ")[1]}, donde más llueve`}
-          />
-          <Dato valor={`${masSeca.lluviaAnual.toLocaleString("es-HN")} mm`} texto={`en ${masSeca.lugar.split(", ")[1]}, la zona más seca`} />
-        </ul>
-        <p className="text-[13px] text-muted-foreground">
-          Clima: NASA POWER, promedio 2015–2025. Imagen: NASA Blue Marble. Relieve: SRTM de NASA.
-        </p>
-      </section>
+      <HondurasEnDatos celdas={celdas} />
     </div>
-  );
-}
-
-function Dato({ valor, texto }: { valor: string; texto: string }) {
-  return (
-    <li className="flex items-baseline gap-2.5">
-      <span className="w-24 shrink-0 text-right text-[17px] font-semibold tabular-nums">{valor}</span>
-      <span className="text-[15px] leading-snug text-muted-foreground">{texto}</span>
-    </li>
   );
 }

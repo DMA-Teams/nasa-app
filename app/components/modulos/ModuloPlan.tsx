@@ -1,6 +1,6 @@
 // Plan del año, por trimestres o por semestres, y guardarlo como PDF.
 // Cambiar la división solo reagrupa los 12 meses: no se vuelve a pedir nada.
-// El PDF usa la impresión del navegador ("Guardar como PDF"): sin librerías, también en el celular.
+// El PDF usa la impresión del navegador ("Guardar como PDF") con PlanImprimible: sin librerías, también en el celular.
 import { agruparPlan } from "@/lib/plan";
 import type { Division, PeriodoPlan, PlanAnual } from "@/lib/tipos";
 import { DibujoCultivo } from "../dibujos";
@@ -10,7 +10,7 @@ interface Props {
   plan: PlanAnual;
   division: Division;
   onDivision: (d: Division) => void;
-  lugar: string; // "Gracias, Lempira": va en el encabezado del PDF
+  lugar: string; // "Gracias, Lempira": nombre del archivo PDF
 }
 
 const DIVISIONES: { id: Division; texto: string }[] = [
@@ -20,7 +20,6 @@ const DIVISIONES: { id: Division; texto: string }[] = [
 
 export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
   const periodos = agruparPlan(plan, division);
-  const hoy = new Date().toLocaleDateString("es-HN", { day: "numeric", month: "long", year: "numeric" });
 
   function guardarPdf() {
     // El título de la página es el nombre que el navegador propone para el archivo
@@ -32,16 +31,6 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Solo en el PDF: marca, lugar y fecha */}
-      <div className="hidden items-center justify-between gap-4 border-b-2 border-border pb-4 print:flex">
-        {/* eslint-disable-next-line @next/next/no-img-element -- para imprimir basta un <img> */}
-        <img src="/marca/surco-horizontal-color.svg" alt="Surco" width={102} height={32} />
-        <span className="text-right text-sm">
-          <span className="block font-semibold">{lugar}</span>
-          <span className="text-muted-foreground">{hoy}</span>
-        </span>
-      </div>
-
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-baseline gap-2">
           <h2 className="font-display text-[30px] leading-[1.05] font-semibold tracking-[-0.015em]">Tu plan del año</h2>
@@ -50,7 +39,7 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
         <p className="text-base leading-relaxed">{plan.resumen}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-1 rounded-full bg-background p-1 print:hidden" role="group" aria-label="Ver el plan">
+      <div className="grid grid-cols-2 gap-1 rounded-full bg-background p-1" role="group" aria-label="Ver el plan">
         {DIVISIONES.map((d) => (
           <button
             key={d.id}
@@ -72,7 +61,7 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
         ))}
       </ol>
 
-      <BotonPrimario onClick={guardarPdf} className="print:hidden">
+      <BotonPrimario onClick={guardarPdf}>
         <IconoDescargar className="size-6" />
         Guardar como PDF
       </BotonPrimario>
@@ -95,7 +84,7 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
 function Periodo({ periodo: p }: { periodo: PeriodoPlan }) {
   const vacio = p.cultivos.length === 0;
   return (
-    <li className={`flex break-inside-avoid flex-col gap-2.5 rounded-3xl p-4 ${vacio ? "bg-background" : "border-2 border-decor-verde-suave bg-card"}`}>
+    <li className={`flex flex-col gap-2.5 rounded-3xl p-4 ${vacio ? "bg-background" : "border-2 border-decor-verde-suave bg-card"}`}>
       <div className="flex items-center justify-between gap-3">
         <span className="font-display text-2xl leading-none font-semibold tracking-[-0.015em]">{p.nombre}</span>
         <span className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold tabular-nums">

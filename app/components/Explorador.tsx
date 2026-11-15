@@ -18,6 +18,7 @@ import { ModuloPlan } from "./modulos/ModuloPlan";
 import { PanelInicio, type Ejemplo } from "./PanelInicio";
 import { PanelLugar } from "./PanelLugar";
 import { PanelModo } from "./PanelModo";
+import { PlanImprimible } from "./PlanImprimible";
 import { CargaSurco } from "./CargaSurco";
 import { BotonPrimario, ChipZona, IconoAtras, IconoCubo } from "./ui";
 
@@ -151,159 +152,162 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
   const tipoZona = clima?.tipo ?? lugar?.celda.tipo;
 
   return (
-    // Al imprimir (Guardar como PDF) solo sale el panel, sin el mapa ni los botones
-    <main className="flex h-dvh flex-col bg-background md:flex-row print:block print:h-auto print:bg-card">
-      {/* Mapa */}
-      <section className="relative min-h-0 flex-1 overflow-hidden bg-mapa-fondo print:hidden" aria-label="Mapa">
-        <MapaReal
-          departamentos={departamentos}
-          capa={capa}
-          inclinado={inclinado}
-          lugar={lugar}
-          departamentoEnfocado={departamentoEnfocado}
-          onTocar={(lat, lon, dep) => elegirLugar(lat, lon, "mapa", dep)}
-          onAltura={setAltura}
-        />
+    <>
+      {/* Al imprimir (Guardar como PDF) la app se oculta y sale PlanImprimible */}
+      <main className="flex h-dvh flex-col bg-background md:flex-row print:hidden">
+        {/* Mapa */}
+        <section className="relative min-h-0 flex-1 overflow-hidden bg-mapa-fondo" aria-label="Mapa">
+          <MapaReal
+            departamentos={departamentos}
+            capa={capa}
+            inclinado={inclinado}
+            lugar={lugar}
+            departamentoEnfocado={departamentoEnfocado}
+            onTocar={(lat, lon, dep) => elegirLugar(lat, lon, "mapa", dep)}
+            onAltura={setAltura}
+          />
 
-        <header className="pointer-events-none absolute top-0 left-0 z-10 flex items-center gap-3 p-4">
-          {paso === "inicio" ? (
-            // Espacio libre alrededor del logo: ¼ de la altura del símbolo (guía de marca)
-            <div className="pointer-events-auto flex flex-col gap-1 rounded-xl bg-card px-3 py-2.5 shadow-[0_3px_0_rgb(28_36_32/0.2)]">
-              <Image src="/marca/surco-horizontal-color.svg" alt="Surco" width={102} height={32} priority />
-              <span className="text-[13px] leading-tight text-muted-foreground">Qué sembrar, con datos de NASA</span>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={volverAlMapa}
-              className="pointer-events-auto flex h-12 items-center gap-1.5 rounded-full bg-card pr-5 pl-3.5 text-[17px] font-semibold shadow-[0_3px_0_rgb(28_36_32/0.2)] transition-transform duration-150 ease-out-strong active:scale-[0.96]"
-            >
-              <IconoAtras className="size-5" />
-              Mapa
-            </button>
-          )}
-        </header>
-
-        <div className="pointer-events-none absolute bottom-7 left-3 z-10 md:bottom-4 md:left-4">
-          <div className="pointer-events-auto flex flex-wrap gap-1.5" aria-label="Leyenda">
-            {capa === "clima" ? (
-              (Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />)
+          <header className="pointer-events-none absolute top-0 left-0 z-10 flex items-center gap-3 p-4">
+            {paso === "inicio" ? (
+              // Espacio libre alrededor del logo: ¼ de la altura del símbolo (guía de marca)
+              <div className="pointer-events-auto flex flex-col gap-1 rounded-xl bg-card px-3 py-2.5 shadow-[0_3px_0_rgb(28_36_32/0.2)]">
+                <Image src="/marca/surco-horizontal-color.svg" alt="Surco" width={102} height={32} priority />
+                <span className="text-[13px] leading-tight text-muted-foreground">Qué sembrar, con datos de NASA</span>
+              </div>
             ) : (
-              <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] font-semibold shadow-sm">
-                0 m
-                <i
-                  className="h-2.5 w-24 rounded-full"
-                  style={{ background: `linear-gradient(to right, ${RAMPA_ALTURA.map(([, c]) => c).join(", ")})` }}
-                />
-                2,500 m
-              </span>
+              <button
+                type="button"
+                onClick={volverAlMapa}
+                className="pointer-events-auto flex h-12 items-center gap-1.5 rounded-full bg-card pr-5 pl-3.5 text-[17px] font-semibold shadow-[0_3px_0_rgb(28_36_32/0.2)] transition-transform duration-150 ease-out-strong active:scale-[0.96]"
+              >
+                <IconoAtras className="size-5" />
+                Mapa
+              </button>
+            )}
+          </header>
+
+          <div className="pointer-events-none absolute bottom-7 left-3 z-10 md:bottom-4 md:left-4">
+            <div className="pointer-events-auto flex flex-wrap gap-1.5" aria-label="Leyenda">
+              {capa === "clima" ? (
+                (Object.keys(NOMBRE_ZONA) as TipoZona[]).map((z) => <Leyenda key={z} color={COLOR_ZONA[z]} texto={NOMBRE_ZONA[z]} />)
+              ) : (
+                <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] font-semibold shadow-sm">
+                  0 m
+                  <i
+                    className="h-2.5 w-24 rounded-full"
+                    style={{ background: `linear-gradient(to right, ${RAMPA_ALTURA.map(([, c]) => c).join(", ")})` }}
+                  />
+                  2,500 m
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Celular: arriba a la derecha, en columna. Computadora: abajo a la derecha. */}
+          <div className="absolute top-14 right-3 z-10 md:top-auto md:right-4 md:bottom-4">
+            <div className="flex flex-col items-end gap-1.5 md:flex-row">
+              <div className="flex flex-col rounded-3xl bg-card p-1 shadow-sm md:flex-row md:rounded-full" role="group" aria-label="Capa del mapa">
+                {(["clima", "altura"] as const).map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    aria-pressed={capa === c}
+                    onClick={() => setCapa(c)}
+                    className={`h-10 rounded-full px-4 text-[15px] font-semibold capitalize transition-colors duration-150 ${
+                      capa === c ? "bg-primary text-primary-foreground" : "text-foreground"
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                aria-pressed={inclinado}
+                onClick={() => setInclinado(!inclinado)}
+                className="flex h-12 items-center gap-1.5 rounded-full bg-card px-4 text-[15px] font-semibold shadow-sm"
+              >
+                <IconoCubo className="size-4.5" />
+                {inclinado ? "3D" : "Plano"}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Panel */}
+        <aside className="relative z-20 -mt-6 max-h-[60dvh] w-full overflow-y-auto rounded-t-3xl bg-card shadow-[0_-8px_24px_rgb(28_36_32/0.2)] md:mt-0 md:max-h-none md:w-[460px] md:rounded-none md:shadow-[-8px_0_24px_rgb(28_36_32/0.16)]">
+          <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-border md:hidden" aria-hidden="true" />
+          {/* La key hace que el contenido entre suave cada vez que cambia el paso */}
+          <div key={paso} className="entrar-paso flex flex-col gap-5 p-5 pb-8 md:p-7">
+            {paso === "inicio" && (
+              <PanelInicio
+                celdas={celdas}
+                departamentos={NOMBRES_DEPARTAMENTOS}
+                aviso={aviso}
+                buscandoUbicacion={buscandoUbicacion}
+                ejemplos={EJEMPLOS}
+                onDepartamento={setDepartamentoEnfocado}
+                onElegir={elegirLugar}
+                onUbicarme={ubicarme}
+              />
+            )}
+
+            {paso === "lugar" && lugar && (
+              <PanelLugar
+                lugar={lugar}
+                nombre={nombreLugar}
+                clima={clima}
+                altura={altura}
+                aviso={aviso}
+                onInfo={() => irA("info")}
+                onPlan={() => irA("modo")}
+                onCambiar={volverAlMapa}
+              />
+            )}
+
+            {paso !== "inicio" && paso !== "lugar" && lugar && (
+              <>
+                {/* Dónde estoy y cómo vuelvo: siempre arriba del panel */}
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={atras}
+                    className="flex h-11 items-center gap-1 rounded-full bg-background pr-4 pl-2.5 text-base font-semibold transition-transform duration-150 ease-out-strong active:scale-[0.96]"
+                  >
+                    <IconoAtras className="size-5" />
+                    Atrás
+                  </button>
+                  <span className="min-w-0 truncate text-[15px] font-semibold">{nombreLugar}</span>
+                  {tipoZona && <ChipZona tipo={tipoZona} />}
+                </div>
+
+                {paso === "info" &&
+                  (clima ? (
+                    <>
+                      <ModuloClima clima={clima} />
+                      <BotonPrimario onClick={() => irA("modo")}>Armar mi plan</BotonPrimario>
+                    </>
+                  ) : (
+                    <Cargando />
+                  ))}
+                {paso === "modo" && (
+                  <PanelModo
+                    onRecomendado={() => verPlan("recomendado")}
+                    onMisCultivos={() => irA("cultivos")}
+                  />
+                )}
+                {paso === "cultivos" && (
+                  <ModuloCultivos cultivos={cultivos} onCultivos={setCultivos} onVerPlan={() => verPlan("mis-cultivos")} />
+                )}
+                {paso === "plan" &&
+                  (plan ? <ModuloPlan plan={plan} division={division} onDivision={setDivision} lugar={nombreLugar} /> : <Cargando />)}
+              </>
             )}
           </div>
-        </div>
-
-        {/* Celular: arriba a la derecha, en columna. Computadora: abajo a la derecha. */}
-        <div className="absolute top-14 right-3 z-10 md:top-auto md:right-4 md:bottom-4">
-          <div className="flex flex-col items-end gap-1.5 md:flex-row">
-            <div className="flex flex-col rounded-3xl bg-card p-1 shadow-sm md:flex-row md:rounded-full" role="group" aria-label="Capa del mapa">
-              {(["clima", "altura"] as const).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  aria-pressed={capa === c}
-                  onClick={() => setCapa(c)}
-                  className={`h-10 rounded-full px-4 text-[15px] font-semibold capitalize transition-colors duration-150 ${
-                    capa === c ? "bg-primary text-primary-foreground" : "text-foreground"
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-            <button
-              type="button"
-              aria-pressed={inclinado}
-              onClick={() => setInclinado(!inclinado)}
-              className="flex h-12 items-center gap-1.5 rounded-full bg-card px-4 text-[15px] font-semibold shadow-sm"
-            >
-              <IconoCubo className="size-4.5" />
-              {inclinado ? "3D" : "Plano"}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Panel */}
-      <aside className="relative z-20 -mt-6 max-h-[60dvh] w-full overflow-y-auto rounded-t-3xl bg-card shadow-[0_-8px_24px_rgb(28_36_32/0.2)] md:mt-0 md:max-h-none md:w-[460px] md:rounded-none md:shadow-[-8px_0_24px_rgb(28_36_32/0.16)] print:m-0 print:max-h-none print:w-full print:overflow-visible print:rounded-none print:shadow-none">
-        <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-border md:hidden print:hidden" aria-hidden="true" />
-        {/* La key hace que el contenido entre suave cada vez que cambia el paso */}
-        <div key={paso} className="entrar-paso flex flex-col gap-5 p-5 pb-8 md:p-7">
-          {paso === "inicio" && (
-            <PanelInicio
-              celdas={celdas}
-              departamentos={NOMBRES_DEPARTAMENTOS}
-              aviso={aviso}
-              buscandoUbicacion={buscandoUbicacion}
-              ejemplos={EJEMPLOS}
-              onDepartamento={setDepartamentoEnfocado}
-              onElegir={elegirLugar}
-              onUbicarme={ubicarme}
-            />
-          )}
-
-          {paso === "lugar" && lugar && (
-            <PanelLugar
-              lugar={lugar}
-              nombre={nombreLugar}
-              clima={clima}
-              altura={altura}
-              aviso={aviso}
-              onInfo={() => irA("info")}
-              onPlan={() => irA("modo")}
-              onCambiar={volverAlMapa}
-            />
-          )}
-
-          {paso !== "inicio" && paso !== "lugar" && lugar && (
-            <>
-              {/* Dónde estoy y cómo vuelvo: siempre arriba del panel */}
-              <div className="flex flex-wrap items-center gap-2.5 print:hidden">
-                <button
-                  type="button"
-                  onClick={atras}
-                  className="flex h-11 items-center gap-1 rounded-full bg-background pr-4 pl-2.5 text-base font-semibold transition-transform duration-150 ease-out-strong active:scale-[0.96]"
-                >
-                  <IconoAtras className="size-5" />
-                  Atrás
-                </button>
-                <span className="min-w-0 truncate text-[15px] font-semibold">{nombreLugar}</span>
-                {tipoZona && <ChipZona tipo={tipoZona} />}
-              </div>
-
-              {paso === "info" &&
-                (clima ? (
-                  <>
-                    <ModuloClima clima={clima} />
-                    <BotonPrimario onClick={() => irA("modo")}>Armar mi plan</BotonPrimario>
-                  </>
-                ) : (
-                  <Cargando />
-                ))}
-              {paso === "modo" && (
-                <PanelModo
-                  onRecomendado={() => verPlan("recomendado")}
-                  onMisCultivos={() => irA("cultivos")}
-                />
-              )}
-              {paso === "cultivos" && (
-                <ModuloCultivos cultivos={cultivos} onCultivos={setCultivos} onVerPlan={() => verPlan("mis-cultivos")} />
-              )}
-              {paso === "plan" &&
-                (plan ? <ModuloPlan plan={plan} division={division} onDivision={setDivision} lugar={nombreLugar} /> : <Cargando />)}
-            </>
-          )}
-        </div>
-      </aside>
-    </main>
+        </aside>
+      </main>
+      {paso === "plan" && plan && <PlanImprimible plan={plan} division={division} lugar={nombreLugar} />}
+    </>
   );
 }
 
