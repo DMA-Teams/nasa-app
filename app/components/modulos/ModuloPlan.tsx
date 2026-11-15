@@ -2,11 +2,13 @@
 // Cambiar la división solo reagrupa los 12 meses: no se vuelve a pedir nada.
 // El PDF usa la impresión del navegador ("Guardar como PDF") con PlanImprimible: sin librerías, también en el celular.
 import { agruparPlan } from "@/lib/plan";
+import { useState } from "react";
 import type { CSSProperties } from "react";
 import type { Division, PeriodoPlan, PlanAnual } from "@/lib/tipos";
 import { CalendarioCultivos } from "../CalendarioCultivos";
 import { DibujoCultivo } from "../dibujos";
-import { BotonPrimario, IconoAlerta, IconoDescargar, IconoGota, IconoInfo, IconoMapa } from "../ui";
+import { SimulacionParcela } from "../simulacion/SimulacionParcela";
+import { BotonPrimario, BotonSecundario, IconoAlerta, IconoDescargar, IconoGota, IconoInfo, IconoMapa, IconoParcela } from "../ui";
 
 interface Props {
   plan: PlanAnual;
@@ -26,6 +28,7 @@ const DIVISIONES: { id: Division; texto: string }[] = [
 
 export function ModuloPlan({ plan, division, onDivision, periodoElegido, onPeriodo, lugar }: Props) {
   const periodos = agruparPlan(plan, division);
+  const [simulacionAbierta, setSimulacionAbierta] = useState(false);
 
   function guardarPdf() {
     // El título de la página es el nombre que el navegador propone para el archivo
@@ -82,6 +85,12 @@ export function ModuloPlan({ plan, division, onDivision, periodoElegido, onPerio
         </ol>
       </div>
 
+      {/* La parcela dibujada a lo largo del año: solo usa lo que el plan ya trae */}
+      <BotonSecundario onClick={() => setSimulacionAbierta(true)}>
+        <IconoParcela className="size-5" />
+        Ver mi parcela en el año
+      </BotonSecundario>
+
       <BotonPrimario onClick={guardarPdf}>
         <IconoDescargar className="size-5" />
         Guardar como PDF
@@ -98,6 +107,8 @@ export function ModuloPlan({ plan, division, onDivision, periodoElegido, onPerio
         Lluvia: {plan.fuente.dataset}, promedio {plan.fuente.periodo}, consultado el {plan.fuente.consultado.slice(0, 10)}. Meses de siembra:
         reglas de ejemplo (simulado).
       </p>
+
+      <SimulacionParcela plan={plan} division={division} lugar={lugar} abierta={simulacionAbierta} onCerrar={() => setSimulacionAbierta(false)} />
     </div>
   );
 }
