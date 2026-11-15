@@ -1,15 +1,14 @@
-// Plan del año, por trimestres o por semestres, y compartir por WhatsApp.
+// Plan del año, por trimestres o por semestres.
 // Cambiar la división solo reagrupa los 12 meses: no se vuelve a pedir nada.
-import { agruparPlan, textoWhatsApp } from "@/lib/plan";
+import { agruparPlan } from "@/lib/plan";
 import type { Division, PeriodoPlan, PlanAnual } from "@/lib/tipos";
 import { DibujoCultivo } from "../dibujos";
-import { IconoAlerta, IconoGota, IconoInfo, IconoMensaje } from "../ui";
+import { IconoAlerta, IconoGota, IconoInfo } from "../ui";
 
 interface Props {
   plan: PlanAnual;
   division: Division;
   onDivision: (d: Division) => void;
-  lugar: string;
 }
 
 const DIVISIONES: { id: Division; texto: string }[] = [
@@ -17,9 +16,8 @@ const DIVISIONES: { id: Division; texto: string }[] = [
   { id: "semestral", texto: "Por semestres" },
 ];
 
-export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
+export function ModuloPlan({ plan, division, onDivision }: Props) {
   const periodos = agruparPlan(plan, division);
-  const enlace = `https://wa.me/?text=${encodeURIComponent(textoWhatsApp(lugar, plan, periodos))}`;
 
   return (
     <div className="flex flex-col gap-4">
@@ -53,15 +51,6 @@ export function ModuloPlan({ plan, division, onDivision, lugar }: Props) {
         ))}
       </ol>
 
-      <a
-        href={enlace}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex min-h-15 items-center justify-center gap-2.5 rounded-2xl bg-primary px-5 font-display text-xl font-semibold text-primary-foreground shadow-[0_4px_0_var(--primary-sombra)] transition-[transform,box-shadow] duration-150 ease-out-strong active:translate-y-1 active:shadow-[0_0_0_var(--primary-sombra)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-      >
-        <IconoMensaje className="size-6" />
-        Enviar por WhatsApp
-      </a>
 
       <div className="flex items-start gap-3 rounded-2xl bg-background px-4 py-3.5">
         <IconoInfo className="mt-0.5 size-6 shrink-0 text-primary" />

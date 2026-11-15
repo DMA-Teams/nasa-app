@@ -1,4 +1,4 @@
-// Agrupa los 12 meses del plan en trimestres o semestres, y arma el texto para WhatsApp.
+// Agrupa los 12 meses del plan en trimestres o semestres, con el consejo y el porqué de cada periodo.
 // Funciones puras: cambiar de trimestral a semestral no vuelve a pedir nada al servidor.
 import { PRIORIDAD_ACCION } from "./calendario.ts";
 import { listaMeses, MESES, MESES_LARGOS, NOMBRE_CULTIVO } from "./textos.ts";
@@ -101,12 +101,4 @@ export function agruparPlan(plan: PlanAnual, division: Division): PeriodoPlan[] 
       mesesCubierta: meses.filter((m) => m.cubierta).length,
     };
   });
-}
-
-export function textoWhatsApp(lugar: string, plan: PlanAnual, periodos: PeriodoPlan[]): string {
-  const filas = periodos.map((p) => `• ${p.nombre}: ${p.consejo}`).join("\n");
-  return (
-    `Mi plan de siembra para ${lugar} (Surco):\n${filas}\n\n${plan.resumen}\n\n` +
-    "Hecho con datos de NASA POWER. Es una guía (simulado): lo reviso con mi técnico agrícola antes de sembrar."
-  );
 }

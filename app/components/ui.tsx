@@ -58,7 +58,6 @@ export const IconoAtras = (p: { className?: string }) => <Icono {...p}><path d="
 export const IconoUbicar = (p: { className?: string }) => <Icono {...p}><circle cx="12" cy="12" r="7" /><circle cx="12" cy="12" r="2.5" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></Icono>;
 export const IconoAlerta = (p: { className?: string }) => <Icono {...p}><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /></Icono>;
 export const IconoInfo = (p: { className?: string }) => <Icono {...p}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></Icono>;
-export const IconoMensaje = (p: { className?: string }) => <Icono {...p}><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.2A8.5 8.5 0 1 1 21 12z" /></Icono>;
 export const IconoCheck = (p: { className?: string }) => <Icono {...p}><path d="M5 12l5 5 9-10" /></Icono>;
 export const IconoCubo = (p: { className?: string }) => <Icono {...p}><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" /><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" /></Icono>;
 export const IconoSol = (p: { className?: string }) => <Icono {...p}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19" /></Icono>;

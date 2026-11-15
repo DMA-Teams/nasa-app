@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { agruparPlan, textoWhatsApp } from "../lib/plan.ts";
+import { agruparPlan } from "../lib/plan.ts";
 import type { AccionPeriodo, CultivoId, PlanAnual } from "../lib/tipos.ts";
 
 // Maíz de mayo a agosto, frijol de septiembre a noviembre, julio difícil (canícula)
@@ -65,14 +65,6 @@ test("lluvia esperada suma los meses y cuenta los meses cubiertos", () => {
   assert.equal(t1.lluviaEsperada, 10 + 20 + 30);
   assert.equal(t1.mesesCubierta, 0);
   assert.equal(t2.mesesCubierta, 2);
-});
-
-test("texto de WhatsApp lleva periodos y aviso", () => {
-  const texto = textoWhatsApp("Gracias, Lempira", plan, agruparPlan(plan, "trimestral"));
-  assert.match(texto, /Gracias, Lempira \(Surco\)/);
-  assert.match(texto, /Ene – Mar/);
-  assert.match(texto, /\(simulado\)/);
-  assert.match(texto, /técnico agrícola/);
 });
 
 test("el consejo de siembra solo nombra lo que se siembra ese periodo", () => {

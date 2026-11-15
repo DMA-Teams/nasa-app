@@ -296,7 +296,7 @@ export function Explorador({ celdas }: { celdas: Celda[] }) {
                 <ModuloCultivos cultivos={cultivos} onCultivos={setCultivos} onVerPlan={() => verPlan("mis-cultivos")} />
               )}
               {paso === "plan" &&
-                (plan ? <ModuloPlan plan={plan} division={division} onDivision={setDivision} lugar={nombreLugar} /> : <Cargando />)}
+                (plan ? <ModuloPlan plan={plan} division={division} onDivision={setDivision} /> : <Cargando />)}
             </>
           )}
         </div>

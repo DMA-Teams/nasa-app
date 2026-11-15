@@ -51,7 +51,7 @@ Inicio (mapa + departamento → municipio, "Usar mi ubicación" o tocar el mapa)
 | `scripts/generar-celdas.ts` | Genera `public/fallback/celdas.json` | B |
 | `lib/api.ts` | **Única puerta a los datos**: municipios, clima y plan, con respaldo local | B |
 | `lib/calendario.ts` | Motor del plan: pone cada cultivo en sus meses según la zona (puro) | C |
-| `lib/plan.ts` | Agrupa el plan en trimestres o semestres; texto para WhatsApp (puro) | C |
+| `lib/plan.ts` | Agrupa el plan en trimestres o semestres, con el consejo y el porqué de cada periodo (puro) | C |
 | `lib/municipios.ts` | Municipios de un departamento y el más cercano a un punto (puro) | B |
 | `lib/textos.ts` | Meses y nombres de cultivos | Todos |
 | `lib/motor.ts` | Reglas cargadas del JSON y el plan con el motor local | C |
