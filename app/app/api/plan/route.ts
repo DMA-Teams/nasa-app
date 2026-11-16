@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { ErrorBackend, pedirBackend } from "@/lib/backend";
 import { apiDeCultivo, CULTIVOS } from "@/lib/cultivos";
+import { enRectanguloHonduras } from "@/lib/mapa";
 import { planDesdeApi, PlanApiInvalido, type PlanApi } from "@/lib/planApi";
 import type { CultivoId, PedidoPlan } from "@/lib/tipos";
 
@@ -9,7 +10,7 @@ const MAXIMO_CULTIVOS = 4;
 
 function leerPedido(cuerpo: unknown): PedidoPlan | null {
   const p = cuerpo as Partial<PedidoPlan> | null;
-  if (!p || !Number.isFinite(p.lat) || !Number.isFinite(p.lon)) return null;
+  if (!p || typeof p.lat !== "number" || typeof p.lon !== "number" || !enRectanguloHonduras(p.lat, p.lon)) return null;
   if (p.modo !== "recomendado" && p.modo !== "mis-cultivos") return null;
   const cultivos = Array.isArray(p.cultivos) ? p.cultivos : [];
   if (!cultivos.every((c) => typeof c === "string" && IDS.has(c))) return null;
@@ -28,7 +29,8 @@ export async function POST(request: NextRequest) {
   if (!pedido) return Response.json({ error: "Pedido inválido: lat, lon, modo y cultivos (1 a 4 en mis-cultivos)" }, { status: 400 });
 
   try {
-    const ip = request.headers.get("x-forwarded-for");
+    // Solo la primera IP (la del cliente según Vercel); el resto de la cadena la puede inventar quien llama.
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
     const plan = await pedirBackend<PlanApi>(rutaDelPlan(pedido), ip);
     return Response.json(planDesdeApi(plan, pedido));
   } catch (err) {
