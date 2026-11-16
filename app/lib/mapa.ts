@@ -14,6 +14,11 @@ export const CONTORNO: [number, number][] = [
   [-89.15, 14.6], [-89.0, 14.85], [-88.6, 15.2],
 ];
 
+/** Rectángulo que cubre Honduras, Islas de la Bahía incluidas. Filtro barato para validar pedidos a las API. */
+export function enRectanguloHonduras(lat: number, lon: number): boolean {
+  return Number.isFinite(lat) && Number.isFinite(lon) && lat >= 12.9 && lat <= 17.6 && lon >= -89.5 && lon <= -83.0;
+}
+
 export function dentroDeHonduras(lon: number, lat: number): boolean {
   let dentro = false;
   for (let i = 0, j = CONTORNO.length - 1; i < CONTORNO.length; j = i++) {

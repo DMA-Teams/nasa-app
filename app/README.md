@@ -77,6 +77,7 @@ Los tipos están en `lib/tipos.ts` y son el contrato: la API devuelve esos objet
 `/api/municipios` y `/api/plan` son adaptadores: llaman al backend en Go ([nasa-app-api](https://github.com/DMA-Teams/nasa-app-api)) y traducen su respuesta a los tipos de `lib/tipos.ts` (`lib/planApi.ts`, con pruebas en `tests/planApi.test.ts`). Las dos banderas de `USAR_API` están en `true`.
 
 - Dirección del backend: variable de entorno `NASA_API_URL` (por defecto `http://127.0.0.1:8080`). Solo la usa el servidor de Next; el navegador nunca llama al backend directo.
+- `/api/plan` reenvía al backend solo la primera IP de `X-Forwarded-For`. Esa IP es confiable únicamente detrás de Vercel (que sobrescribe la cabecera); en otro hosting el cliente la puede falsificar, así que el backend no debe usarla como identidad segura.
 - Cultivos: la app conoce los 22 cultivos del backend (`lib/cultivos.ts`). "Recomendado" muestra la mejor rotación del motor; "Mis cultivos" se manda como la rotación actual del productor (de 1 a 4 cultivos).
 - La lluvia de cada mes y el tipo de zona salen de los 30 años de clima del backend (1996–2025); los meses difíciles se marcan con las mismas reglas de `lib/clima.ts`.
 - Si el backend no responde o falla, la app usa el respaldo local como antes.

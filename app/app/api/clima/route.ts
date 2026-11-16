@@ -5,7 +5,7 @@ import { cacheLife } from "next/cache";
 import type { NextRequest } from "next/server";
 import celdasJson from "@/public/fallback/celdas.json";
 import { construirClima, resumirPower, urlPower } from "@/lib/clima";
-import { celdaDePunto } from "@/lib/mapa";
+import { celdaDePunto, enRectanguloHonduras } from "@/lib/mapa";
 import type { Celda, ResumenPower } from "@/lib/tipos";
 
 const celdas = celdasJson as Celda[];
@@ -24,11 +24,11 @@ async function resumenDePower(lat: number, lon: number): Promise<ResumenPower> {
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
-  const lat = Number(params.get("lat"));
-  const lon = Number(params.get("lon"));
-  // Rectángulo que cubre Honduras, Islas de la Bahía incluidas
-  const enHonduras = lat >= 12.9 && lat <= 17.6 && lon >= -89.5 && lon <= -83.0;
-  if (!Number.isFinite(lat) || !Number.isFinite(lon) || !enHonduras) {
+  // Redondeo a 3 decimales (~100 m): evita que cada decimal distinto cree otra entrada
+  // de cache y otra llamada a NASA POWER (su cuadrícula es de 0.5°, no se pierde nada).
+  const lat = Math.round(Number(params.get("lat")) * 1000) / 1000;
+  const lon = Math.round(Number(params.get("lon")) * 1000) / 1000;
+  if (!enRectanguloHonduras(lat, lon)) {
     return Response.json({ error: "Envía lat y lon de un punto en Honduras" }, { status: 400 });
   }
 
